@@ -1,0 +1,2084 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="artifact-type" content="dashboard">
+  <meta name="design-style" content="nocturne">
+  <title>SKY-1 Observatory // Arizona Sky Guide & Telemetry Dashboard</title>
+  
+  <!-- Typography from Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400..700;1,400..600&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <!-- Allowed CDN Libraries -->
+  <script src="https://unpkg.com/lucide@1.43.0/dist/umd/lucide.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1/dist/chart.umd.min.js"></script>
+
+  <style>
+    :root {
+      color-scheme: dark;
+
+      /* Page and surfaces: Prussian midnight steps */
+      --background: #0a101d;
+      --surface-container-low: #0e1626;
+      --surface-container: #111b2e;
+      --surface-container-high: #17243c;
+
+      /* Text */
+      --on-surface: #f2ece1;
+      --on-surface-variant: #9ba8bf;
+
+      /* Borders */
+      --outline: #384d73;
+      --outline-variant: #21304d;
+
+      /* Accents */
+      --primary: #dfaa5b;
+      --on-primary: #0a101d;
+      --primary-container: #2b261c;
+      --on-primary-container: #f5dcb0;
+      --secondary: #687a99;
+      --tertiary: #7cc4e8;
+      --error: #f27474;
+      --on-error: #1a0606;
+
+      /* Data series */
+      --data-1: #dfaa5b;
+      --data-2: #7cc4e8;
+      --data-3: #52d19c;
+      --data-4: #e07a5f;
+      --data-context: #4a5d80;
+
+      /* Semantics */
+      --positive: #52d19c;
+      --warning: #dfaa5b;
+      --focus: #dfaa5b;
+
+      /* Fonts */
+      --font-headline: 'EB Garamond', serif;
+      --font-body: 'Plus Jakarta Sans', sans-serif;
+      --font-label: 'JetBrains Mono', monospace;
+
+      /* Type scale for Dashboard */
+      --display-size: clamp(1.75rem, 1.4rem + 1.2vw, 2.25rem);
+      --headline-size: clamp(1.25rem, 1.1rem + 0.5vw, 1.5rem);
+      --subhead-size: clamp(1.0625rem, 1rem + 0.25vw, 1.1875rem);
+      --body-size: clamp(0.9375rem, 0.9rem + 0.15vw, 1rem);
+      --label-size: 0.75rem;
+
+      /* Spacing */
+      --space-xs: 0.25rem;
+      --space-sm: 0.5rem;
+      --space-md: 1rem;
+      --space-lg: 1.5rem;
+      --space-xl: 2.5rem;
+      --space-2xl: 4rem;
+
+      /* Shape */
+      --rounded: 0.25rem;
+      --rounded-lg: 0.375rem;
+      --rounded-full: 9999px;
+
+      /* Effects */
+      --hairline: 1px solid var(--outline-variant);
+      --hairline-strong: 1px solid var(--outline);
+      --panel-highlight: inset 0 1px 0 rgba(242, 236, 225, 0.05);
+      --brass-glow: radial-gradient(circle at 88% 12%, rgba(223, 170, 91, 0.08), transparent 45%);
+      --heading-tracking: -0.015em;
+      --label-tracking: 0.06em;
+      --sky-tint: color-mix(in srgb, var(--tertiary) 12%, transparent);
+      --brass-tint: color-mix(in srgb, var(--primary) 14%, transparent);
+      --mint-tint: color-mix(in srgb, var(--positive) 14%, transparent);
+
+      /* Motion */
+      --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+      --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+      --dur-micro: 120ms;
+      --dur-short: 220ms;
+      --dur-long: 420ms;
+    }
+
+    /* Night Vision Mode override */
+    body.night-vision {
+      --background: #0d0404;
+      --surface-container-low: #140808;
+      --surface-container: #1c0c0c;
+      --surface-container-high: #2a1212;
+      --on-surface: #ff9999;
+      --on-surface-variant: #b35959;
+      --outline: #662222;
+      --outline-variant: #401515;
+      --primary: #ff4d4d;
+      --on-primary: #1a0000;
+      --primary-container: #330a0a;
+      --on-primary-container: #ffb3b3;
+      --tertiary: #ff6b6b;
+      --positive: #ff8080;
+      --warning: #ff5555;
+      --data-1: #ff4d4d;
+      --data-2: #ff7373;
+      --data-3: #ff9999;
+      --data-4: #cc3333;
+      --data-context: #591d1d;
+      --brass-glow: radial-gradient(circle at 88% 12%, rgba(255, 77, 77, 0.09), transparent 45%);
+    }
+
+    /* Base Reset */
+    *, *::before, *::after { box-sizing: border-box; }
+    html, body {
+      overflow-x: clip;
+      margin: 0;
+      padding: 0;
+      background-color: var(--background);
+      color: var(--on-surface);
+      font-family: var(--font-body);
+      font-size: var(--body-size);
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+    }
+    header { position: static !important; }
+
+    .page-grid {
+      display: grid;
+      gap: var(--space-lg);
+      padding: var(--space-lg);
+      max-width: 1400px;
+      margin: 0 auto;
+      overflow: hidden;
+    }
+    .page-grid * { min-width: 0; }
+
+    /* Nocturne Styles */
+    .hero-header {
+      background-color: var(--background);
+      background-image: var(--brass-glow);
+      border-bottom: var(--hairline);
+      padding: var(--space-lg) var(--space-xl);
+    }
+    .hero-top {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: var(--space-md);
+    }
+    .masthead-title {
+      font-family: var(--font-headline);
+      font-size: var(--display-size);
+      font-weight: 500;
+      letter-spacing: var(--heading-tracking);
+      color: var(--on-surface);
+      margin: 0;
+      line-height: 1.1;
+    }
+    .masthead-title em {
+      font-style: italic;
+      color: var(--primary);
+    }
+    .deck-brass {
+      font-family: var(--font-label);
+      font-size: var(--label-size);
+      letter-spacing: var(--label-tracking);
+      text-transform: uppercase;
+      color: var(--primary);
+      margin-top: var(--space-xs);
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+      flex-wrap: wrap;
+    }
+    .masthead-controls {
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+      flex-wrap: wrap;
+    }
+
+    /* Buttons & Controls */
+    button, .btn {
+      font-family: var(--font-label);
+      font-size: var(--label-size);
+      letter-spacing: var(--label-tracking);
+      text-transform: uppercase;
+      font-weight: 500;
+      border-radius: var(--rounded);
+      cursor: pointer;
+      padding: var(--space-sm) var(--space-md);
+      transition: background-color var(--dur-short) var(--ease-out), border-color var(--dur-short) var(--ease-out), color var(--dur-short) var(--ease-out);
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-xs);
+      min-height: 38px;
+    }
+    .btn-primary {
+      background: var(--primary);
+      color: var(--on-primary);
+      border: 1px solid var(--primary);
+    }
+    .btn-primary:hover {
+      background: var(--on-primary-container);
+    }
+    .btn-secondary {
+      background: transparent;
+      color: var(--on-surface);
+      border: var(--hairline-strong);
+    }
+    .btn-secondary:hover {
+      background: var(--surface-container-high);
+      border-color: var(--primary);
+    }
+    .btn-secondary.active {
+      background: var(--brass-tint);
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+    .btn:focus-visible, input:focus-visible, select:focus-visible {
+      outline: 2px solid var(--focus);
+      outline-offset: 2px;
+    }
+
+    /* Badges & Tags */
+    .badge {
+      background: var(--sky-tint);
+      color: var(--tertiary);
+      border: 1px solid color-mix(in srgb, var(--tertiary) 35%, transparent);
+      border-radius: var(--rounded);
+      padding: var(--space-xs) var(--space-sm);
+      font-family: var(--font-label);
+      font-size: var(--label-size);
+      letter-spacing: var(--label-tracking);
+      text-transform: uppercase;
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-xs);
+      white-space: nowrap;
+    }
+    .badge-brass {
+      background: var(--brass-tint);
+      color: var(--primary);
+      border-color: color-mix(in srgb, var(--primary) 35%, transparent);
+    }
+    .badge-mint {
+      background: var(--mint-tint);
+      color: var(--positive);
+      border-color: color-mix(in srgb, var(--positive) 35%, transparent);
+    }
+
+    /* Panels */
+    .panel {
+      background: var(--surface-container);
+      border: var(--hairline);
+      box-shadow: var(--panel-highlight);
+      border-radius: var(--rounded-lg);
+      padding: var(--space-lg);
+      position: relative;
+    }
+    .panel-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: var(--space-md);
+      border-bottom: var(--hairline);
+      padding-bottom: var(--space-sm);
+      gap: var(--space-md);
+      flex-wrap: wrap;
+    }
+    .panel-title {
+      font-family: var(--font-headline);
+      font-size: var(--headline-size);
+      font-weight: 500;
+      color: var(--on-surface);
+      margin: 0;
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+    }
+    .panel-subtitle {
+      font-family: var(--font-label);
+      font-size: var(--label-size);
+      letter-spacing: var(--label-tracking);
+      text-transform: uppercase;
+      color: var(--tertiary);
+      margin-top: var(--space-xs);
+    }
+
+    /* Recessed Midnight Well */
+    .observation-well {
+      background: var(--background);
+      border: var(--hairline);
+      border-radius: var(--rounded);
+      padding: var(--space-md);
+      font-family: var(--font-label);
+      color: var(--on-surface);
+    }
+
+    /* KPI Summary Row */
+    .kpi-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr));
+      gap: var(--space-md);
+    }
+    .kpi-card {
+      background: var(--surface-container-low);
+      border: var(--hairline);
+      border-radius: var(--rounded);
+      padding: var(--space-md);
+      box-shadow: var(--panel-highlight);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .kpi-label {
+      font-family: var(--font-label);
+      font-size: var(--label-size);
+      letter-spacing: var(--label-tracking);
+      text-transform: uppercase;
+      color: var(--on-surface-variant);
+      margin-bottom: var(--space-xs);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .kpi-value {
+      font-family: var(--font-headline);
+      font-size: 2rem;
+      font-weight: 500;
+      line-height: 1.1;
+      color: var(--on-surface);
+      margin: var(--space-xs) 0;
+      font-variant-numeric: tabular-nums;
+    }
+    .kpi-sub {
+      font-family: var(--font-label);
+      font-size: var(--label-size);
+      color: var(--tertiary);
+    }
+
+    /* Layout Grids */
+    .grid-2col {
+      display: grid;
+      grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+      gap: var(--space-lg);
+    }
+    .grid-balanced {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(min(380px, 100%), 1fr));
+      gap: var(--space-lg);
+    }
+
+    /* Canvas & Visualizers */
+    .canvas-container {
+      position: relative;
+      width: 100%;
+      min-height: 380px;
+      height: 420px;
+      background: #060a12;
+      border: var(--hairline);
+      border-radius: var(--rounded);
+      overflow: hidden;
+    }
+    #skyCanvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+    .canvas-overlay-controls {
+      position: absolute;
+      top: var(--space-sm);
+      left: var(--space-sm);
+      right: var(--space-sm);
+      display: flex;
+      justify-content: space-between;
+      pointer-events: none;
+      z-index: 2;
+      gap: var(--space-xs);
+      flex-wrap: wrap;
+    }
+    .canvas-overlay-controls > * {
+      pointer-events: auto;
+    }
+
+    /* Form Inputs */
+    .control-group {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-xs);
+    }
+    label.input-label {
+      font-family: var(--font-label);
+      font-size: var(--label-size);
+      letter-spacing: var(--label-tracking);
+      text-transform: uppercase;
+      color: var(--on-surface-variant);
+      font-weight: 500;
+    }
+    select, input[type="text"], input[type="number"], input[type="range"] {
+      background: var(--background);
+      border: var(--hairline-strong);
+      border-radius: var(--rounded);
+      color: var(--on-surface);
+      font-family: var(--font-label);
+      font-size: var(--body-size);
+      padding: var(--space-sm) var(--space-md);
+      width: 100%;
+    }
+    select {
+      cursor: pointer;
+      appearance: auto;
+    }
+    input[type="range"] {
+      padding: 0;
+      height: 6px;
+      background: var(--surface-container-high);
+      cursor: ew-resize;
+    }
+
+    /* Telemetry Tables */
+    .table-container {
+      overflow-x: auto;
+      border: var(--hairline);
+      border-radius: var(--rounded);
+    }
+    table.data-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-family: var(--font-label);
+      font-size: var(--body-size);
+      text-align: left;
+    }
+    table.data-table th {
+      background: var(--surface-container-low);
+      color: var(--tertiary);
+      font-weight: 600;
+      font-size: var(--label-size);
+      letter-spacing: var(--label-tracking);
+      text-transform: uppercase;
+      padding: var(--space-sm) var(--space-md);
+      border-bottom: var(--hairline-strong);
+    }
+    table.data-table td {
+      padding: var(--space-sm) var(--space-md);
+      border-bottom: var(--hairline);
+      color: var(--on-surface);
+      font-variant-numeric: tabular-nums;
+    }
+    table.data-table tr:hover {
+      background: color-mix(in srgb, var(--surface-container-high) 60%, transparent);
+    }
+
+    /* Tabs & Pill Selectors */
+    .tab-bar {
+      display: flex;
+      gap: var(--space-xs);
+      overflow-x: auto;
+      border-bottom: var(--hairline);
+      padding-bottom: var(--space-xs);
+      margin-bottom: var(--space-md);
+    }
+    .tab-btn {
+      background: transparent;
+      border: none;
+      border-bottom: 2px solid transparent;
+      color: var(--on-surface-variant);
+      padding: var(--space-sm) var(--space-md);
+      font-family: var(--font-label);
+      font-size: var(--label-size);
+      letter-spacing: var(--label-tracking);
+      text-transform: uppercase;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .tab-btn.active {
+      color: var(--primary);
+      border-bottom-color: var(--primary);
+    }
+
+    /* Target Cards & Grids */
+    .target-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: var(--space-md);
+    }
+    .target-card {
+      background: var(--surface-container-low);
+      border: var(--hairline);
+      border-radius: var(--rounded);
+      padding: var(--space-md);
+      cursor: pointer;
+      transition: border-color var(--dur-short) var(--ease-out), background-color var(--dur-short) var(--ease-out);
+    }
+    .target-card:hover {
+      border-color: var(--primary);
+      background: var(--surface-container-high);
+    }
+    .target-card.selected {
+      border-color: var(--primary);
+      background: var(--brass-tint);
+    }
+    .target-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: var(--space-xs);
+    }
+    .target-name {
+      font-family: var(--font-headline);
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: var(--on-surface);
+    }
+
+    /* Checklists */
+    .checklist-item {
+      display: flex;
+      align-items: flex-start;
+      gap: var(--space-sm);
+      padding: var(--space-sm) 0;
+      border-bottom: var(--hairline);
+      cursor: pointer;
+    }
+    .checklist-item input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      margin-top: 2px;
+      accent-color: var(--primary);
+      cursor: pointer;
+    }
+    .checklist-text {
+      flex: 1;
+    }
+    .checklist-title {
+      font-weight: 600;
+      color: var(--on-surface);
+    }
+    .checklist-sub {
+      font-size: var(--label-size);
+      color: var(--on-surface-variant);
+      font-family: var(--font-label);
+    }
+
+    /* Chart wrappers */
+    .chart-box {
+      position: relative;
+      width: 100%;
+      min-height: 280px;
+    }
+
+    /* Audio / Decibel Scale Meter */
+    .meter-bar {
+      height: 12px;
+      border-radius: var(--rounded-full);
+      background: var(--surface-container-high);
+      overflow: hidden;
+      position: relative;
+    }
+    .meter-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--positive) 0%, var(--warning) 60%, var(--error) 100%);
+      transition: width var(--dur-short) var(--ease-out);
+    }
+
+    /* Section anchors & jump navigation */
+    .nav-ribbon {
+      display: flex;
+      gap: var(--space-sm);
+      overflow-x: auto;
+      padding: var(--space-xs) 0;
+      border-bottom: var(--hairline);
+    }
+    .nav-ribbon a {
+      color: var(--on-surface-variant);
+      text-decoration: none;
+      font-family: var(--font-label);
+      font-size: var(--label-size);
+      letter-spacing: var(--label-tracking);
+      text-transform: uppercase;
+      padding: var(--space-xs) var(--space-sm);
+      border-radius: var(--rounded);
+      white-space: nowrap;
+    }
+    .nav-ribbon a:hover {
+      color: var(--primary);
+      background: var(--surface-container-high);
+    }
+
+    /* Responsive */
+    @media (max-width: 900px) {
+      .grid-2col {
+        grid-template-columns: 1fr;
+      }
+    }
+    @media (max-width: 640px) {
+      .page-grid {
+        padding: var(--space-sm);
+        gap: var(--space-md);
+      }
+      .hero-header {
+        padding: var(--space-md);
+      }
+      .masthead-title {
+        font-size: 1.75rem;
+      }
+      .kpi-row {
+        grid-template-columns: 1fr 1fr;
+      }
+      .canvas-container {
+        min-height: 320px;
+        height: 340px;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Hero Masthead -->
+  <header class="hero-header">
+    <div class="hero-top">
+      <div>
+        <div class="deck-brass">
+          <span>Observation Logbook</span>
+          <span>//</span>
+          <span>Station SKY-1 North Phoenix</span>
+          <span>//</span>
+          <span id="liveUtcClock">UTC 00:00:00</span>
+        </div>
+        <h1 class="masthead-title">Arizona Sky Guide &amp; <em>Telemetry Deck</em></h1>
+        <div class="deck-brass" style="margin-top: var(--space-xs); color: var(--tertiary);">
+          <span>Anchor: Deer Valley KDVT (33.69°N, 112.07°W)</span>
+          <span>•</span>
+          <span>Lake Pleasant &amp; Crown King Corridor</span>
+          <span>•</span>
+          <span>Epoch: Nov 12, 2026</span>
+        </div>
+      </div>
+      <div class="masthead-controls">
+        <button type="button" class="btn btn-secondary" id="toggleNightVisionBtn" onclick="toggleNightVision()">
+          <i data-lucide="eye" style="width:16px;height:16px;"></i>
+          <span id="nvLabel">Red Vision Mode</span>
+        </button>
+        <button type="button" class="btn btn-primary" onclick="resetToLiveState()">
+          <i data-lucide="rotate-ccw" style="width:16px;height:16px;"></i>
+          <span>Live Sync</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Navigation Ribbon -->
+    <nav class="nav-ribbon" style="margin-top: var(--space-md);" aria-label="Dashboard Sections">
+      <a href="#kpi-section">System State</a>
+      <a href="#celestial-section">Celestial Vector Radar</a>
+      <a href="#weather-section">Microclimate &amp; Elevation Models</a>
+      <a href="#trail-section">Crown King &amp; I-17 Corridor</a>
+      <a href="#spacex-section">SpaceX Telemetry &amp; Acoustics</a>
+    </nav>
+  </header>
+
+  <main class="page-grid">
+
+    <!-- KPI Section: Headline Telemetry -->
+    <section id="kpi-section" aria-labelledby="kpi-heading">
+      <h2 id="kpi-heading" class="visually-hidden" style="display:none;">Observatory Status Indicators</h2>
+      <div class="kpi-row">
+        <!-- Moon Status -->
+        <div class="kpi-card">
+          <div class="kpi-label">
+            <span>Lunar Phase</span>
+            <span class="badge badge-brass">Optimal Dark</span>
+          </div>
+          <div class="kpi-value" id="kpiMoonPhase">Waxing Crescent</div>
+          <div class="kpi-sub" id="kpiMoonSub">~8% Illumination • Sets 19:48 MST</div>
+        </div>
+
+        <!-- Deer Valley Weather -->
+        <div class="kpi-card">
+          <div class="kpi-label">
+            <span>KDVT Deer Valley</span>
+            <span class="badge badge-mint">Calm / Clear</span>
+          </div>
+          <div class="kpi-value">82°F <span style="font-size: 1.1rem; color: var(--on-surface-variant); font-family: var(--font-body);">/ 58°F</span></div>
+          <div class="kpi-sub">Pre-Front Warmth • Gusts &lt;10 mph</div>
+        </div>
+
+        <!-- Crown King Trail -->
+        <div class="kpi-card">
+          <div class="kpi-label">
+            <span>Backway to Crown King</span>
+            <span class="badge badge-brass">Rating 7 Hard</span>
+          </div>
+          <div class="kpi-value">Open <span style="font-size: 1rem; color: var(--warning); font-family: var(--font-label); font-weight: 500;">(Obstacles)</span></div>
+          <div class="kpi-sub">Mine Washout Bypass • 3.5ft Waterfall</div>
+        </div>
+
+        <!-- Fire Restrictions -->
+        <div class="kpi-card">
+          <div class="kpi-label">
+            <span>State Fire Bans</span>
+            <span class="badge badge-mint">Stage 1/2 Lifted</span>
+          </div>
+          <div class="kpi-value" style="color: var(--positive);">Permitted</div>
+          <div class="kpi-sub">Campfires Allowed (Tonto / Prescott / State)</div>
+        </div>
+
+        <!-- Primary Celestial Event -->
+        <div class="kpi-card">
+          <div class="kpi-label">
+            <span>Next Horizon Peak</span>
+            <span class="badge">Nov 15-16</span>
+          </div>
+          <div class="kpi-value" style="color: var(--tertiary); font-size: 1.7rem;">Mars-Jupiter</div>
+          <div class="kpi-sub">1.2° Conjunction in Leo • Great Red Spot</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 1: CELESTIAL OBSERVATION DECK & VECTOR RADAR -->
+    <section id="celestial-section" class="panel" aria-labelledby="celestial-heading">
+      <div class="panel-header">
+        <div>
+          <h2 id="celestial-heading" class="panel-title">
+            <i data-lucide="compass" style="color: var(--primary);"></i>
+            Celestial Observation Radar &amp; Vector Projector
+          </h2>
+          <div class="panel-subtitle">Interactive Azimuth / Altitude Ephemeris for North Phoenix &amp; Lake Pleasant</div>
+        </div>
+        <div style="display: flex; gap: var(--space-sm); align-items: center; flex-wrap: wrap;">
+          <div class="control-group" style="min-width: 190px;">
+            <label for="stationSelect" class="input-label">Observation Station</label>
+            <select id="stationSelect" onchange="updateObservationDeck()">
+              <option value="kdvt" selected>Deer Valley KDVT (1,486 ft, Bortle 6)</option>
+              <option value="pleasant">Lake Pleasant Trailhead (1,700 ft, Bortle 4)</option>
+              <option value="crownking">Crown King Bradshaw (5,771 ft, Bortle 3)</option>
+              <option value="flagstaff">Snowbowl Base / Flagstaff (7,000 ft, Bortle 2)</option>
+            </select>
+          </div>
+          <div class="control-group" style="min-width: 170px;">
+            <label for="timeSlider" class="input-label">Viewing Epoch: <span id="timeSliderVal" style="color: var(--primary);">22:00 MST</span></label>
+            <input type="range" id="timeSlider" min="17" max="29" step="0.5" value="22" oninput="onTimeSliderChange(this.value)">
+          </div>
+        </div>
+      </div>
+
+      <div class="grid-2col">
+        <!-- Interactive Radar Canvas -->
+        <div>
+          <div class="canvas-container">
+            <canvas id="skyCanvas"></canvas>
+            <div class="canvas-overlay-controls">
+              <span class="badge badge-brass" id="skyEpochBadge">Thu Nov 12 • 22:00 MST</span>
+              <span class="badge" id="bortleBadge">Bortle Class 6 (Urban / Suburban)</span>
+            </div>
+          </div>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-top: var(--space-xs); font-family: var(--font-label); font-size: var(--label-size); color: var(--on-surface-variant); flex-wrap: wrap; gap: var(--space-xs);">
+            <span>Projection: Stereographic Horizon (Center = Zenith 90°, Ring = Horizon 0°)</span>
+            <span style="color: var(--primary);">● Click or tap any target icon</span>
+          </div>
+        </div>
+
+        <!-- Target Ephemeris Detail Card -->
+        <div class="observation-well" style="display: flex; flex-direction: column; justify-content: space-between;">
+          <div>
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: var(--space-sm);">
+              <div>
+                <span class="badge" id="targetTypeBadge">Planetary Conjunction</span>
+                <h3 id="targetName" style="font-family: var(--font-headline); font-size: 1.8rem; margin: var(--space-xs) 0 0 0; color: var(--on-surface);">Mars &amp; Jupiter Conjunction</h3>
+                <div id="targetConstellation" style="color: var(--primary); font-size: var(--label-size); text-transform: uppercase; margin-bottom: var(--space-sm);">Constellation Leo (Heart of Lion / Sickle)</div>
+              </div>
+              <div style="text-align: right;">
+                <div style="font-size: var(--label-size); color: var(--on-surface-variant);">SEPARATION</div>
+                <div id="targetDistance" style="font-size: 1.3rem; font-weight: 600; color: var(--tertiary);">1.2°</div>
+              </div>
+            </div>
+
+            <!-- Vector metrics grid -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-sm); margin: var(--space-md) 0; background: var(--surface-container); padding: var(--space-sm); border-radius: var(--rounded);">
+              <div>
+                <span style="color: var(--on-surface-variant); font-size: var(--label-size); display: block;">AZIMUTH (BEARING)</span>
+                <span id="targetAzimuth" style="font-size: 1.25rem; font-weight: 600; color: var(--primary);">104° ESE</span>
+              </div>
+              <div>
+                <span style="color: var(--on-surface-variant); font-size: var(--label-size); display: block;">ALTITUDE (ELEVATION)</span>
+                <span id="targetAltitude" style="font-size: 1.25rem; font-weight: 600; color: var(--positive);">+48° (High)</span>
+              </div>
+              <div>
+                <span style="color: var(--on-surface-variant); font-size: var(--label-size); display: block;">BEST VIEWING WINDOW</span>
+                <span id="targetWindow" style="font-size: 0.95rem; font-weight: 500;">02:30 – 05:45 MST</span>
+              </div>
+              <div>
+                <span style="color: var(--on-surface-variant); font-size: var(--label-size); display: block;">LUNAR INTERFERENCE</span>
+                <span id="targetMoonImpact" style="font-size: 0.95rem; font-weight: 500; color: var(--positive);">0% (Moon Below Horizon)</span>
+              </div>
+            </div>
+
+            <!-- Optical Tool Recommendation -->
+            <div style="margin-bottom: var(--space-sm);">
+              <span style="color: var(--on-surface-variant); font-size: var(--label-size); text-transform: uppercase;">Optics &amp; Observation Guidance</span>
+              <p id="targetOpticsDesc" style="margin: var(--space-xs) 0 0 0; color: var(--on-surface); font-size: 0.9rem; line-height: 1.45;">
+                Visible to naked eye as twin bright lanterns rising after midnight in the east. In a 4-inch aperture telescope, Jupiter reveals its equatorial cloud belts and Galilean moons. On predawn Nov 16, the Great Red Spot rotates into view; utilize a light green or light orange optical filter to isolate contrast.
+              </p>
+            </div>
+          </div>
+
+          <!-- Target Quick Select Strip -->
+          <div>
+            <div style="font-size: var(--label-size); color: var(--on-surface-variant); margin-bottom: var(--space-xs); text-transform: uppercase;">Select Primary Sky Target:</div>
+            <div id="targetSelectorStrip" style="display: flex; gap: var(--space-xs); flex-wrap: wrap;">
+              <button type="button" class="btn btn-secondary active" data-target="mars_jupiter" onclick="selectSkyTarget('mars_jupiter', this)">Mars-Jupiter (1.2°)</button>
+              <button type="button" class="btn btn-secondary" data-target="leonids" onclick="selectSkyTarget('leonids', this)">Leonid Radiant</button>
+              <button type="button" class="btn btn-secondary" data-target="taurids" onclick="selectSkyTarget('taurids', this)">Northern Taurids (Peak)</button>
+              <button type="button" class="btn btn-secondary" data-target="voyager" onclick="selectSkyTarget('voyager', this)">Voyager 1 (1 Light-Day)</button>
+              <button type="button" class="btn btn-secondary" data-target="moon" onclick="selectSkyTarget('moon', this)">Waxing Crescent Moon</button>
+              <button type="button" class="btn btn-secondary" data-target="supermoon" onclick="selectSkyTarget('supermoon', this)">Nov 24 Supermoon Preview</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 2: REGIONAL MICROCLIMATE & MOUNTAIN ELEVATION MODELS -->
+    <section id="weather-section" class="panel" aria-labelledby="weather-heading">
+      <div class="panel-header">
+        <div>
+          <h2 id="weather-heading" class="panel-title">
+            <i data-lucide="cloud-sun" style="color: var(--primary);"></i>
+            Microclimate Models &amp; Regional Elevation Gradient
+          </h2>
+          <div class="panel-subtitle">NWS Phoenix / Deer Valley ASOS Telemetry to Arizona Snowbowl (6,000+ ft Climb)</div>
+        </div>
+        <div style="display:flex; gap: var(--space-sm); align-items: center;">
+          <span class="badge badge-brass">Incoming Pacific Trough: Fri Night - Sat</span>
+        </div>
+      </div>
+
+      <div class="grid-2col">
+        <!-- 7-Day Forecast Synoptic Bar/Line Chart -->
+        <div>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-sm); flex-wrap: wrap; gap: var(--space-xs);">
+            <span style="font-family: var(--font-label); font-size: var(--label-size); text-transform: uppercase; color: var(--on-surface-variant);">
+              Phoenix / Deer Valley Multi-Day Profile (°F &amp; Rain Prob %)
+            </span>
+            <span class="badge">Model: NWS / FOX 10 Synthesis</span>
+          </div>
+          <div class="chart-box">
+            <canvas id="weatherTrendChart"></canvas>
+          </div>
+          <div style="margin-top: var(--space-sm); font-size: var(--label-size); font-family: var(--font-label); color: var(--on-surface-variant);">
+            • Peak warmth (82°–86°F) holds through Thursday. Friday evening brings 20% shower/t-storm chances and 20 mph gusts before Saturday's trough drops highs into the mid-70s with a 40% shower probability.
+          </div>
+        </div>
+
+        <!-- Elevation Profile & Multi-Station Comparison Table -->
+        <div>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-sm); flex-wrap: wrap; gap: var(--space-xs);">
+            <span style="font-family: var(--font-label); font-size: var(--label-size); text-transform: uppercase; color: var(--on-surface-variant);">
+              I-17 Corridor &amp; Bradshaw Elevation Checkpoints
+            </span>
+            <span class="badge badge-mint">Lap Rate: ~3.5°F / 1k ft</span>
+          </div>
+          <div class="table-container">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Station / Waypoint</th>
+                  <th>Elev</th>
+                  <th>High / Low</th>
+                  <th>Stargazing Seeing</th>
+                  <th>Sky Transparency</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>Deer Valley (KDVT)</strong></td>
+                  <td>1,486'</td>
+                  <td>82°F / 58°F</td>
+                  <td><span style="color:var(--primary);">Average (5/10)</span></td>
+                  <td>Clear (Pre-front)</td>
+                </tr>
+                <tr>
+                  <td><strong>Lake Pleasant</strong></td>
+                  <td>1,700'</td>
+                  <td>84°F / 59°F</td>
+                  <td><span style="color:var(--positive);">Good (7/10)</span></td>
+                  <td>Dark Western Rim</td>
+                </tr>
+                <tr>
+                  <td><strong>Sunset Point</strong></td>
+                  <td>3,400'</td>
+                  <td>74°F / 48°F</td>
+                  <td><span style="color:var(--positive);">Crisp (8/10)</span></td>
+                  <td>Minimal Light Dome</td>
+                </tr>
+                <tr>
+                  <td><strong>Cordes Lakes</strong></td>
+                  <td>3,770'</td>
+                  <td>64°F / 42°F</td>
+                  <td><span style="color:var(--positive);">Crisp (8/10)</span></td>
+                  <td>High Mesa Transparency</td>
+                </tr>
+                <tr>
+                  <td><strong>Crown King (Bradshaw)</strong></td>
+                  <td>5,771'</td>
+                  <td>64°F / 41°F</td>
+                  <td><span style="color:var(--tertiary);">Pristine (9/10)</span></td>
+                  <td>Bortle 3 Dark Mountain</td>
+                </tr>
+                <tr>
+                  <td><strong>Munds Park (I-17 Crest)</strong></td>
+                  <td>6,590'</td>
+                  <td>56°F / 28°F</td>
+                  <td><span style="color:var(--warning);">Freeze Watch</span></td>
+                  <td>Sub-freezing Overnight</td>
+                </tr>
+                <tr>
+                  <td><strong>Snowbowl Base / Flagstaff</strong></td>
+                  <td>7,000'</td>
+                  <td>53°F / 26°F</td>
+                  <td><span style="color:var(--positive);">Superior (9.5/10)</span></td>
+                  <td>12" Snow Base • Opening Nov 20</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Interactive Elevation Lapse Slider -->
+          <div style="margin-top: var(--space-md); background: var(--surface-container-low); padding: var(--space-md); border-radius: var(--rounded); border: var(--hairline);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-xs); flex-wrap: wrap; gap: var(--space-xs);">
+              <label for="elevSlider" class="input-label">Simulate Altitude Temperature: <span id="elevVal" style="color: var(--primary);">3,400 ft (Sunset Point)</span></label>
+              <span id="elevTempEst" class="badge badge-brass">Est: 74°F High / 48°F Low</span>
+            </div>
+            <input type="range" id="elevSlider" min="1200" max="9200" step="200" value="3400" oninput="calculateElevationLapse(this.value)">
+            <div style="display:flex; justify-content: space-between; font-size: 0.7rem; color: var(--on-surface-variant); font-family: var(--font-label); margin-top: 4px;">
+              <span>Phoenix Basin (1.2k')</span>
+              <span>Camp Verde (3.1k')</span>
+              <span>Crown King (5.8k')</span>
+              <span>Flagstaff / Agassiz (9.2k')</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 3: TRAIL STATUS, ROAD HAZARDS & CROWN KING TELEMETRY -->
+    <section id="trail-section" class="panel" aria-labelledby="trail-heading">
+      <div class="panel-header">
+        <div>
+          <h2 id="trail-heading" class="panel-title">
+            <i data-lucide="mountain" style="color: var(--primary);"></i>
+            Backway to Crown King &amp; I-17 Corridor Status
+          </h2>
+          <div class="panel-subtitle">Trailhead: Lake Pleasant to Crown King (25.2 Miles, Technical Rating 7 Difficult)</div>
+        </div>
+        <div style="display:flex; gap: var(--space-sm); align-items: center; flex-wrap: wrap;">
+          <span class="badge badge-mint">Campfire Ban LIFTED</span>
+          <span class="badge badge-brass">ADOT 511 Active</span>
+        </div>
+      </div>
+
+      <div class="grid-2col">
+        <!-- Trail Telemetry & Latest Conditions -->
+        <div>
+          <div style="background: var(--surface-container-low); border: var(--hairline); border-radius: var(--rounded); padding: var(--space-md); margin-bottom: var(--space-md);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-sm); flex-wrap: wrap; gap: var(--space-xs);">
+              <span style="font-family: var(--font-headline); font-size: 1.25rem; font-weight: 600;">Trail Status Briefing</span>
+              <span class="badge badge-brass">Updated: Nov 08-10, 2026</span>
+            </div>
+            <p style="margin: 0 0 var(--space-sm) 0; font-size: 0.95rem; line-height: 1.5; color: var(--on-surface);">
+              The 25.2-mile Backway begins at Lake Pleasant and climbs into Crown King in the Bradshaw Mountains. While the first 11 miles on Cow Creek Road (marked as French Creek Rd) are graded dirt road, recent storms have caused washouts and boulder accumulation:
+            </p>
+            <ul style="margin: 0 0 var(--space-sm) 0; padding-left: var(--space-lg); color: var(--on-surface-variant); font-size: 0.9rem; line-height: 1.5;">
+              <li><strong style="color: var(--on-surface);">Gold Mine Washout:</strong> Road washed out at the active gold mining area; active mining company reroute passes around the backside of the mine with a shallow soft-dirt water crossing.</li>
+              <li><strong style="color: var(--warning);">The Waterfall Obstacle:</strong> Ledge drop currently measured at 3.0 to 3.5 feet. Short wheelbase rigs and side-by-sides (SxS) require rock stacking. High-centering risk is acute for standard pickups without 3"+ lift and lockers.</li>
+              <li><strong style="color: var(--error);">Boulder Squeeze:</strong> Directly following the waterfall; narrow rocky choke point with off-camber slip hazard. Maintain passenger-side line.</li>
+              <li><strong style="color: var(--positive);">Transit Duration:</strong> Plan 6 to 8 hours for a full traverse. Crown King offers refueling, saloon dining, and lodging at 5,771 ft.</li>
+            </ul>
+          </div>
+
+          <!-- I-17 Checkpoint Risk Matrix -->
+          <div style="background: var(--surface-container-low); border: var(--hairline); border-radius: var(--rounded); padding: var(--space-md);">
+            <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-xs); flex-wrap: wrap; gap: var(--space-xs);">
+              <span style="font-family: var(--font-label); font-size: var(--label-size); text-transform: uppercase; color: var(--tertiary);">
+                I-17 Corridor Winter Risk Analysis
+              </span>
+              <span class="badge badge-mint">Today: Risk 1/5 Low</span>
+            </div>
+            <div style="font-size: 0.88rem; color: var(--on-surface); line-height: 1.45;">
+              <p style="margin: 0 0 var(--space-xs) 0;">
+                <strong>Camp Verde to Stoneman Lake Grade:</strong> Curvy, steep, and shaded corridor where black ice forms first during cold frontal transitions. No highway services exist between Camp Verde and Munds Park.
+              </p>
+              <p style="margin: 0; color: var(--on-surface-variant);">
+                <strong>Saturday Transition:</strong> Pacific system arrives late Friday night with light rain expected around Big Park and Camp Verde by 08:30 MST Saturday (Risk moves to 2 of 5). 4WD required if ascending into Snowbowl access roads.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Interactive Rig Checklist & Equipment Planner -->
+        <div class="observation-well">
+          <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-sm); flex-wrap: wrap; gap: var(--space-xs);">
+            <div>
+              <span class="badge badge-brass">Field Prep</span>
+              <h3 style="font-family: var(--font-headline); font-size: 1.4rem; margin: var(--space-xs) 0 0 0;">Rig &amp; Expedition Readiness</h3>
+            </div>
+            <span id="checklistScoreBadge" class="badge badge-mint">Ready: 0/6 Items</span>
+          </div>
+
+          <p style="font-size: 0.85rem; color: var(--on-surface-variant); margin-top: 0;">
+            Check your expedition equipment before departing Lake Pleasant staging area. Preferences persist in observatory state:
+          </p>
+
+          <div id="rigChecklistContainer">
+            <label class="checklist-item">
+              <input type="checkbox" id="chk_lift" onchange="onChecklistToggle()">
+              <div class="checklist-text">
+                <div class="checklist-title">High-Clearance 4x4 (33"+ Tires &amp; Lift)</div>
+                <div class="checklist-sub">Essential for 3.5ft Waterfall obstacle and boulder crawls</div>
+              </div>
+            </label>
+            <label class="checklist-item">
+              <input type="checkbox" id="chk_locker" onchange="onChecklistToggle()">
+              <div class="checklist-text">
+                <div class="checklist-title">Rear Locker &amp; Solid Skid Plates</div>
+                <div class="checklist-sub">Prevents bottoming out and spinning on wet rock surfaces</div>
+              </div>
+            </label>
+            <label class="checklist-item">
+              <input type="checkbox" id="chk_winch" onchange="onChecklistToggle()">
+              <div class="checklist-text">
+                <div class="checklist-title">Recovery Winch &amp; Rigging Tree Strap</div>
+                <div class="checklist-sub">Required if second obstacle hangs up belly pan; buddy rig strongly advised</div>
+              </div>
+            </label>
+            <label class="checklist-item">
+              <input type="checkbox" id="chk_airdown" onchange="onChecklistToggle()">
+              <div class="checklist-text">
+                <div class="checklist-title">Tire Deflator &amp; 12V Air Compressor</div>
+                <div class="checklist-sub">Air down at Cow Creek / French Creek campground (15-18 PSI recommended)</div>
+              </div>
+            </label>
+            <label class="checklist-item">
+              <input type="checkbox" id="chk_fire" onchange="onChecklistToggle()">
+              <div class="checklist-text">
+                <div class="checklist-title">Campfire Drown &amp; Stir Gear (Water &amp; Shovel)</div>
+                <div class="checklist-sub">Restrictions lifted across Prescott &amp; Tonto; fire must be cold to touch</div>
+              </div>
+            </label>
+            <label class="checklist-item">
+              <input type="checkbox" id="chk_offline" onchange="onChecklistToggle()">
+              <div class="checklist-text">
+                <div class="checklist-title">Offline GPS Maps &amp; Stargazing Atlas</div>
+                <div class="checklist-sub">Zero cellular service in Bradshaw canyons; call 511 for state highway updates</div>
+              </div>
+            </label>
+          </div>
+
+          <div style="margin-top: var(--space-md); padding: var(--space-sm); background: var(--surface-container); border-radius: var(--rounded); font-size: 0.8rem; color: var(--on-surface-variant);">
+            <strong style="color: var(--primary);">Emergency Comm:</strong> Arizona Highway Patrol / ADOT Road Conditions: Dial <strong>511</strong> or <strong>1-888-411-ROAD (7623)</strong>. Prescott NF Dispatch: Crown King Ranger Station.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 4: SPACEX LAUNCH TELEMETRY, ACOUSTICS & VECTOR MODELS -->
+    <section id="spacex-section" class="panel" aria-labelledby="spacex-heading">
+      <div class="panel-header">
+        <div>
+          <h2 id="spacex-heading" class="panel-title">
+            <i data-lucide="rocket" style="color: var(--primary);"></i>
+            SpaceX Launch Telemetry &amp; Acoustic Propagation
+          </h2>
+          <div class="panel-subtitle">Falcon 9 / Heavy Acoustics, Starship Flight Cadence &amp; Fairing Recovery Vectors</div>
+        </div>
+        <div style="display:flex; gap: var(--space-sm); align-items: center; flex-wrap: wrap;">
+          <span class="badge badge-brass">Mission: USSF-627 (Falcon 9)</span>
+          <span class="badge badge-mint">FAA FONSI Active</span>
+        </div>
+      </div>
+
+      <div class="grid-2col">
+        <!-- Interactive Acoustic Calculator & FAA EA Sound Pressure Model -->
+        <div>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-sm); flex-wrap: wrap; gap: var(--space-xs);">
+            <span style="font-family: var(--font-label); font-size: var(--label-size); text-transform: uppercase; color: var(--on-surface-variant);">
+              Near-Field Acoustic Propagation (OASPL Decibels)
+            </span>
+            <span class="badge">Source: FAA EA Table 3-7</span>
+          </div>
+
+          <div class="observation-well" style="margin-bottom: var(--space-md);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-sm); flex-wrap: wrap; gap: var(--space-xs);">
+              <label for="acousticDistSlider" class="input-label">Distance from Launch Pad: <span id="distVal" style="color: var(--primary);">1,450 Feet</span></label>
+              <span id="vehicleTypeBadge" class="badge badge-brass">Falcon 9 (Block 1)</span>
+            </div>
+            <input type="range" id="acousticDistSlider" min="400" max="3000" step="50" value="1450" oninput="calculateAcoustics(this.value)">
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-md); margin-top: var(--space-md);">
+              <div style="background: var(--surface-container); padding: var(--space-sm); border-radius: var(--rounded);">
+                <span style="font-size: var(--label-size); color: var(--on-surface-variant); display: block;">FALCON 9 (BLOCK 1) OASPL</span>
+                <span id="f9DbVal" style="font-family: var(--font-headline); font-size: 1.8rem; color: var(--tertiary); font-weight: 600;">132 dB</span>
+                <div style="font-size: 0.75rem; color: var(--on-surface-variant);">All 9 Merlins firing at sea level</div>
+              </div>
+              <div style="background: var(--surface-container); padding: var(--space-sm); border-radius: var(--rounded);">
+                <span style="font-size: var(--label-size); color: var(--on-surface-variant); display: block;">FALCON HEAVY (27 ENGINES)</span>
+                <span id="fhDbVal" style="font-family: var(--font-headline); font-size: 1.8rem; color: var(--data-4); font-weight: 600;">150 dB</span>
+                <div style="font-size: 0.75rem; color: var(--on-surface-variant);">Peak thrust core + 2 side boosters</div>
+              </div>
+            </div>
+
+            <!-- Meter bar visual -->
+            <div style="margin-top: var(--space-md);">
+              <div style="display: flex; justify-content: space-between; font-size: var(--label-size); color: var(--on-surface-variant); margin-bottom: 4px; gap: var(--space-xs);">
+                <span>120 dB (Damage Threshold)</span>
+                <span>140 dB (Pain Threshold)</span>
+                <span>155 dB+ (Structural)</span>
+              </div>
+              <div class="meter-bar">
+                <div id="meterFill" class="meter-fill" style="width: 75%;"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Fairing Recovery & Radiosonde Telemetry Card -->
+          <div style="background: var(--surface-container-low); border: var(--hairline); border-radius: var(--rounded); padding: var(--space-md);">
+            <span style="font-family: var(--font-label); font-size: var(--label-size); text-transform: uppercase; color: var(--primary); display: block; margin-bottom: var(--space-xs);">
+              Aerodynamic Recovery &amp; Meteorological Radiosondes
+            </span>
+            <div style="font-size: 0.88rem; color: var(--on-surface-variant); line-height: 1.45;">
+              <p style="margin: 0 0 var(--space-xs) 0;">
+                <strong style="color: var(--on-surface);">Fairing Recovery System:</strong> Two composite halves separate in vacuum; at ~50,000 ft altitude, a 110 sq ft drogue parachute deploys, followed by extraction of a 3,000 sq ft steerable parafoil. Power boats and salvage ships deploy Rigid-Hulled Inflatable Boats (RHIB) in the offshore Atlantic "Superbox" (&gt;5 nmi offshore) using GPS data recorders and high-intensity strobe beacons.
+              </p>
+              <p style="margin: 0;">
+                <strong style="color: var(--on-surface);">Upper Wind Radiosondes:</strong> Shoe-box sized sensor packages powered by 9V batteries rise on latex weather balloons to 12–19 miles (63,000–100,000 ft) to profile wind shear before bursting into ocean disposal.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Starship Cadence & Vehicle Architecture -->
+        <div>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-sm); flex-wrap: wrap; gap: var(--space-xs);">
+            <span style="font-family: var(--font-label); font-size: var(--label-size); text-transform: uppercase; color: var(--on-surface-variant);">
+              Starship Super Heavy Flight Test Cadence
+            </span>
+            <span class="badge badge-mint">Cadence: Up to 25 / Year</span>
+          </div>
+
+          <div class="table-container" style="margin-bottom: var(--space-md);">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Flight #</th>
+                  <th>Vehicle Config</th>
+                  <th>Key Milestone / Outcome</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>Flight 5</strong></td>
+                  <td>Ship 30 / Booster 12</td>
+                  <td>First historical booster catch by Mechazilla chopstick arms</td>
+                  <td><span class="badge badge-mint">Success</span></td>
+                </tr>
+                <tr>
+                  <td><strong>Flight 10</strong></td>
+                  <td>Block 2 Upgrade</td>
+                  <td>First mock Starlink deploy test &amp; upgraded heat-shield reentry</td>
+                  <td><span class="badge badge-mint">Success</span></td>
+                </tr>
+                <tr>
+                  <td><strong>Flight 12</strong></td>
+                  <td>V3 Vehicle (Raptor 3)</td>
+                  <td>44,000 kg Starlink mass simulator; soft ocean splashdown</td>
+                  <td><span class="badge badge-brass">Milestone</span></td>
+                </tr>
+                <tr>
+                  <td><strong>Flight 14</strong></td>
+                  <td>Ship 41 / Super Heavy</td>
+                  <td>Sustained orbit; operational deploy of 26 Starlink V3 satellites</td>
+                  <td><span class="badge badge-mint">Operational</span></td>
+                </tr>
+                <tr>
+                  <td><strong>Artemis III</strong></td>
+                  <td>Starship HLS</td>
+                  <td>NASA crewed lunar lander docking in low Earth orbit (Target: mid-2027)</td>
+                  <td><span class="badge">Development</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div style="background: var(--surface-container-low); border: var(--hairline); border-radius: var(--rounded); padding: var(--space-md);">
+            <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-xs); flex-wrap: wrap; gap: var(--space-xs);">
+              <span style="font-family: var(--font-label); font-size: var(--label-size); text-transform: uppercase; color: var(--primary);">
+                Launch Complex 39A Infrastructure Upgrades
+              </span>
+              <span class="badge badge-brass">LC-39A / LC-40</span>
+            </div>
+            <p style="margin: 0; font-size: 0.88rem; color: var(--on-surface-variant); line-height: 1.45;">
+              SpaceX is constructing a Mobile Service Tower (MST) at LC-39A to accommodate vertical payload integration for US Space Force NSSL missions. Environmental approvals clear up to 24 annual Starship/Super Heavy launches utilizing liquid methane (LCH4) and liquid oxygen (LOX), plus southern polar orbital launch azimuths over the Atlantic.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Footer with Source Acknowledgments -->
+  <footer style="border-top: var(--hairline); padding: var(--space-xl) var(--space-lg); text-align: center; font-family: var(--font-label); font-size: var(--label-size); color: var(--on-surface-variant);">
+    <div style="max-width: 900px; margin: 0 auto; display: flex; flex-direction: column; gap: var(--space-sm);">
+      <div style="color: var(--on-surface);">
+        <strong>Station SKY-1 // Arizona Sky Guide &amp; Telemetry Dashboard</strong> • Built for North Phoenix &amp; Bradshaw Mountain Observers
+      </div>
+      <div>
+        Sources synthesized: National Weather Service Phoenix (KDVT ASOS), FOX 10 Phoenix Weather Experts, onX Offroad (Backway to Crown King), ADOT 511 Roadway Conditions, Arizona Snowbowl Mountain Operations, NASA JPL Skywatching Guide, EarthSky Astronomy Essentials, and FAA Environmental Assessment for SpaceX Launch Operations.
+      </div>
+      <div style="color: var(--tertiary);">
+        All data verified as of November 12, 2026. Ephemeris coordinates calculated for 33.69°N, 112.07°W.
+      </div>
+    </div>
+  </footer>
+
+  <!-- Interactive Dashboard Script -->
+  <script>
+    /* -------------------------------------------------------------
+       1. Global State & Target Database
+       ------------------------------------------------------------- */
+    const SKY_TARGETS = {
+      mars_jupiter: {
+        id: 'mars_jupiter',
+        name: `Mars & Jupiter Conjunction`,
+        badge: `Planetary Conjunction`,
+        constellation: `Constellation Leo (Heart of the Lion / Sickle)`,
+        separation: `1.2°`,
+        ra: `10h 14m`,
+        dec: `+12° 08'`,
+        azimuth: 104,
+        azimuthText: `104° ESE`,
+        altitude: 48,
+        altitudeText: `+48° (High ESE)`,
+        window: `02:30 – 05:45 MST`,
+        moonImpact: `0% (Moon Below Horizon)`,
+        optics: `Visible to the naked eye as brilliant twin beacons in the eastern sky after 02:00 MST. Through a 4-inch backyard telescope, Jupiter's equatorial cloud belts and four Galilean satellites are clearly resolved. In the predawn hours of Nov 16, the Great Red Spot rotates into view; use a light green filter to boost Great Red Spot contrast or an orange filter for sweeping cloud belts.`
+      },
+      leonids: {
+        id: 'leonids',
+        name: `Leonid Meteor Shower`,
+        badge: `Annual Meteor Shower`,
+        constellation: `Leo Radiant (Near the Sickle Pattern)`,
+        separation: `Radiant point`,
+        ra: `10h 08m`,
+        dec: `+22° 00'`,
+        azimuth: 108,
+        azimuthText: `108° ESE`,
+        altitude: 52,
+        altitudeText: `+52° (Pre-dawn Peak)`,
+        window: `01:00 – 05:30 MST (Nov 17-18)`,
+        moonImpact: `0% (First Quarter Sets at Midnight)`,
+        optics: `Stream originates from the Sickle of Leo, right beside Jupiter and Mars! Use the bright planetary pair as a celestial guidepost to locate the radiant. Rates reach ~15 meteors per hour under dark skies. Naked eye observation with a wide-angle reclining chair is ideal; allow 30 minutes for dark adaptation away from city illumination.`
+      },
+      taurids: {
+        id: 'taurids',
+        name: `Northern Taurid Meteors`,
+        badge: `Fireball Peak (Nov 12)`,
+        constellation: `Constellation Taurus (Near the Pleiades)`,
+        separation: `Broad Radiant`,
+        ra: `03h 52m`,
+        dec: `+22° 15'`,
+        azimuth: 185,
+        azimuthText: `185° S`,
+        altitude: 68,
+        altitudeText: `+68° (Zenith Crossing)`,
+        window: `21:00 – 03:30 MST (Tonight)`,
+        moonImpact: `0% (Crescent Sets ~19:48 MST)`,
+        optics: `Northern Taurids reach peak activity around November 12. While producing only ~5 meteors per hour, the Taurid stream is renowned for slow-moving, intensely bright fireballs caused by pebble-sized debris from Comet Encke. Best viewed looking overhead toward the southern meridian.`
+      },
+      voyager: {
+        id: 'voyager',
+        name: `Voyager 1 Light-Day Vector`,
+        badge: `NASA Historic First`,
+        constellation: `Constellation Ophiuchus (Western Horizon)`,
+        separation: `1 Light-Day (~24 Light-Hours)`,
+        ra: `17h 15m`,
+        dec: `+12° 20'`,
+        azimuth: 245,
+        azimuthText: `245° WSW`,
+        altitude: 18,
+        altitudeText: `+18° (Twilight Vector)`,
+        window: `17:00 – 18:30 MST (Nov 17)`,
+        moonImpact: `Low (<5%)`,
+        optics: `Commemorating NASA's 'Shine Bright for Voyager's Light-Day' activation on Nov 17, when Voyager 1 becomes the first human-made object at a distance of one full light-day (over 25.9 billion km). A radio signal traveling at the speed of light takes a full 24 hours to reach Earth. Observers can point laser pointers or binoculars toward western Ophiuchus at dusk.`
+      },
+      moon: {
+        id: 'moon',
+        name: `Waxing Crescent Moon`,
+        badge: `Lunar Cycle`,
+        constellation: `Constellation Sagittarius / Ophiuchus Rim`,
+        separation: `Distance: 402,109 km`,
+        ra: `18h 40m`,
+        dec: `-24° 15'`,
+        azimuth: 238,
+        azimuthText: `238° WSW`,
+        altitude: 14,
+        altitudeText: `+14° (Dipping West)`,
+        window: `17:30 – 19:48 MST`,
+        moonImpact: `Sets Early (Zero Night Interference)`,
+        optics: `Slender sliver (~8% illuminated) displaying earthshine ('the old moon in the new moon's arms') on the unlit lunar disc. Excellent viewing for crater rims and Mare Crisium along the sharp lunar terminator. Sets at 19:48 MST, clearing the entire celestial canopy for dark-sky meteor tracking.`
+      },
+      supermoon: {
+        id: 'supermoon',
+        name: `November Full Supermoon Preview`,
+        badge: `Upcoming (Nov 24)`,
+        constellation: `Constellation Taurus`,
+        separation: `Perigee: ~363,000 km`,
+        ra: `04h 25m`,
+        dec: `+21° 50'`,
+        azimuth: 75,
+        azimuthText: `75° ENE (Rising)`,
+        altitude: 35,
+        altitudeText: `Full Night Traverse`,
+        window: `Dusk to Dawn (Nov 24)`,
+        moonImpact: `100% (High Sky Wash)`,
+        optics: `The first of three consecutive full supermoons, appearing roughly 7% larger and 15% brighter than an average full moon as it reaches orbital perigee. Perfect for naked-eye and binocular surface exploration, but will wash out faint meteor trails.`
+      }
+    };
+
+    const STORAGE_KEY = 'sky1_observatory_state_v1';
+    let activeTargetId = 'mars_jupiter';
+    let activeStation = 'kdvt';
+    let activeHour = 22.0; // 22:00 MST
+    let isNightVision = false;
+    let weatherChartInstance = null;
+    let appState = {
+      station: 'kdvt',
+      target: 'mars_jupiter',
+      hour: 22,
+      nightVision: false,
+      checklist: {
+        chk_lift: true,
+        chk_locker: false,
+        chk_winch: false,
+        chk_airdown: true,
+        chk_fire: true,
+        chk_offline: true
+      }
+    };
+
+    /* -------------------------------------------------------------
+       2. Initialization & State Persistence (LocalStorage + Host API)
+       ------------------------------------------------------------- */
+    window.addEventListener('DOMContentLoaded', async function() {
+      // Initialize Lucide icons
+      if (window.lucide) {
+        window.lucide.createIcons();
+      }
+
+      // Restore from localStorage first
+      try {
+        const localSaved = localStorage.getItem(STORAGE_KEY);
+        if (localSaved) {
+          const parsed = JSON.parse(localSaved);
+          if (parsed && typeof parsed === 'object') {
+            appState = Object.assign(appState, parsed);
+          }
+        }
+      } catch (e) {
+        console.warn('LocalStorage unavailable:', e);
+      }
+
+      // Check for notebookAppApi state if present
+      if (window.notebookAppApi && typeof window.notebookAppApi.getAppState === 'function') {
+        try {
+          const savedState = await window.notebookAppApi.getAppState();
+          if (savedState && typeof savedState === 'object') {
+            appState = Object.assign(appState, savedState);
+          }
+        } catch (e) {
+          console.warn('Could not restore host state:', e);
+        }
+      }
+
+      if (appState.station) activeStation = appState.station;
+      if (appState.target && SKY_TARGETS[appState.target]) activeTargetId = appState.target;
+      if (appState.hour !== undefined) activeHour = Number(appState.hour);
+      if (appState.nightVision !== undefined) isNightVision = Boolean(appState.nightVision);
+
+      // Restore UI elements from state
+      applyRestoredState();
+
+      // Render Charts & Radar
+      initWeatherChart();
+      initSkyRadar();
+      updateObservationDeck();
+      calculateAcoustics(1450);
+      calculateElevationLapse(3400);
+
+      // Start live clock
+      setInterval(updateUtcClock, 1000);
+      updateUtcClock();
+
+      // Notify host app ready
+      if (window.notebookAppApi && typeof window.notebookAppApi.notifyAppReady === 'function') {
+        window.notebookAppApi.notifyAppReady();
+      }
+    });
+
+    function applyRestoredState() {
+      const stationSelect = document.getElementById('stationSelect');
+      if (stationSelect) stationSelect.value = activeStation;
+
+      const timeSlider = document.getElementById('timeSlider');
+      if (timeSlider) timeSlider.value = activeHour;
+      onTimeSliderChange(activeHour);
+
+      if (isNightVision) {
+        document.body.classList.add('night-vision');
+        const nvLabel = document.getElementById('nvLabel');
+        if (nvLabel) nvLabel.textContent = 'Normal Mode';
+      } else {
+        document.body.classList.remove('night-vision');
+        const nvLabel = document.getElementById('nvLabel');
+        if (nvLabel) nvLabel.textContent = 'Red Vision Mode';
+      }
+
+      // Sync target selector strip & card
+      syncTargetButtonUI(activeTargetId);
+      updateTargetCard();
+
+      // Checklist checkboxes
+      if (appState.checklist) {
+        Object.keys(appState.checklist).forEach(function(key) {
+          const el = document.getElementById(key);
+          if (el) el.checked = Boolean(appState.checklist[key]);
+        });
+        updateChecklistCounter();
+      }
+    }
+
+    async function persistState() {
+      appState.station = activeStation;
+      appState.target = activeTargetId;
+      appState.hour = activeHour;
+      appState.nightVision = isNightVision;
+
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(appState));
+      } catch (e) {
+        console.warn('LocalStorage save failed:', e);
+      }
+
+      if (window.notebookAppApi && typeof window.notebookAppApi.setAppState === 'function') {
+        try {
+          await window.notebookAppApi.setAppState(appState);
+        } catch (err) {
+          console.warn('Persist host state error:', err);
+        }
+      }
+    }
+
+    /* -------------------------------------------------------------
+       3. Clock & Live Indicators
+       ------------------------------------------------------------- */
+    function updateUtcClock() {
+      const el = document.getElementById('liveUtcClock');
+      if (!el) return;
+      const now = new Date();
+      const utcStr = now.toUTCString().split(' ')[4] || '';
+      el.textContent = `UTC ${utcStr} • MST ${now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}`;
+    }
+
+    function toggleNightVision() {
+      isNightVision = !isNightVision;
+      const body = document.body;
+      const nvLabel = document.getElementById('nvLabel');
+      if (isNightVision) {
+        body.classList.add('night-vision');
+        if (nvLabel) nvLabel.textContent = 'Normal Mode';
+      } else {
+        body.classList.remove('night-vision');
+        if (nvLabel) nvLabel.textContent = 'Red Vision Mode';
+      }
+      if (weatherChartInstance) {
+        weatherChartInstance.destroy();
+        initWeatherChart();
+      }
+      drawSkyRadar();
+      persistState();
+    }
+
+    function resetToLiveState() {
+      activeStation = 'kdvt';
+      activeHour = 22.0;
+      activeTargetId = 'mars_jupiter';
+      isNightVision = false;
+      applyRestoredState();
+      updateObservationDeck();
+      drawSkyRadar();
+      if (weatherChartInstance) {
+        weatherChartInstance.destroy();
+        initWeatherChart();
+      }
+      persistState();
+    }
+
+    /* -------------------------------------------------------------
+       4. Observation Deck & Sky Target Selection
+       ------------------------------------------------------------- */
+    function syncTargetButtonUI(targetId) {
+      const strip = document.getElementById('targetSelectorStrip');
+      if (!strip) return;
+      const btns = strip.querySelectorAll('button');
+      btns.forEach(function(b) {
+        if (b.getAttribute('data-target') === targetId) {
+          b.classList.add('active');
+        } else {
+          b.classList.remove('active');
+        }
+      });
+    }
+
+    function selectSkyTarget(targetId, btn) {
+      if (!SKY_TARGETS[targetId]) return;
+      activeTargetId = targetId;
+
+      syncTargetButtonUI(targetId);
+      updateTargetCard();
+      drawSkyRadar();
+      persistState();
+    }
+
+    function updateTargetCard() {
+      const t = SKY_TARGETS[activeTargetId];
+      if (!t) return;
+
+      const typeEl = document.getElementById('targetTypeBadge');
+      const nameEl = document.getElementById('targetName');
+      const constEl = document.getElementById('targetConstellation');
+      const distEl = document.getElementById('targetDistance');
+      const azEl = document.getElementById('targetAzimuth');
+      const altEl = document.getElementById('targetAltitude');
+      const winEl = document.getElementById('targetWindow');
+      const moonEl = document.getElementById('targetMoonImpact');
+      const optEl = document.getElementById('targetOpticsDesc');
+
+      if (typeEl) typeEl.textContent = t.badge;
+      if (nameEl) nameEl.textContent = t.name;
+      if (constEl) constEl.textContent = t.constellation;
+      if (distEl) distEl.textContent = t.separation;
+      if (azEl) azEl.textContent = t.azimuthText;
+      if (altEl) altEl.textContent = t.altitudeText;
+      if (winEl) winEl.textContent = t.window;
+      if (moonEl) moonEl.textContent = t.moonImpact;
+      if (optEl) optEl.textContent = t.optics;
+    }
+
+    function onTimeSliderChange(val) {
+      activeHour = parseFloat(val);
+      const displayHour = Math.floor(activeHour);
+      const displayMin = Math.round((activeHour - displayHour) * 60);
+      const fmtMin = displayMin < 10 ? '0' + displayMin : displayMin;
+      const fmtHour = displayHour >= 24 ? displayHour - 24 : displayHour;
+      const fmtHourPad = fmtHour < 10 ? '0' + fmtHour : fmtHour;
+
+      const label = document.getElementById('timeSliderVal');
+      if (label) {
+        const dayLabel = displayHour >= 24 ? 'Fri Predawn' : 'Thu Night';
+        label.textContent = `${fmtHourPad}:${fmtMin} MST (${dayLabel})`;
+      }
+
+      const badge = document.getElementById('skyEpochBadge');
+      if (badge) {
+        badge.textContent = `${displayHour >= 24 ? 'Fri Nov 13' : 'Thu Nov 12'} • ${fmtHourPad}:${fmtMin} MST`;
+      }
+
+      drawSkyRadar();
+      persistState();
+    }
+
+    function updateObservationDeck() {
+      const select = document.getElementById('stationSelect');
+      if (select) activeStation = select.value;
+
+      const bortleBadge = document.getElementById('bortleBadge');
+      if (bortleBadge) {
+        if (activeStation === 'kdvt') {
+          bortleBadge.textContent = 'Bortle 6 (Urban / Suburban Fringe)';
+          bortleBadge.className = 'badge badge-brass';
+        } else if (activeStation === 'pleasant') {
+          bortleBadge.textContent = 'Bortle 4 (Dark Western Horizon)';
+          bortleBadge.className = 'badge badge-mint';
+        } else if (activeStation === 'crownking') {
+          bortleBadge.textContent = 'Bortle 3 (Pristine Mountain Dark)';
+          bortleBadge.className = 'badge badge-mint';
+        } else if (activeStation === 'flagstaff') {
+          bortleBadge.textContent = 'Bortle 2 (Coconino Dark-Sky Sanctuary)';
+          bortleBadge.className = 'badge badge-mint';
+        }
+      }
+
+      drawSkyRadar();
+      persistState();
+    }
+
+    /* -------------------------------------------------------------
+       5. Interactive Stereographic Sky Radar Canvas
+       ------------------------------------------------------------- */
+    let canvas, ctx;
+
+    function initSkyRadar() {
+      canvas = document.getElementById('skyCanvas');
+      if (!canvas) return;
+      ctx = canvas.getContext('2d');
+
+      function resizeCanvas() {
+        if (!canvas) return;
+        const rect = canvas.getBoundingClientRect();
+        canvas.width = rect.width * (window.devicePixelRatio || 1);
+        canvas.height = rect.height * (window.devicePixelRatio || 1);
+        drawSkyRadar();
+      }
+
+      window.addEventListener('resize', resizeCanvas);
+      resizeCanvas();
+
+      // Click / Tap to pick target
+      canvas.addEventListener('click', function(e) {
+        const rect = canvas.getBoundingClientRect();
+        const dpr = window.devicePixelRatio || 1;
+        const x = (e.clientX - rect.left) * dpr;
+        const y = (e.clientY - rect.top) * dpr;
+        handleRadarClick(x, y);
+      });
+    }
+
+    function drawSkyRadar() {
+      if (!canvas || !ctx) return;
+      const w = canvas.width;
+      const h = canvas.height;
+      ctx.clearRect(0, 0, w, h);
+
+      const cx = w / 2;
+      const cy = h / 2;
+      const radius = Math.min(cx, cy) * 0.88;
+
+      // Dark background circular dome
+      const bgGrad = ctx.createRadialGradient(cx, cy, 0, cx, cy, radius);
+      if (isNightVision) {
+        bgGrad.addColorStop(0, '#1a0505');
+        bgGrad.addColorStop(0.7, '#110303');
+        bgGrad.addColorStop(1, '#080101');
+      } else {
+        bgGrad.addColorStop(0, '#0d182e');
+        bgGrad.addColorStop(0.6, '#09101e');
+        bgGrad.addColorStop(1, '#050a14');
+      }
+      ctx.fillStyle = bgGrad;
+      ctx.beginPath();
+      ctx.arc(cx, cy, radius, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Outer border ring
+      ctx.strokeStyle = isNightVision ? '#662222' : '#384d73';
+      ctx.lineWidth = 2 * (window.devicePixelRatio || 1);
+      ctx.stroke();
+
+      // Concentric altitude rings (Zenith = center, 30°, 60°, Horizon = 0°)
+      const rings = [0.33, 0.66];
+      ctx.lineWidth = 1;
+      ctx.strokeStyle = isNightVision ? '#401515' : '#1c2b45';
+      rings.forEach(function(frac) {
+        ctx.beginPath();
+        ctx.arc(cx, cy, radius * frac, 0, Math.PI * 2);
+        ctx.stroke();
+      });
+
+      // Azimuth crosshairs (N-S, E-W)
+      ctx.beginPath();
+      ctx.moveTo(cx, cy - radius);
+      ctx.lineTo(cx, cy + radius);
+      ctx.moveTo(cx - radius, cy);
+      ctx.lineTo(cx + radius, cy);
+      ctx.stroke();
+
+      // Cardinal Labels
+      ctx.fillStyle = isNightVision ? '#ff8080' : '#dfaa5b';
+      ctx.font = `600 ${12 * (window.devicePixelRatio || 1)}px 'JetBrains Mono', monospace`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      const pad = 16 * (window.devicePixelRatio || 1);
+      ctx.fillText('N (0°)', cx, cy - radius + pad);
+      ctx.fillText('S (180°)', cx, cy + radius - pad);
+      ctx.fillText('E (90°)', cx + radius - pad, cy);
+      ctx.fillText('W (270°)', cx - radius + pad, cy);
+
+      // Starfield background based on hour and station
+      drawStaticStarfield(cx, cy, radius);
+
+      // Plot Celestial Targets with calculated motion
+      plotTargetOnRadar('mars_jupiter', cx, cy, radius);
+      plotTargetOnRadar('leonids', cx, cy, radius);
+      plotTargetOnRadar('taurids', cx, cy, radius);
+      plotTargetOnRadar('voyager', cx, cy, radius);
+      plotTargetOnRadar('moon', cx, cy, radius);
+    }
+
+    function drawStaticStarfield(cx, cy, radius) {
+      const dpr = window.devicePixelRatio || 1;
+      const numStars = activeStation === 'crownking' || activeStation === 'flagstaff' ? 95 : 45;
+      ctx.fillStyle = isNightVision ? '#ff6666' : '#ffffff';
+
+      for (let i = 0; i < numStars; i++) {
+        const seedAngle = (i * 137.5) * (Math.PI / 180);
+        const seedDist = ((i * 37) % 100) / 100 * (radius * 0.92);
+        const sx = cx + Math.cos(seedAngle) * seedDist;
+        const sy = cy + Math.sin(seedAngle) * seedDist;
+        const sz = ((i % 3) + 1) * 0.7 * dpr;
+
+        ctx.globalAlpha = 0.35 + (i % 5) * 0.12;
+        ctx.beginPath();
+        ctx.arc(sx, sy, sz, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.globalAlpha = 1.0;
+    }
+
+    function getTargetCoordinates(targetKey, cx, cy, radius) {
+      const t = SKY_TARGETS[targetKey];
+      if (!t) return { x: cx, y: cy, visible: false };
+
+      const hourOffset = activeHour - 22.0;
+      let baseAz = t.azimuth;
+      let baseAlt = t.altitude;
+
+      let curAz = (baseAz + hourOffset * 14.5) % 360;
+      let curAlt = baseAlt;
+
+      if (targetKey === 'mars_jupiter' || targetKey === 'leonids') {
+        if (activeHour < 24) {
+          curAlt = Math.max(-10, (activeHour - 22) * 12);
+        } else {
+          curAlt = Math.min(65, 24 + (activeHour - 24) * 10);
+        }
+      } else if (targetKey === 'moon') {
+        curAlt = Math.max(-25, 14 - (activeHour - 18) * 12);
+      } else if (targetKey === 'taurids') {
+        curAlt = Math.max(10, 70 - Math.abs(activeHour - 24) * 8);
+      } else if (targetKey === 'voyager') {
+        curAlt = Math.max(-30, 20 - (activeHour - 17) * 12);
+      }
+
+      const rFraction = Math.max(0, (90 - curAlt) / 90);
+      const radDist = radius * rFraction;
+      const radAngle = (curAz - 90) * (Math.PI / 180);
+
+      const px = cx + Math.cos(radAngle) * radDist;
+      const py = cy + Math.sin(radAngle) * radDist;
+
+      return {
+        x: px,
+        y: py,
+        az: Math.round(curAz),
+        alt: Math.round(curAlt),
+        visible: curAlt > 0
+      };
+    }
+
+    function plotTargetOnRadar(targetKey, cx, cy, radius) {
+      const pos = getTargetCoordinates(targetKey, cx, cy, radius);
+      const isSelected = activeTargetId === targetKey;
+      const dpr = window.devicePixelRatio || 1;
+
+      ctx.save();
+
+      if (!pos.visible) {
+        ctx.globalAlpha = 0.25;
+      }
+
+      if (isSelected) {
+        ctx.beginPath();
+        ctx.arc(pos.x, pos.y, 14 * dpr, 0, Math.PI * 2);
+        ctx.fillStyle = isNightVision ? 'rgba(255, 77, 77, 0.25)' : 'rgba(223, 170, 91, 0.25)';
+        ctx.fill();
+        ctx.strokeStyle = isNightVision ? '#ff4d4d' : '#dfaa5b';
+        ctx.lineWidth = 1.5 * dpr;
+        ctx.stroke();
+      }
+
+      ctx.beginPath();
+      ctx.arc(pos.x, pos.y, (isSelected ? 6 : 4.5) * dpr, 0, Math.PI * 2);
+
+      if (targetKey === 'mars_jupiter') {
+        ctx.fillStyle = isNightVision ? '#ff4d4d' : '#dfaa5b';
+      } else if (targetKey === 'leonids') {
+        ctx.fillStyle = isNightVision ? '#ff7373' : '#7cc4e8';
+      } else if (targetKey === 'taurids') {
+        ctx.fillStyle = isNightVision ? '#ff9999' : '#52d19c';
+      } else if (targetKey === 'moon') {
+        ctx.fillStyle = isNightVision ? '#ffffff' : '#f2ece1';
+      } else {
+        ctx.fillStyle = isNightVision ? '#cc3333' : '#e07a5f';
+      }
+      ctx.fill();
+
+      ctx.font = `500 ${10 * dpr}px 'JetBrains Mono', monospace`;
+      ctx.fillStyle = isSelected ? (isNightVision ? '#ffffff' : '#dfaa5b') : (isNightVision ? '#b35959' : '#9ba8bf');
+      ctx.textAlign = 'left';
+      ctx.textBaseline = 'middle';
+
+      const shortName = targetKey === 'mars_jupiter' ? 'Mars-Jup (1.2°)' :
+                        targetKey === 'leonids' ? 'Leonids' :
+                        targetKey === 'taurids' ? 'N. Taurids' :
+                        targetKey === 'moon' ? 'Moon' : 'Voyager 1';
+
+      const tagText = `${shortName} ${pos.visible ? '+' + pos.alt + '°' : '(Set)'}`;
+      ctx.fillText(tagText, pos.x + 9 * dpr, pos.y);
+
+      ctx.restore();
+    }
+
+    function handleRadarClick(clickX, clickY) {
+      if (!canvas) return;
+      const cx = canvas.width / 2;
+      const cy = canvas.height / 2;
+      const radius = Math.min(cx, cy) * 0.88;
+      const dpr = window.devicePixelRatio || 1;
+
+      const keys = ['mars_jupiter', 'leonids', 'taurids', 'voyager', 'moon'];
+      let closestKey = null;
+      let minDistance = 28 * dpr;
+
+      keys.forEach(function(key) {
+        const pos = getTargetCoordinates(key, cx, cy, radius);
+        const dist = Math.hypot(clickX - pos.x, clickY - pos.y);
+        if (dist < minDistance) {
+          minDistance = dist;
+          closestKey = key;
+        }
+      });
+
+      if (closestKey) {
+        selectSkyTarget(closestKey, null);
+      }
+    }
+
+    /* -------------------------------------------------------------
+       6. Weather & Temperature Lapse Models
+       ------------------------------------------------------------- */
+    function initWeatherChart() {
+      const chartEl = document.getElementById('weatherTrendChart');
+      if (!chartEl) return;
+
+      const labels = ['Thu 12', 'Fri 13', 'Sat 14', 'Sun 15', 'Mon 16', 'Tue 17'];
+      const highs = [86, 78, 74, 74, 75, 71];
+      const lows = [58, 61, 56, 56, 57, 52];
+      const precipProbs = [0, 20, 40, 10, 20, 35];
+
+      const textColor = isNightVision ? '#ff9999' : '#f2ece1';
+      const gridColor = isNightVision ? '#401515' : '#21304d';
+      const brassColor = isNightVision ? '#ff4d4d' : '#dfaa5b';
+      const skyColor = isNightVision ? '#ff7373' : '#7cc4e8';
+      const mintColor = isNightVision ? '#ff9999' : '#52d19c';
+
+      weatherChartInstance = new Chart(chartEl, {
+        type: 'line',
+        data: {
+          labels: labels,
+          datasets: [
+            {
+              label: 'High Temp (°F)',
+              data: highs,
+              borderColor: brassColor,
+              backgroundColor: isNightVision ? 'rgba(255, 77, 77, 0.12)' : 'rgba(223, 170, 91, 0.12)',
+              borderWidth: 2,
+              pointBackgroundColor: brassColor,
+              tension: 0.3,
+              yAxisID: 'y'
+            },
+            {
+              label: 'Low Temp (°F)',
+              data: lows,
+              borderColor: skyColor,
+              backgroundColor: 'transparent',
+              borderWidth: 2,
+              borderDash: [4, 4],
+              pointBackgroundColor: skyColor,
+              tension: 0.3,
+              yAxisID: 'y'
+            },
+            {
+              label: 'Precip Chance (%)',
+              data: precipProbs,
+              borderColor: mintColor,
+              backgroundColor: isNightVision ? 'rgba(255, 128, 128, 0.25)' : 'rgba(82, 209, 156, 0.25)',
+              borderWidth: 1.5,
+              type: 'bar',
+              yAxisID: 'y1'
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              labels: {
+                color: textColor,
+                font: { family: 'JetBrains Mono', size: 11 }
+              }
+            },
+            tooltip: {
+              backgroundColor: isNightVision ? '#1c0c0c' : '#111b2e',
+              titleColor: textColor,
+              bodyColor: textColor,
+              borderColor: isNightVision ? '#662222' : '#384d73',
+              borderWidth: 1,
+              titleFont: { family: 'Plus Jakarta Sans', weight: 'bold' },
+              bodyFont: { family: 'JetBrains Mono' }
+            }
+          },
+          scales: {
+            x: {
+              ticks: { color: textColor, font: { family: 'JetBrains Mono', size: 10 } },
+              grid: { color: gridColor }
+            },
+            y: {
+              type: 'linear',
+              display: true,
+              position: 'left',
+              title: { display: true, text: 'Temperature (°F)', color: textColor, font: { family: 'JetBrains Mono', size: 10 } },
+              ticks: { color: textColor, font: { family: 'JetBrains Mono', size: 10 } },
+              grid: { color: gridColor },
+              min: 40,
+              max: 95
+            },
+            y1: {
+              type: 'linear',
+              display: true,
+              position: 'right',
+              title: { display: true, text: 'Precip (%)', color: mintColor, font: { family: 'JetBrains Mono', size: 10 } },
+              ticks: { color: mintColor, font: { family: 'JetBrains Mono', size: 10 } },
+              grid: { drawOnChartArea: false },
+              min: 0,
+              max: 100
+            }
+          }
+        }
+      });
+    }
+
+    function calculateElevationLapse(altitudeFeet) {
+      const alt = parseInt(altitudeFeet, 10);
+      const valLabel = document.getElementById('elevVal');
+      const badge = document.getElementById('elevTempEst');
+
+      const lapsePerThousand = 3.5;
+      const deltaKft = (alt - 1486) / 1000;
+      const estimatedHigh = Math.round(82 - deltaKft * lapsePerThousand);
+      const estimatedLow = Math.round(58 - deltaKft * 3.8);
+
+      let locationTag = 'Custom Elevation';
+      if (alt <= 1800) locationTag = 'Phoenix / Lake Pleasant Basin';
+      else if (alt <= 2800) locationTag = 'Black Canyon City / New River';
+      else if (alt <= 3800) locationTag = 'Sunset Point / Cordes Junction';
+      else if (alt <= 4800) locationTag = 'Bradshaw Foothills / Cleator';
+      else if (alt <= 6200) locationTag = 'Crown King / Mingus Mtn';
+      else if (alt <= 7500) locationTag = 'Flagstaff / Munds Park Plateau';
+      else locationTag = 'Snowbowl Upper Slopes / Agassiz';
+
+      if (valLabel) valLabel.textContent = `${alt.toLocaleString()} ft (${locationTag})`;
+      if (badge) {
+        badge.textContent = `Est: ${estimatedHigh}°F High / ${estimatedLow}°F Low`;
+        if (estimatedLow <= 32) {
+          badge.className = 'badge badge-brass';
+          badge.textContent += ' • Freeze Warning';
+        } else {
+          badge.className = 'badge badge-mint';
+        }
+      }
+    }
+
+    /* -------------------------------------------------------------
+       7. Rig Checklist Management
+       ------------------------------------------------------------- */
+    function onChecklistToggle() {
+      const keys = ['chk_lift', 'chk_locker', 'chk_winch', 'chk_airdown', 'chk_fire', 'chk_offline'];
+      if (!appState.checklist) appState.checklist = {};
+
+      keys.forEach(function(k) {
+        const el = document.getElementById(k);
+        if (el) {
+          appState.checklist[k] = el.checked;
+        }
+      });
+
+      updateChecklistCounter();
+      persistState();
+    }
+
+    function updateChecklistCounter() {
+      const keys = ['chk_lift', 'chk_locker', 'chk_winch', 'chk_airdown', 'chk_fire', 'chk_offline'];
+      let count = 0;
+      keys.forEach(function(k) {
+        const el = document.getElementById(k);
+        if (el && el.checked) count++;
+      });
+
+      const badge = document.getElementById('checklistScoreBadge');
+      if (badge) {
+        badge.textContent = `Ready: ${count}/${keys.length} Items`;
+        if (count >= 5) {
+          badge.className = 'badge badge-mint';
+        } else if (count >= 3) {
+          badge.className = 'badge badge-brass';
+        } else {
+          badge.className = 'badge';
+        }
+      }
+    }
+
+    /* -------------------------------------------------------------
+       8. SpaceX Launch Telemetry & Acoustic Propagation Model
+       ------------------------------------------------------------- */
+    function calculateAcoustics(distFt) {
+      const dist = parseInt(distFt, 10);
+      const label = document.getElementById('distVal');
+      if (label) label.textContent = `${dist.toLocaleString()} Feet`;
+
+      let f9Db = 132;
+      if (dist <= 800) f9Db = 145 + (800 - dist) * 0.015;
+      else if (dist <= 975) f9Db = 145 - ((dist - 800) / 175) * 9;
+      else if (dist <= 1450) f9Db = 136 - ((dist - 975) / 475) * 4;
+      else if (dist <= 1600) f9Db = 132 - ((dist - 1450) / 150) * 2;
+      else if (dist <= 1900) f9Db = 130 - ((dist - 1600) / 300) * 1;
+      else if (dist <= 2500) f9Db = 129 - ((dist - 1900) / 600) * 3;
+      else f9Db = Math.max(115, 126 - ((dist - 2500) / 500) * 2.5);
+
+      let fhDb = f9Db + 16.5;
+      if (dist <= 800) fhDb = 152;
+      else if (dist <= 1300) fhDb = 151.5;
+      else fhDb = Math.max(128, 151.5 - ((dist - 1300) / 1000) * 12);
+
+      const f9El = document.getElementById('f9DbVal');
+      const fhEl = document.getElementById('fhDbVal');
+      const meterEl = document.getElementById('meterFill');
+
+      if (f9El) f9El.textContent = `${Math.round(f9Db)} dB`;
+      if (fhEl) fhEl.textContent = `${Math.round(fhDb)} dB`;
+
+      if (meterEl) {
+        const pct = Math.min(100, Math.max(5, ((fhDb - 110) / 50) * 100));
+        meterEl.style.width = `${pct}%`;
+      }
+    }
+  </script>
+</body>
+</html>
