@@ -5,22 +5,17 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="artifact-type" content="dashboard">
   <meta name="design-style" content="nocturne">
-  <title>SKY-1 Observatory // Arizona Sky Guide & Telemetry Dashboard</title>
-  
-  <!-- Typography from Google Fonts -->
+  <title>Lake Pleasant Observatory &amp; Launch Watch — Peoria, AZ</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400..700;1,400..600&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-
-  <!-- Allowed CDN Libraries -->
-  <script src="https://unpkg.com/lucide@1.43.0/dist/umd/lucide.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1/dist/chart.umd.min.js"></script>
-
+  <script src="https://unpkg.com/lucide@1.43.0/dist/umd/lucide.min.js"></script>
   <style>
     :root {
       color-scheme: dark;
 
-      /* Page and surfaces: Prussian midnight steps */
+      /* 1. Nocturne palette & surfaces */
       --background: #0a101d;
       --surface-container-low: #0e1626;
       --surface-container: #111b2e;
@@ -51,46 +46,54 @@
       --data-4: #e07a5f;
       --data-context: #4a5d80;
 
-      /* Semantics */
-      --positive: #52d19c;
-      --warning: #dfaa5b;
-      --focus: #dfaa5b;
-
       /* Fonts */
       --font-headline: 'EB Garamond', serif;
       --font-body: 'Plus Jakarta Sans', sans-serif;
       --font-label: 'JetBrains Mono', monospace;
-
-      /* Type scale for Dashboard */
-      --display-size: clamp(1.75rem, 1.4rem + 1.2vw, 2.25rem);
-      --headline-size: clamp(1.25rem, 1.1rem + 0.5vw, 1.5rem);
-      --subhead-size: clamp(1.0625rem, 1rem + 0.25vw, 1.1875rem);
-      --body-size: clamp(0.9375rem, 0.9rem + 0.15vw, 1rem);
-      --label-size: 0.75rem;
-
-      /* Spacing */
-      --space-xs: 0.25rem;
-      --space-sm: 0.5rem;
-      --space-md: 1rem;
-      --space-lg: 1.5rem;
-      --space-xl: 2.5rem;
-      --space-2xl: 4rem;
 
       /* Shape */
       --rounded: 0.25rem;
       --rounded-lg: 0.375rem;
       --rounded-full: 9999px;
 
-      /* Effects */
+      /* Style effects */
       --hairline: 1px solid var(--outline-variant);
       --hairline-strong: 1px solid var(--outline);
       --panel-highlight: inset 0 1px 0 rgba(242, 236, 225, 0.05);
-      --brass-glow: radial-gradient(circle at 88% 12%, rgba(223, 170, 91, 0.08), transparent 45%);
+      --brass-glow: radial-gradient(circle at 88% 12%, rgba(223, 170, 91, 0.09), transparent 45%);
       --heading-tracking: -0.015em;
       --label-tracking: 0.06em;
       --sky-tint: color-mix(in srgb, var(--tertiary) 12%, transparent);
       --brass-tint: color-mix(in srgb, var(--primary) 14%, transparent);
-      --mint-tint: color-mix(in srgb, var(--positive) 14%, transparent);
+
+      /* 3. Shared Foundation Tokens */
+      --positive: #52d19c;
+      --warning: #e09f3e;
+      --focus: #dfaa5b;
+
+      --positive-tint: color-mix(in srgb, var(--positive) 13%, transparent);
+      --warning-tint: color-mix(in srgb, var(--warning) 14%, transparent);
+      --error-tint: color-mix(in srgb, var(--error) 14%, transparent);
+      --brass-area-fill: color-mix(in srgb, var(--data-1) 12%, transparent);
+      --sky-area-fill: color-mix(in srgb, var(--data-2) 12%, transparent);
+      --dome-fill: color-mix(in srgb, var(--surface-container-low) 90%, var(--background));
+      --light-dome-fill: color-mix(in srgb, var(--warning) 24%, transparent);
+
+      /* Type scale (Dashboard) */
+      --display-size: clamp(1.9rem, 1.45rem + 1.4vw, 2.5rem);
+      --headline-size: clamp(1.3rem, 1.15rem + 0.6vw, 1.65rem);
+      --subhead-size: clamp(1.0625rem, 1rem + 0.25vw, 1.1875rem);
+      --body-size: clamp(0.9375rem, 0.9rem + 0.15vw, 1rem);
+      --label-size: 0.75rem;
+
+      /* Spacing scale (4pt base) */
+      --space-xs: 0.25rem;
+      --space-sm: 0.5rem;
+      --space-md: 1rem;
+      --space-lg: 1.5rem;
+      --space-xl: 2.5rem;
+      --space-2xl: 4rem;
+      --space-3xl: 6rem;
 
       /* Motion */
       --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
@@ -100,32 +103,7 @@
       --dur-long: 420ms;
     }
 
-    /* Night Vision Mode override */
-    body.night-vision {
-      --background: #0d0404;
-      --surface-container-low: #140808;
-      --surface-container: #1c0c0c;
-      --surface-container-high: #2a1212;
-      --on-surface: #ff9999;
-      --on-surface-variant: #b35959;
-      --outline: #662222;
-      --outline-variant: #401515;
-      --primary: #ff4d4d;
-      --on-primary: #1a0000;
-      --primary-container: #330a0a;
-      --on-primary-container: #ffb3b3;
-      --tertiary: #ff6b6b;
-      --positive: #ff8080;
-      --warning: #ff5555;
-      --data-1: #ff4d4d;
-      --data-2: #ff7373;
-      --data-3: #ff9999;
-      --data-4: #cc3333;
-      --data-context: #591d1d;
-      --brass-glow: radial-gradient(circle at 88% 12%, rgba(255, 77, 77, 0.09), transparent 45%);
-    }
-
-    /* Base Reset */
+    /* Base reset */
     *, *::before, *::after { box-sizing: border-box; }
     html, body {
       overflow-x: clip;
@@ -144,38 +122,44 @@
       display: grid;
       gap: var(--space-lg);
       padding: var(--space-lg);
-      max-width: 1400px;
+      max-width: 1280px;
       margin: 0 auto;
       overflow: hidden;
     }
     .page-grid * { min-width: 0; }
 
-    /* Nocturne Styles */
-    .hero-header {
-      background-color: var(--background);
-      background-image: var(--brass-glow);
-      border-bottom: var(--hairline);
-      padding: var(--space-lg) var(--space-xl);
+    /* Focus rings */
+    :focus-visible {
+      outline: 2px solid var(--focus);
+      outline-offset: 2px;
     }
-    .hero-top {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: space-between;
-      align-items: center;
-      gap: var(--space-md);
-    }
-    .masthead-title {
+
+    /* Typography helpers */
+    .title {
       font-family: var(--font-headline);
-      font-size: var(--display-size);
       font-weight: 500;
       letter-spacing: var(--heading-tracking);
+      line-height: 1.08;
       color: var(--on-surface);
       margin: 0;
-      line-height: 1.1;
     }
-    .masthead-title em {
+    .title em {
       font-style: italic;
+      font-weight: 400;
       color: var(--primary);
+    }
+    .display-title {
+      font-size: var(--display-size);
+    }
+    .section-title {
+      font-size: var(--headline-size);
+    }
+    .subhead-title {
+      font-size: var(--subhead-size);
+      font-family: var(--font-headline);
+      font-weight: 500;
+      margin: 0;
+      color: var(--on-surface);
     }
     .deck-brass {
       font-family: var(--font-label);
@@ -183,128 +167,43 @@
       letter-spacing: var(--label-tracking);
       text-transform: uppercase;
       color: var(--primary);
-      margin-top: var(--space-xs);
-      display: flex;
-      align-items: center;
-      gap: var(--space-sm);
-      flex-wrap: wrap;
+      margin: var(--space-xs) 0 0 0;
     }
-    .masthead-controls {
-      display: flex;
-      align-items: center;
-      gap: var(--space-sm);
-      flex-wrap: wrap;
-    }
-
-    /* Buttons & Controls */
-    button, .btn {
+    .coord-label {
       font-family: var(--font-label);
       font-size: var(--label-size);
       letter-spacing: var(--label-tracking);
       text-transform: uppercase;
-      font-weight: 500;
-      border-radius: var(--rounded);
-      cursor: pointer;
-      padding: var(--space-sm) var(--space-md);
-      transition: background-color var(--dur-short) var(--ease-out), border-color var(--dur-short) var(--ease-out), color var(--dur-short) var(--ease-out);
-      display: inline-flex;
-      align-items: center;
-      gap: var(--space-xs);
-      min-height: 38px;
-    }
-    .btn-primary {
-      background: var(--primary);
-      color: var(--on-primary);
-      border: 1px solid var(--primary);
-    }
-    .btn-primary:hover {
-      background: var(--on-primary-container);
-    }
-    .btn-secondary {
-      background: transparent;
-      color: var(--on-surface);
-      border: var(--hairline-strong);
-    }
-    .btn-secondary:hover {
-      background: var(--surface-container-high);
-      border-color: var(--primary);
-    }
-    .btn-secondary.active {
-      background: var(--brass-tint);
-      border-color: var(--primary);
-      color: var(--primary);
-    }
-    .btn:focus-visible, input:focus-visible, select:focus-visible {
-      outline: 2px solid var(--focus);
-      outline-offset: 2px;
-    }
-
-    /* Badges & Tags */
-    .badge {
-      background: var(--sky-tint);
       color: var(--tertiary);
-      border: 1px solid color-mix(in srgb, var(--tertiary) 35%, transparent);
-      border-radius: var(--rounded);
-      padding: var(--space-xs) var(--space-sm);
+    }
+    .mono-label {
       font-family: var(--font-label);
       font-size: var(--label-size);
       letter-spacing: var(--label-tracking);
       text-transform: uppercase;
-      display: inline-flex;
-      align-items: center;
-      gap: var(--space-xs);
-      white-space: nowrap;
+      color: var(--on-surface-variant);
     }
-    .badge-brass {
-      background: var(--brass-tint);
-      color: var(--primary);
-      border-color: color-mix(in srgb, var(--primary) 35%, transparent);
+    .tabular {
+      font-variant-numeric: tabular-nums;
     }
-    .badge-mint {
-      background: var(--mint-tint);
-      color: var(--positive);
-      border-color: color-mix(in srgb, var(--positive) 35%, transparent);
+    .muted {
+      color: var(--on-surface-variant);
     }
 
-    /* Panels */
+    /* Midnight Panels */
     .panel {
       background: var(--surface-container);
       border: var(--hairline);
       box-shadow: var(--panel-highlight);
       border-radius: var(--rounded-lg);
       padding: var(--space-lg);
-      position: relative;
     }
-    .panel-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      margin-bottom: var(--space-md);
-      border-bottom: var(--hairline);
-      padding-bottom: var(--space-sm);
-      gap: var(--space-md);
-      flex-wrap: wrap;
+    .panel-low {
+      background: var(--surface-container-low);
+      border: var(--hairline);
+      border-radius: var(--rounded-lg);
+      padding: var(--space-md);
     }
-    .panel-title {
-      font-family: var(--font-headline);
-      font-size: var(--headline-size);
-      font-weight: 500;
-      color: var(--on-surface);
-      margin: 0;
-      display: flex;
-      align-items: center;
-      gap: var(--space-sm);
-    }
-    .panel-subtitle {
-      font-family: var(--font-label);
-      font-size: var(--label-size);
-      letter-spacing: var(--label-tracking);
-      text-transform: uppercase;
-      color: var(--tertiary);
-      margin-top: var(--space-xs);
-    }
-
-    /* Recessed Midnight Well */
     .observation-well {
       background: var(--background);
       border: var(--hairline);
@@ -314,376 +213,640 @@
       color: var(--on-surface);
     }
 
-    /* KPI Summary Row */
-    .kpi-row {
+    /* Badges & Pills */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-xs);
+      background: var(--sky-tint);
+      color: var(--tertiary);
+      border: 1px solid color-mix(in srgb, var(--tertiary) 35%, transparent);
+      border-radius: var(--rounded);
+      padding: var(--space-xs) var(--space-sm);
+      font-family: var(--font-label);
+      font-size: var(--label-size);
+      line-height: 1.2;
+      white-space: nowrap;
+    }
+    .badge-brass {
+      background: var(--brass-tint);
+      color: var(--primary);
+      border-color: color-mix(in srgb, var(--primary) 40%, transparent);
+    }
+    .badge-positive {
+      background: var(--positive-tint);
+      color: var(--positive);
+      border-color: color-mix(in srgb, var(--positive) 40%, transparent);
+    }
+    .badge-warning {
+      background: var(--warning-tint);
+      color: var(--warning);
+      border-color: color-mix(in srgb, var(--warning) 40%, transparent);
+    }
+    .badge-error {
+      background: var(--error-tint);
+      color: var(--error);
+      border-color: color-mix(in srgb, var(--error) 40%, transparent);
+    }
+
+    /* Buttons & Controls */
+    button, input, select {
+      font-family: inherit;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-xs);
+      min-height: 44px;
+      padding: var(--space-xs) var(--space-md);
+      border-radius: var(--rounded);
+      font-family: var(--font-label);
+      font-size: var(--label-size);
+      font-weight: 500;
+      letter-spacing: 0.03em;
+      cursor: pointer;
+      border: var(--hairline-strong);
+      background: transparent;
+      color: var(--on-surface);
+      transition: background-color var(--dur-micro) var(--ease-out),
+                  color var(--dur-micro) var(--ease-out),
+                  box-shadow var(--dur-micro) var(--ease-out);
+    }
+    .btn:hover:not(:disabled) {
+      background: var(--surface-container-high);
+    }
+    .btn:active:not(:disabled) {
+      transform: translateY(1px);
+    }
+    .btn:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+    .btn-primary {
+      background: var(--primary);
+      color: var(--on-primary);
+      border-color: var(--primary);
+      font-weight: 600;
+    }
+    .btn-primary:hover:not(:disabled) {
+      background: var(--on-primary-container);
+      color: var(--on-primary);
+    }
+    .btn-compact {
+      min-height: 36px;
+      padding: var(--space-xs) var(--space-sm);
+    }
+    .btn-active {
+      background: var(--brass-tint);
+      color: var(--primary);
+      box-shadow: inset 0 0 0 1px var(--primary);
+    }
+    .btn-sky-active {
+      background: var(--sky-tint);
+      color: var(--tertiary);
+      box-shadow: inset 0 0 0 1px var(--tertiary);
+    }
+
+    .btn-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-sm);
+      align-items: center;
+    }
+
+    /* Hero Observatory Header */
+    .hero-header {
+      background-color: var(--background);
+      background-image: var(--brass-glow);
+      border-bottom: var(--hairline);
+      padding: var(--space-lg) 0;
+    }
+    .hero-inner {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 0 var(--space-lg);
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr));
+      grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
+      gap: var(--space-lg);
+      align-items: start;
+    }
+    .hero-lede {
+      margin: var(--space-sm) 0 0 0;
+      color: var(--on-surface-variant);
+      max-width: 62ch;
+    }
+    .clock-panel {
+      display: grid;
+      gap: var(--space-sm);
+      background: var(--surface-container);
+      border: var(--hairline);
+      box-shadow: var(--panel-highlight);
+      border-radius: var(--rounded-lg);
+      padding: var(--space-md) var(--space-lg);
+    }
+    .clock-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: var(--space-sm);
+      flex-wrap: wrap;
+    }
+    .clock-readout {
+      font-family: var(--font-label);
+      font-size: clamp(1.5rem, 1.2rem + 1.1vw, 2.1rem);
+      font-weight: 600;
+      color: var(--on-surface);
+      letter-spacing: 0.02em;
+      line-height: 1.1;
+    }
+    .clock-date-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: var(--space-sm);
+      flex-wrap: wrap;
+      font-family: var(--font-label);
+      font-size: var(--label-size);
+      color: var(--tertiary);
+    }
+    .clock-controls {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: var(--space-sm);
+      padding-top: var(--space-sm);
+      border-top: var(--hairline);
+      align-items: end;
+    }
+    .control-field {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-xs);
+    }
+    .control-field label {
+      font-family: var(--font-label);
+      font-size: var(--label-size);
+      letter-spacing: var(--label-tracking);
+      text-transform: uppercase;
+      color: var(--on-surface-variant);
+    }
+    .select-input, .text-input {
+      background: var(--background);
+      color: var(--on-surface);
+      border: var(--hairline-strong);
+      border-radius: var(--rounded);
+      min-height: 44px;
+      padding: var(--space-xs) var(--space-md);
+      font-family: var(--font-label);
+      font-size: var(--label-size);
+    }
+    .select-input {
+      padding-right: var(--space-xl);
+    }
+
+    /* Section Headers */
+    .section-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      gap: var(--space-md);
+      flex-wrap: wrap;
+      padding-bottom: var(--space-sm);
+      border-bottom: var(--hairline);
+      margin-bottom: var(--space-md);
+    }
+
+    /* KPI Strip */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
       gap: var(--space-md);
     }
     .kpi-card {
-      background: var(--surface-container-low);
+      background: var(--surface-container);
       border: var(--hairline);
-      border-radius: var(--rounded);
-      padding: var(--space-md);
       box-shadow: var(--panel-highlight);
+      border-radius: var(--rounded-lg);
+      padding: var(--space-md) var(--space-lg);
       display: flex;
       flex-direction: column;
-      justify-content: space-between;
-    }
-    .kpi-label {
-      font-family: var(--font-label);
-      font-size: var(--label-size);
-      letter-spacing: var(--label-tracking);
-      text-transform: uppercase;
-      color: var(--on-surface-variant);
-      margin-bottom: var(--space-xs);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
+      gap: var(--space-xs);
     }
     .kpi-value {
       font-family: var(--font-headline);
-      font-size: 2rem;
       font-weight: 500;
+      font-size: clamp(1.6rem, 1.3rem + 0.9vw, 2.05rem);
       line-height: 1.1;
       color: var(--on-surface);
-      margin: var(--space-xs) 0;
-      font-variant-numeric: tabular-nums;
+      margin: var(--space-xs) 0 0 0;
+    }
+    .kpi-mono-value {
+      font-family: var(--font-label);
+      font-weight: 600;
+      font-size: clamp(1.2rem, 1rem + 0.7vw, 1.55rem);
+      line-height: 1.2;
+      color: var(--primary);
+      margin: var(--space-xs) 0 0 0;
     }
     .kpi-sub {
-      font-family: var(--font-label);
-      font-size: var(--label-size);
-      color: var(--tertiary);
-    }
-
-    /* Layout Grids */
-    .grid-2col {
-      display: grid;
-      grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
-      gap: var(--space-lg);
-    }
-    .grid-balanced {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(min(380px, 100%), 1fr));
-      gap: var(--space-lg);
-    }
-
-    /* Canvas & Visualizers */
-    .canvas-container {
-      position: relative;
-      width: 100%;
-      min-height: 380px;
-      height: 420px;
-      background: #060a12;
-      border: var(--hairline);
-      border-radius: var(--rounded);
-      overflow: hidden;
-    }
-    #skyCanvas {
-      width: 100%;
-      height: 100%;
-      display: block;
-    }
-    .canvas-overlay-controls {
-      position: absolute;
-      top: var(--space-sm);
-      left: var(--space-sm);
-      right: var(--space-sm);
-      display: flex;
-      justify-content: space-between;
-      pointer-events: none;
-      z-index: 2;
-      gap: var(--space-xs);
-      flex-wrap: wrap;
-    }
-    .canvas-overlay-controls > * {
-      pointer-events: auto;
-    }
-
-    /* Form Inputs */
-    .control-group {
-      display: flex;
-      flex-direction: column;
-      gap: var(--space-xs);
-    }
-    label.input-label {
-      font-family: var(--font-label);
-      font-size: var(--label-size);
-      letter-spacing: var(--label-tracking);
-      text-transform: uppercase;
+      font-size: 0.85rem;
       color: var(--on-surface-variant);
-      font-weight: 500;
-    }
-    select, input[type="text"], input[type="number"], input[type="range"] {
-      background: var(--background);
-      border: var(--hairline-strong);
-      border-radius: var(--rounded);
-      color: var(--on-surface);
-      font-family: var(--font-label);
-      font-size: var(--body-size);
-      padding: var(--space-sm) var(--space-md);
-      width: 100%;
-    }
-    select {
-      cursor: pointer;
-      appearance: auto;
-    }
-    input[type="range"] {
-      padding: 0;
-      height: 6px;
-      background: var(--surface-container-high);
-      cursor: ew-resize;
+      margin-top: auto;
+      padding-top: var(--space-xs);
     }
 
-    /* Telemetry Tables */
-    .table-container {
-      overflow-x: auto;
-      border: var(--hairline);
-      border-radius: var(--rounded);
-    }
-    table.data-table {
-      width: 100%;
-      border-collapse: collapse;
-      font-family: var(--font-label);
-      font-size: var(--body-size);
-      text-align: left;
-    }
-    table.data-table th {
-      background: var(--surface-container-low);
-      color: var(--tertiary);
-      font-weight: 600;
-      font-size: var(--label-size);
-      letter-spacing: var(--label-tracking);
-      text-transform: uppercase;
-      padding: var(--space-sm) var(--space-md);
-      border-bottom: var(--hairline-strong);
-    }
-    table.data-table td {
-      padding: var(--space-sm) var(--space-md);
-      border-bottom: var(--hairline);
-      color: var(--on-surface);
-      font-variant-numeric: tabular-nums;
-    }
-    table.data-table tr:hover {
-      background: color-mix(in srgb, var(--surface-container-high) 60%, transparent);
-    }
-
-    /* Tabs & Pill Selectors */
-    .tab-bar {
+    /* Quick Jump Nav */
+    .quick-nav {
       display: flex;
-      gap: var(--space-xs);
-      overflow-x: auto;
-      border-bottom: var(--hairline);
-      padding-bottom: var(--space-xs);
-      margin-bottom: var(--space-md);
+      flex-wrap: wrap;
+      gap: var(--space-sm);
+      align-items: center;
+      padding: var(--space-sm) var(--space-md);
+      background: var(--surface-container-low);
+      border: var(--hairline);
+      border-radius: var(--rounded-lg);
     }
-    .tab-btn {
+    .nav-link-btn {
       background: transparent;
       border: none;
-      border-bottom: 2px solid transparent;
-      color: var(--on-surface-variant);
-      padding: var(--space-sm) var(--space-md);
+      color: var(--tertiary);
       font-family: var(--font-label);
       font-size: var(--label-size);
       letter-spacing: var(--label-tracking);
       text-transform: uppercase;
+      padding: var(--space-sm) var(--space-sm);
+      min-height: 44px;
       cursor: pointer;
-      white-space: nowrap;
+      border-radius: var(--rounded);
+      transition: background-color var(--dur-micro) var(--ease-out);
     }
-    .tab-btn.active {
-      color: var(--primary);
-      border-bottom-color: var(--primary);
+    .nav-link-btn:hover {
+      background: var(--surface-container-high);
+      text-decoration: underline;
     }
 
-    /* Target Cards & Grids */
-    .target-grid {
+    /* Section 1: Daily Integrated View */
+    .day-strip {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-      gap: var(--space-md);
-    }
-    .target-card {
-      background: var(--surface-container-low);
-      border: var(--hairline);
-      border-radius: var(--rounded);
-      padding: var(--space-md);
-      cursor: pointer;
-      transition: border-color var(--dur-short) var(--ease-out), background-color var(--dur-short) var(--ease-out);
-    }
-    .target-card:hover {
-      border-color: var(--primary);
-      background: var(--surface-container-high);
-    }
-    .target-card.selected {
-      border-color: var(--primary);
-      background: var(--brass-tint);
-    }
-    .target-card-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: var(--space-xs);
-    }
-    .target-name {
-      font-family: var(--font-headline);
-      font-size: 1.25rem;
-      font-weight: 600;
-      color: var(--on-surface);
-    }
-
-    /* Checklists */
-    .checklist-item {
-      display: flex;
-      align-items: flex-start;
+      grid-template-columns: repeat(7, minmax(0, 1fr));
       gap: var(--space-sm);
-      padding: var(--space-sm) 0;
-      border-bottom: var(--hairline);
-      cursor: pointer;
-    }
-    .checklist-item input[type="checkbox"] {
-      width: 18px;
-      height: 18px;
-      margin-top: 2px;
-      accent-color: var(--primary);
-      cursor: pointer;
-    }
-    .checklist-text {
-      flex: 1;
-    }
-    .checklist-title {
-      font-weight: 600;
-      color: var(--on-surface);
-    }
-    .checklist-sub {
-      font-size: var(--label-size);
-      color: var(--on-surface-variant);
-      font-family: var(--font-label);
-    }
-
-    /* Chart wrappers */
-    .chart-box {
-      position: relative;
-      width: 100%;
-      min-height: 280px;
-    }
-
-    /* Audio / Decibel Scale Meter */
-    .meter-bar {
-      height: 12px;
-      border-radius: var(--rounded-full);
-      background: var(--surface-container-high);
-      overflow: hidden;
-      position: relative;
-    }
-    .meter-fill {
-      height: 100%;
-      background: linear-gradient(90deg, var(--positive) 0%, var(--warning) 60%, var(--error) 100%);
-      transition: width var(--dur-short) var(--ease-out);
-    }
-
-    /* Live SpaceX Countdown & Manifest Styles */
-    .countdown-hero-card {
-      background: var(--background);
-      border: var(--hairline-strong);
-      border-radius: var(--rounded);
-      padding: var(--space-md);
       margin-bottom: var(--space-lg);
-      box-shadow: var(--panel-highlight);
     }
-    .countdown-digits {
-      display: grid;
-      grid-template-columns: repeat(4, minmax(60px, 1fr));
-      gap: var(--space-sm);
-      margin: var(--space-md) 0;
-    }
-    .digit-box {
-      background: var(--surface-container);
+    .day-tile {
+      background: var(--background);
       border: var(--hairline);
       border-radius: var(--rounded);
       padding: var(--space-sm);
-      text-align: center;
+      text-align: left;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-xs);
+      min-height: 108px;
+      color: var(--on-surface);
+      transition: background-color var(--dur-micro) var(--ease-out),
+                  box-shadow var(--dur-micro) var(--ease-out);
     }
-    .digit-num {
+    .day-tile:hover {
+      background: var(--surface-container-high);
+    }
+    .day-tile.is-selected {
+      background: var(--surface-container-high);
+      box-shadow: inset 0 0 0 1px var(--primary);
+    }
+    .day-tile-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: var(--space-xs);
       font-family: var(--font-label);
-      font-size: clamp(1.4rem, 2.5vw, 2rem);
+      font-size: var(--label-size);
+    }
+    .day-tile-temps {
+      font-family: var(--font-label);
+      font-size: 0.875rem;
       font-weight: 600;
-      color: var(--primary);
-      font-variant-numeric: tabular-nums;
-      line-height: 1.1;
-      display: block;
     }
-    .digit-unit {
+    .day-tile-dots {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-xs);
+      margin-top: auto;
+    }
+    .dot-pill {
+      display: inline-block;
+      padding: 2px 6px;
+      border-radius: var(--rounded);
       font-family: var(--font-label);
-      font-size: 0.68rem;
-      letter-spacing: var(--label-tracking);
-      text-transform: uppercase;
-      color: var(--on-surface-variant);
-      margin-top: 2px;
-      display: block;
+      font-size: 0.6875rem;
+      line-height: 1.2;
     }
-    .launch-queue-grid {
+    .dot-launch {
+      background: var(--brass-tint);
+      color: var(--primary);
+    }
+    .dot-cosmic {
+      background: var(--sky-tint);
+      color: var(--tertiary);
+    }
+    .dot-alert {
+      background: var(--error-tint);
+      color: var(--error);
+    }
+
+    .integrated-brief {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(min(270px, 100%), 1fr));
-      gap: var(--space-sm);
-      margin-top: var(--space-sm);
+      grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+      gap: var(--space-lg);
     }
-    .launch-queue-item {
+    .verdict-box {
+      display: grid;
+      gap: var(--space-md);
+      background: var(--background);
+      border: var(--hairline);
+      border-radius: var(--rounded);
+      padding: var(--space-md);
+    }
+    .score-meter-track {
+      height: 8px;
+      background: var(--surface-container-high);
+      border-radius: var(--rounded-full);
+      overflow: hidden;
+    }
+    .score-meter-fill {
+      height: 100%;
+      border-radius: var(--rounded-full);
+      transition: width var(--dur-short) var(--ease-out);
+    }
+    .mini-stat-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: var(--space-sm);
+    }
+    .mini-stat {
       background: var(--surface-container-low);
       border: var(--hairline);
       border-radius: var(--rounded);
-      padding: var(--space-sm) var(--space-md);
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      gap: var(--space-xs);
+      padding: var(--space-sm);
+    }
+    .mini-stat-val {
+      font-family: var(--font-label);
+      font-size: 0.95rem;
+      font-weight: 600;
+      margin-top: var(--space-xs);
+      color: var(--on-surface);
     }
 
-    /* Section anchors & jump navigation */
-    .nav-ribbon {
-      display: flex;
-      gap: var(--space-sm);
-      overflow-x: auto;
-      padding: var(--space-xs) 0;
-      border-bottom: var(--hairline);
+    /* Section 2: SpaceX & Cosmic Tracker */
+    .tracker-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr);
+      gap: var(--space-lg);
+      align-items: start;
     }
-    .nav-ribbon a {
+    .event-list {
+      display: grid;
+      gap: var(--space-md);
+    }
+    .event-card {
+      background: var(--background);
+      border: var(--hairline);
+      border-radius: var(--rounded);
+      padding: var(--space-md);
+      display: grid;
+      gap: var(--space-sm);
+    }
+    .event-card.is-slipped {
+      box-shadow: inset 3px 0 0 var(--warning);
+    }
+    .event-card.is-watched {
+      box-shadow: inset 3px 0 0 var(--primary);
+    }
+    .event-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: var(--space-md);
+      flex-wrap: wrap;
+    }
+    .event-countdown {
+      font-family: var(--font-label);
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: var(--primary);
+    }
+    .event-meta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-md);
+      font-family: var(--font-label);
+      font-size: var(--label-size);
       color: var(--on-surface-variant);
-      text-decoration: none;
+    }
+    .slip-controls {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--space-sm);
+      padding-top: var(--space-sm);
+      border-top: var(--hairline);
+    }
+
+    /* Custom event form */
+    .custom-form {
+      display: grid;
+      grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr) minmax(0, 1fr) auto;
+      gap: var(--space-sm);
+      align-items: end;
+      margin-top: var(--space-md);
+      padding-top: var(--space-md);
+      border-top: var(--hairline);
+    }
+
+    /* Tables */
+    .data-table-wrap {
+      overflow-x: auto;
+    }
+    table.obs-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.875rem;
+    }
+    table.obs-table th {
       font-family: var(--font-label);
       font-size: var(--label-size);
       letter-spacing: var(--label-tracking);
       text-transform: uppercase;
-      padding: var(--space-xs) var(--space-sm);
-      border-radius: var(--rounded);
-      white-space: nowrap;
+      color: var(--on-surface-variant);
+      text-align: left;
+      padding: var(--space-sm);
+      border-bottom: var(--hairline-strong);
+      font-weight: 500;
     }
-    .nav-ribbon a:hover {
-      color: var(--primary);
+    table.obs-table th.num,
+    table.obs-table td.num {
+      text-align: right;
+      font-family: var(--font-label);
+      font-variant-numeric: tabular-nums;
+    }
+    table.obs-table td {
+      padding: var(--space-sm);
+      border-bottom: var(--hairline);
+      color: var(--on-surface);
+      vertical-align: top;
+    }
+    table.obs-table tr:hover td {
       background: var(--surface-container-high);
     }
 
-    /* Responsive */
-    @media (max-width: 900px) {
-      .grid-2col {
+    /* Section 3: Weather Dashboard */
+    .weather-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr);
+      gap: var(--space-lg);
+      align-items: start;
+    }
+    .chart-box {
+      background: var(--background);
+      border: var(--hairline);
+      border-radius: var(--rounded);
+      padding: var(--space-md);
+      min-height: 310px;
+      position: relative;
+    }
+    .chart-box canvas {
+      width: 100% !important;
+      height: 275px !important;
+    }
+    .notice-stack {
+      display: grid;
+      gap: var(--space-sm);
+    }
+    .notice-item {
+      background: var(--background);
+      border: var(--hairline);
+      border-radius: var(--rounded);
+      padding: var(--space-md);
+      display: grid;
+      gap: var(--space-xs);
+    }
+    .notice-warn {
+      box-shadow: inset 3px 0 0 var(--warning);
+    }
+    .notice-info {
+      box-shadow: inset 3px 0 0 var(--tertiary);
+    }
+
+    /* Section 4: Stargazing & Sky Direction Guide */
+    .sky-guide-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.05fr) minmax(0, 1.15fr);
+      gap: var(--space-lg);
+      align-items: start;
+    }
+    .sky-dome-well {
+      background: var(--background);
+      border: var(--hairline);
+      border-radius: var(--rounded);
+      padding: var(--space-md);
+      display: grid;
+      gap: var(--space-md);
+    }
+    .sky-svg {
+      width: 100%;
+      max-width: 440px;
+      height: auto;
+      margin: 0 auto;
+      display: block;
+    }
+    .site-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: var(--space-sm);
+      margin-bottom: var(--space-md);
+    }
+    .site-card {
+      background: var(--background);
+      border: var(--hairline);
+      border-radius: var(--rounded);
+      padding: var(--space-sm) var(--space-md);
+      text-align: left;
+      cursor: pointer;
+      color: var(--on-surface);
+      display: grid;
+      gap: var(--space-xs);
+      transition: background-color var(--dur-micro) var(--ease-out);
+    }
+    .site-card:hover {
+      background: var(--surface-container-high);
+    }
+    .site-card.is-selected {
+      background: var(--surface-container-high);
+      box-shadow: inset 0 0 0 1px var(--primary);
+    }
+
+    /* Inline status toast */
+    .inline-status {
+      font-family: var(--font-label);
+      font-size: var(--label-size);
+      color: var(--positive);
+      min-height: 1.2em;
+    }
+
+    /* Footer */
+    .obs-footer {
+      border-top: var(--hairline);
+      padding-top: var(--space-lg);
+      margin-top: var(--space-md);
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: var(--space-lg);
+      flex-wrap: wrap;
+      color: var(--on-surface-variant);
+      font-size: 0.85rem;
+    }
+
+    /* Responsive breakpoints */
+    @media (max-width: 1024px) {
+      .hero-inner,
+      .integrated-brief,
+      .tracker-layout,
+      .weather-grid,
+      .sky-guide-grid {
         grid-template-columns: 1fr;
       }
-    }
-    @media (max-width: 640px) {
-      .page-grid {
-        padding: var(--space-sm);
-        gap: var(--space-md);
+      .kpi-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
       }
-      .hero-header {
-        padding: var(--space-md);
+      .day-strip {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
       }
-      .masthead-title {
-        font-size: 1.75rem;
-      }
-      .kpi-row {
+      .custom-form {
         grid-template-columns: 1fr 1fr;
       }
-      .canvas-container {
-        min-height: 320px;
-        height: 340px;
+    }
+
+    @media (max-width: 640px) {
+      .page-grid {
+        padding: var(--space-md);
+        gap: var(--space-md);
+      }
+      .hero-inner {
+        padding: 0 var(--space-md);
+      }
+      .kpi-grid {
+        grid-template-columns: 1fr;
+      }
+      .day-strip {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+      .clock-controls,
+      .mini-stat-grid,
+      .site-grid,
+      .custom-form {
+        grid-template-columns: 1fr;
       }
     }
 
@@ -698,1011 +861,1604 @@
 </head>
 <body>
 
-  <!-- Top Hero Masthead -->
+  <!-- HERO OBSERVATORY HEADER & LIVE MST CLOCK -->
   <header class="hero-header">
-    <div class="hero-top">
+    <div class="hero-inner">
       <div>
-        <div class="deck-brass">
-          <span>Observation Logbook</span>
-          <span>//</span>
-          <span>Station SKY-1 North Phoenix</span>
-          <span>//</span>
-          <span id="liveUtcClock">UTC 00:00:00</span>
-        </div>
-        <h1 class="masthead-title">Arizona Sky Guide &amp; <em>Telemetry Deck</em></h1>
-        <div class="deck-brass" style="margin-top: var(--space-xs); color: var(--tertiary);">
-          <span>Anchor: Deer Valley KDVT (33.69°N, 112.07°W)</span>
-          <span>•</span>
-          <span>Lake Pleasant &amp; Crown King Corridor</span>
-          <span>•</span>
-          <span>Epoch: Nov 12, 2026</span>
+        <div class="coord-label">33°54.278' N · 112°16.250' W · LAKE PLEASANT REGIONAL PARK, PEORIA AZ</div>
+        <h1 class="title display-title" style="margin-top: var(--space-xs);">
+          Lake Pleasant <em>Nocturne</em> Observatory &amp; Launch Watch
+        </h1>
+        <p class="deck-brass">
+          14-DAY SKY INTEGRATOR · SPACEX MANIFEST · SONORAN DARK-SKY COMPASS
+        </p>
+        <p class="hero-lede">
+          Live operational desk cross-referencing Lake Pleasant microclimate telemetry, upcoming SpaceX Starship V3 &amp; Vandenberg Falcon 9 trajectories, cosmic viewing windows, and local dark-sky azimuth guides in Arizona Standard Time (MST).
+        </p>
+        <div class="btn-row" style="margin-top: var(--space-md);">
+          <button type="button" class="btn btn-compact" onclick="jumpToSection('sec-integrated')">Daily Integrator</button>
+          <button type="button" class="btn btn-compact" onclick="jumpToSection('sec-launches')">SpaceX &amp; Cosmic</button>
+          <button type="button" class="btn btn-compact" onclick="jumpToSection('sec-weather')">Weather &amp; Alerts</button>
+          <button type="button" class="btn btn-compact" onclick="jumpToSection('sec-compass')">Sky Compass</button>
         </div>
       </div>
-      <div class="masthead-controls">
-        <button type="button" class="btn btn-secondary" id="toggleNightVisionBtn" onclick="toggleNightVision()">
-          <i data-lucide="eye" style="width:16px;height:16px;"></i>
-          <span id="nvLabel">Red Vision Mode</span>
-        </button>
-        <button type="button" class="btn btn-primary" onclick="resetToLiveState()">
-          <i data-lucide="rotate-ccw" style="width:16px;height:16px;"></i>
-          <span>Live Sync</span>
-        </button>
-      </div>
-    </div>
 
-    <!-- Navigation Ribbon -->
-    <nav class="nav-ribbon" style="margin-top: var(--space-md);" aria-label="Dashboard Sections">
-      <a href="#kpi-section">System State</a>
-      <a href="#celestial-section">Celestial Vector Radar</a>
-      <a href="#weather-section">Microclimate &amp; Elevation Models</a>
-      <a href="#trail-section">Crown King &amp; I-17 Corridor</a>
-      <a href="#spacex-section">SpaceX Telemetry &amp; Acoustics</a>
-    </nav>
+      <!-- LIVE ARIZONA MST CLOCK & TIME TRACKING CONTROLS -->
+      <section class="clock-panel" aria-label="Arizona Standard Time Live Clock">
+        <div class="clock-top">
+          <span class="coord-label">ARIZONA TIME · MST (UTC-7 · NO DST)</span>
+          <span id="sky-phase-badge" class="badge badge-positive">ASTRO TWILIGHT</span>
+        </div>
+        <div id="live-mst-time" class="clock-readout tabular">17:35:41 MST</div>
+        <div class="clock-date-row">
+          <span id="live-mst-date">THU, NOV 12, 2026</span>
+          <span id="solar-moon-line" class="tabular">SUNSET 17:28 · MOONSET 19:53</span>
+        </div>
+        <div class="clock-controls">
+          <div class="control-field">
+            <label for="clock-mode-select">Clock Source</label>
+            <select id="clock-mode-select" class="select-input" onchange="handleClockModeChange(this.value)">
+              <option value="epoch">Mission Epoch (Nov 12, 2026 Live)</option>
+              <option value="wall">Device Clock (Live MST UTC-7)</option>
+            </select>
+          </div>
+          <div class="control-field">
+            <label for="time-offset-select">Preview Time Shift</label>
+            <select id="time-offset-select" class="select-input" onchange="handleTimeShiftChange(this.value)">
+              <option value="0">Live (+0 hrs)</option>
+              <option value="3">Tonight +3 hrs (20:35 MST)</option>
+              <option value="22">Starship F15 Window (+22 hrs)</option>
+              <option value="120">USSF-317 Front (+5 days)</option>
+            </select>
+          </div>
+        </div>
+      </section>
+    </div>
   </header>
 
   <main class="page-grid">
 
-    <!-- KPI Section: Headline Telemetry -->
-    <section id="kpi-section" aria-labelledby="kpi-heading">
-      <h2 id="kpi-heading" class="visually-hidden" style="display:none;">Observatory Status Indicators</h2>
-      <div class="kpi-row">
-        <!-- Moon Status -->
-        <div class="kpi-card">
-          <div class="kpi-label">
-            <span>Lunar Phase</span>
-            <span class="badge badge-brass">Optimal Dark</span>
-          </div>
-          <div class="kpi-value" id="kpiMoonPhase">Waxing Crescent</div>
-          <div class="kpi-sub" id="kpiMoonSub">~8% Illumination • Sets 19:48 MST</div>
-        </div>
-
-        <!-- Deer Valley Weather -->
-        <div class="kpi-card">
-          <div class="kpi-label">
-            <span>KDVT Deer Valley</span>
-            <span class="badge badge-mint">Calm / Clear</span>
-          </div>
-          <div class="kpi-value">82°F <span style="font-size: 1.1rem; color: var(--on-surface-variant); font-family: var(--font-body);">/ 58°F</span></div>
-          <div class="kpi-sub">Pre-Front Warmth • Gusts &lt;10 mph</div>
-        </div>
-
-        <!-- Crown King Trail -->
-        <div class="kpi-card">
-          <div class="kpi-label">
-            <span>Backway to Crown King</span>
-            <span class="badge badge-brass">Rating 7 Hard</span>
-          </div>
-          <div class="kpi-value">Open <span style="font-size: 1rem; color: var(--warning); font-family: var(--font-label); font-weight: 500;">(Obstacles)</span></div>
-          <div class="kpi-sub">Mine Washout Bypass • 3.5ft Waterfall</div>
-        </div>
-
-        <!-- Fire Restrictions -->
-        <div class="kpi-card">
-          <div class="kpi-label">
-            <span>State Fire Bans</span>
-            <span class="badge badge-mint">Stage 1/2 Lifted</span>
-          </div>
-          <div class="kpi-value" style="color: var(--positive);">Permitted</div>
-          <div class="kpi-sub">Campfires Allowed (Tonto / Prescott / State)</div>
-        </div>
-
-        <!-- Primary Celestial Event -->
-        <div class="kpi-card">
-          <div class="kpi-label">
-            <span>Next Horizon Peak</span>
-            <span class="badge">Nov 15-16</span>
-          </div>
-          <div class="kpi-value" style="color: var(--tertiary); font-size: 1.7rem;">Mars-Jupiter</div>
-          <div class="kpi-sub">1.2° Conjunction in Leo • Great Red Spot</div>
-        </div>
-      </div>
+    <!-- TOP-LINE HERO KPI SUMMARY -->
+    <section class="kpi-grid" aria-label="Key Observatory Metrics">
+      <article class="kpi-card">
+        <span class="mono-label">Next SpaceX Launch</span>
+        <div id="kpi-next-countdown" class="kpi-mono-value tabular">T−22h 09m 19s</div>
+        <div id="kpi-next-name" class="kpi-sub">Starship Flight 15 · Starbase Pad 2</div>
+      </article>
+      <article class="kpi-card">
+        <span class="mono-label">Selected Night Sky Score</span>
+        <div id="kpi-sky-score" class="kpi-value tabular">94 / 100</div>
+        <div id="kpi-sky-verdict" class="kpi-sub">Optimal · 0% Cloud · Moon sets 19:53</div>
+      </article>
+      <article class="kpi-card">
+        <span class="mono-label">Lake Pleasant Conditions</span>
+        <div class="kpi-value tabular">64°F <span style="font-size: 0.95rem; color: var(--on-surface-variant);">Clear</span></div>
+        <div class="kpi-sub tabular">Wind SE 13 mph · RH 35% · 30.06 inHg</div>
+      </article>
+      <article class="kpi-card">
+        <span class="mono-label">Dark Window &amp; Park Gate</span>
+        <div id="kpi-dark-window" class="kpi-value tabular">19:53–05:30</div>
+        <div class="kpi-sub">Gates close nightly · Roadside pullouts open</div>
+      </article>
     </section>
 
-    <!-- SECTION 1: CELESTIAL OBSERVATION DECK & VECTOR RADAR -->
-    <section id="celestial-section" class="panel" aria-labelledby="celestial-heading">
-      <div class="panel-header">
+    <!-- SECTION 1: DAILY INTEGRATED VIEW -->
+    <section id="sec-integrated" class="panel">
+      <div class="section-head">
         <div>
-          <h2 id="celestial-heading" class="panel-title">
-            <i data-lucide="compass" style="color: var(--primary);"></i>
-            Celestial Observation Radar &amp; Vector Projector
-          </h2>
-          <div class="panel-subtitle">Interactive Azimuth / Altitude Ephemeris for North Phoenix &amp; Lake Pleasant</div>
+          <h2 class="title section-title">Daily Integrated Sky &amp; Launch Matrix</h2>
+          <p class="deck-brass">CROSS-REFERENCING 14-DAY LAKE PLEASANT FORECAST × SPACEX LAUNCHES × COSMIC WINDOWS</p>
         </div>
-        <div style="display: flex; gap: var(--space-sm); align-items: center; flex-wrap: wrap;">
-          <div class="control-group" style="min-width: 190px;">
-            <label for="stationSelect" class="input-label">Observation Station</label>
-            <select id="stationSelect" onchange="updateObservationDeck()">
-              <option value="kdvt" selected>Deer Valley KDVT (1,486 ft, Bortle 6)</option>
-              <option value="pleasant">Lake Pleasant Trailhead (1,700 ft, Bortle 4)</option>
-              <option value="crownking">Crown King Bradshaw (5,771 ft, Bortle 3)</option>
-              <option value="flagstaff">Snowbowl Base / Flagstaff (7,000 ft, Bortle 2)</option>
-            </select>
-          </div>
-          <div class="control-group" style="min-width: 170px;">
-            <label for="timeSlider" class="input-label">Viewing Epoch: <span id="timeSliderVal" style="color: var(--primary);">22:00 MST</span></label>
-            <input type="range" id="timeSlider" min="17" max="29" step="0.5" value="22" oninput="onTimeSliderChange(this.value)">
-          </div>
+        <div class="btn-row">
+          <span class="badge badge-brass">Click any day to inspect</span>
+          <button type="button" class="btn btn-compact" onclick="selectDayByIndex(0)">Jump to Nov 12</button>
+          <button type="button" class="btn btn-compact" onclick="selectDayByIndex(5)">Inspect Nov 17 Storm</button>
         </div>
       </div>
 
-      <div class="grid-2col">
-        <!-- Interactive Radar Canvas -->
-        <div>
-          <div class="canvas-container">
-            <canvas id="skyCanvas"></canvas>
-            <div class="canvas-overlay-controls">
-              <span class="badge badge-brass" id="skyEpochBadge">Thu Nov 12 • 22:00 MST</span>
-              <span class="badge" id="bortleBadge">Bortle Class 6 (Urban / Suburban)</span>
-            </div>
-          </div>
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-top: var(--space-xs); font-family: var(--font-label); font-size: var(--label-size); color: var(--on-surface-variant); flex-wrap: wrap; gap: var(--space-xs);">
-            <span>Projection: Stereographic Horizon (Center = Zenith 90°, Ring = Horizon 0°)</span>
-            <span style="color: var(--primary);">● Click or tap any target icon</span>
-          </div>
-        </div>
+      <div id="day-strip" class="day-strip" role="listbox" aria-label="14-Day Forecast Selector"></div>
 
-        <!-- Target Ephemeris Detail Card -->
-        <div class="observation-well" style="display: flex; flex-direction: column; justify-content: space-between;">
-          <div>
-            <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: var(--space-sm);">
-              <div>
-                <span class="badge" id="targetTypeBadge">Planetary Conjunction</span>
-                <h3 id="targetName" style="font-family: var(--font-headline); font-size: 1.8rem; margin: var(--space-xs) 0 0 0; color: var(--on-surface);">Mars &amp; Jupiter Conjunction</h3>
-                <div id="targetConstellation" style="color: var(--primary); font-size: var(--label-size); text-transform: uppercase; margin-bottom: var(--space-sm);">Constellation Leo (Heart of Lion / Sickle)</div>
-              </div>
-              <div style="text-align: right;">
-                <div style="font-size: var(--label-size); color: var(--on-surface-variant);">SEPARATION</div>
-                <div id="targetDistance" style="font-size: 1.3rem; font-weight: 600; color: var(--tertiary);">1.2°</div>
-              </div>
-            </div>
-
-            <!-- Vector metrics grid -->
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-sm); margin: var(--space-md) 0; background: var(--surface-container); padding: var(--space-sm); border-radius: var(--rounded);">
-              <div>
-                <span style="color: var(--on-surface-variant); font-size: var(--label-size); display: block;">AZIMUTH (BEARING)</span>
-                <span id="targetAzimuth" style="font-size: 1.25rem; font-weight: 600; color: var(--primary);">104° ESE</span>
-              </div>
-              <div>
-                <span style="color: var(--on-surface-variant); font-size: var(--label-size); display: block;">ALTITUDE (ELEVATION)</span>
-                <span id="targetAltitude" style="font-size: 1.25rem; font-weight: 600; color: var(--positive);">+48° (High)</span>
-              </div>
-              <div>
-                <span style="color: var(--on-surface-variant); font-size: var(--label-size); display: block;">BEST VIEWING WINDOW</span>
-                <span id="targetWindow" style="font-size: 0.95rem; font-weight: 500;">02:30 – 05:45 MST</span>
-              </div>
-              <div>
-                <span style="color: var(--on-surface-variant); font-size: var(--label-size); display: block;">LUNAR INTERFERENCE</span>
-                <span id="targetMoonImpact" style="font-size: 0.95rem; font-weight: 500; color: var(--positive);">0% (Moon Below Horizon)</span>
-              </div>
-            </div>
-
-            <!-- Optical Tool Recommendation -->
-            <div style="margin-bottom: var(--space-sm);">
-              <span style="color: var(--on-surface-variant); font-size: var(--label-size); text-transform: uppercase;">Optics &amp; Observation Guidance</span>
-              <p id="targetOpticsDesc" style="margin: var(--space-xs) 0 0 0; color: var(--on-surface); font-size: 0.9rem; line-height: 1.45;">
-                Visible to naked eye as twin bright lanterns rising after midnight in the east. In a 4-inch aperture telescope, Jupiter reveals its equatorial cloud belts and Galilean moons. On predawn Nov 16, the Great Red Spot rotates into view; utilize a light green or light orange optical filter to isolate contrast.
-              </p>
-            </div>
-          </div>
-
-          <!-- Target Quick Select Strip -->
-          <div>
-            <div style="font-size: var(--label-size); color: var(--on-surface-variant); margin-bottom: var(--space-xs); text-transform: uppercase;">Select Primary Sky Target:</div>
-            <div id="targetSelectorStrip" style="display: flex; gap: var(--space-xs); flex-wrap: wrap;">
-              <button type="button" class="btn btn-secondary active" data-target="mars_jupiter" onclick="selectSkyTarget('mars_jupiter', this)">Mars-Jupiter (1.2°)</button>
-              <button type="button" class="btn btn-secondary" data-target="leonids" onclick="selectSkyTarget('leonids', this)">Leonid Radiant</button>
-              <button type="button" class="btn btn-secondary" data-target="taurids" onclick="selectSkyTarget('taurids', this)">Northern Taurids (Peak)</button>
-              <button type="button" class="btn btn-secondary" data-target="voyager" onclick="selectSkyTarget('voyager', this)">Voyager 1 (1 Light-Day)</button>
-              <button type="button" class="btn btn-secondary" data-target="moon" onclick="selectSkyTarget('moon', this)">Waxing Crescent Moon</button>
-              <button type="button" class="btn btn-secondary" data-target="supermoon" onclick="selectSkyTarget('supermoon', this)">Nov 24 Supermoon Preview</button>
-            </div>
-          </div>
-        </div>
-      </div>
+      <div id="integrated-brief" class="integrated-brief"></div>
     </section>
 
-    <!-- SECTION 2: REGIONAL MICROCLIMATE & MOUNTAIN ELEVATION MODELS -->
-    <section id="weather-section" class="panel" aria-labelledby="weather-heading">
-      <div class="panel-header">
+    <!-- SECTION 2: SPACEX & COSMIC LAUNCH & EVENT TRACKER -->
+    <section id="sec-launches" class="panel">
+      <div class="section-head">
         <div>
-          <h2 id="weather-heading" class="panel-title">
-            <i data-lucide="cloud-sun" style="color: var(--primary);"></i>
-            Microclimate Models &amp; Regional Elevation Gradient
-          </h2>
-          <div class="panel-subtitle">NWS Phoenix / Deer Valley ASOS Telemetry to Arizona Snowbowl (6,000+ ft Climb)</div>
+          <h2 class="title section-title">SpaceX &amp; Cosmic Event Tracker</h2>
+          <p class="deck-brass">LIVE COUNTDOWNS · SLIP SIMULATOR · GLOBAL CADENCE &amp; CELESTIAL CALENDAR</p>
         </div>
-        <div style="display:flex; gap: var(--space-sm); align-items: center;">
-          <span class="badge badge-brass">Incoming Pacific Trough: Fri Night - Sat</span>
+        <div class="btn-row">
+          <button type="button" class="btn btn-compact btn-active" id="filter-all" onclick="setEventFilter('all')">All Events</button>
+          <button type="button" class="btn btn-compact" id="filter-spacex" onclick="setEventFilter('spacex')">SpaceX</button>
+          <button type="button" class="btn btn-compact" id="filter-cosmic" onclick="setEventFilter('cosmic')">Cosmic &amp; Meteors</button>
+          <button type="button" class="btn btn-compact" id="filter-global" onclick="setEventFilter('global')">Global Rockets</button>
+          <button type="button" class="btn btn-compact" id="reset-state-btn" onclick="handleResetState(this)">Reset Shifts</button>
         </div>
       </div>
 
-      <div class="grid-2col">
-        <!-- 7-Day Forecast Synoptic Bar/Line Chart -->
-        <div>
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-sm); flex-wrap: wrap; gap: var(--space-xs);">
-            <span style="font-family: var(--font-label); font-size: var(--label-size); text-transform: uppercase; color: var(--on-surface-variant);">
-              Phoenix / Deer Valley Multi-Day Profile (°F &amp; Rain Prob %)
-            </span>
-            <span class="badge">Model: NWS / FOX 10 Synthesis</span>
-          </div>
-          <div class="chart-box">
-            <canvas id="weatherTrendChart"></canvas>
-          </div>
-          <div style="margin-top: var(--space-sm); font-size: var(--label-size); font-family: var(--font-label); color: var(--on-surface-variant);">
-            • Peak warmth (82°–86°F) holds through Thursday. Friday evening brings 20% shower/t-storm chances and 20 mph gusts before Saturday's trough drops highs into the mid-70s with a 40% shower probability.
-          </div>
-        </div>
+      <div id="tracker-status" class="inline-status" style="margin-bottom: var(--space-sm);"></div>
 
-        <!-- Elevation Profile & Multi-Station Comparison Table -->
+      <div class="tracker-layout">
         <div>
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-sm); flex-wrap: wrap; gap: var(--space-xs);">
-            <span style="font-family: var(--font-label); font-size: var(--label-size); text-transform: uppercase; color: var(--on-surface-variant);">
-              I-17 Corridor &amp; Bradshaw Elevation Checkpoints
-            </span>
-            <span class="badge badge-mint">Lap Rate: ~3.5°F / 1k ft</span>
-          </div>
-          <div class="table-container">
-            <table class="data-table">
-              <thead>
-                <tr>
-                  <th>Station / Waypoint</th>
-                  <th>Elev</th>
-                  <th>High / Low</th>
-                  <th>Stargazing Seeing</th>
-                  <th>Sky Transparency</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td><strong>Deer Valley (KDVT)</strong></td>
-                  <td>1,486'</td>
-                  <td>82°F / 58°F</td>
-                  <td><span style="color:var(--primary);">Average (5/10)</span></td>
-                  <td>Clear (Pre-front)</td>
-                </tr>
-                <tr>
-                  <td><strong>Lake Pleasant</strong></td>
-                  <td>1,700'</td>
-                  <td>84°F / 59°F</td>
-                  <td><span style="color:var(--positive);">Good (7/10)</span></td>
-                  <td>Dark Western Rim</td>
-                </tr>
-                <tr>
-                  <td><strong>Sunset Point</strong></td>
-                  <td>3,400'</td>
-                  <td>74°F / 48°F</td>
-                  <td><span style="color:var(--positive);">Crisp (8/10)</span></td>
-                  <td>Minimal Light Dome</td>
-                </tr>
-                <tr>
-                  <td><strong>Cordes Lakes</strong></td>
-                  <td>3,770'</td>
-                  <td>64°F / 42°F</td>
-                  <td><span style="color:var(--positive);">Crisp (8/10)</span></td>
-                  <td>High Mesa Transparency</td>
-                </tr>
-                <tr>
-                  <td><strong>Crown King (Bradshaw)</strong></td>
-                  <td>5,771'</td>
-                  <td>64°F / 41°F</td>
-                  <td><span style="color:var(--tertiary);">Pristine (9/10)</span></td>
-                  <td>Bortle 3 Dark Mountain</td>
-                </tr>
-                <tr>
-                  <td><strong>Munds Park (I-17 Crest)</strong></td>
-                  <td>6,590'</td>
-                  <td>56°F / 28°F</td>
-                  <td><span style="color:var(--warning);">Freeze Watch</span></td>
-                  <td>Sub-freezing Overnight</td>
-                </tr>
-                <tr>
-                  <td><strong>Snowbowl Base / Flagstaff</strong></td>
-                  <td>7,000'</td>
-                  <td>53°F / 26°F</td>
-                  <td><span style="color:var(--positive);">Superior (9.5/10)</span></td>
-                  <td>12" Snow Base • Opening Nov 20</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+          <div id="event-list" class="event-list"></div>
 
-          <!-- Interactive Elevation Lapse Slider -->
-          <div style="margin-top: var(--space-md); background: var(--surface-container-low); padding: var(--space-md); border-radius: var(--rounded); border: var(--hairline);">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-xs); flex-wrap: wrap; gap: var(--space-xs);">
-              <label for="elevSlider" class="input-label">Simulate Altitude Temperature: <span id="elevVal" style="color: var(--primary);">3,400 ft (Sunset Point)</span></label>
-              <span id="elevTempEst" class="badge badge-brass">Est: 74°F High / 48°F Low</span>
+          <!-- Add Custom Cosmic / Launch Watch Entry -->
+          <form class="custom-form" onsubmit="addCustomEvent(event)">
+            <div class="control-field">
+              <label for="custom-title">Add Custom Target / Pass</label>
+              <input id="custom-title" type="text" class="text-input" placeholder="e.g., ISS Overhead Pass or Comet Tail Check" required>
             </div>
-            <input type="range" id="elevSlider" min="1200" max="9200" step="200" value="3400" oninput="calculateElevationLapse(this.value)">
-            <div style="display:flex; justify-content: space-between; font-size: 0.7rem; color: var(--on-surface-variant); font-family: var(--font-label); margin-top: 4px;">
-              <span>Phoenix Basin (1.2k')</span>
-              <span>Camp Verde (3.1k')</span>
-              <span>Crown King (5.8k')</span>
-              <span>Flagstaff / Agassiz (9.2k')</span>
+            <div class="control-field">
+              <label for="custom-date">Target Date (Nov 2026)</label>
+              <select id="custom-date" class="select-input">
+                <option value="2026-11-12">Thu, Nov 12</option>
+                <option value="2026-11-13" selected>Fri, Nov 13</option>
+                <option value="2026-11-14">Sat, Nov 14</option>
+                <option value="2026-11-15">Sun, Nov 15</option>
+                <option value="2026-11-16">Mon, Nov 16</option>
+                <option value="2026-11-17">Tue, Nov 17</option>
+                <option value="2026-11-18">Wed, Nov 18</option>
+                <option value="2026-11-19">Thu, Nov 19</option>
+                <option value="2026-11-20">Fri, Nov 20</option>
+                <option value="2026-11-21">Sat, Nov 21</option>
+                <option value="2026-11-22">Sun, Nov 22</option>
+                <option value="2026-11-23">Mon, Nov 23</option>
+                <option value="2026-11-24">Tue, Nov 24</option>
+                <option value="2026-11-25">Wed, Nov 25</option>
+              </select>
             </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- SECTION 3: TRAIL STATUS, ROAD HAZARDS & CROWN KING TELEMETRY -->
-    <section id="trail-section" class="panel" aria-labelledby="trail-heading">
-      <div class="panel-header">
-        <div>
-          <h2 id="trail-heading" class="panel-title">
-            <i data-lucide="mountain" style="color: var(--primary);"></i>
-            Backway to Crown King &amp; I-17 Corridor Status
-          </h2>
-          <div class="panel-subtitle">Trailhead: Lake Pleasant to Crown King (25.2 Miles, Technical Rating 7 Difficult)</div>
-        </div>
-        <div style="display:flex; gap: var(--space-sm); align-items: center; flex-wrap: wrap;">
-          <span class="badge badge-mint">Campfire Ban LIFTED</span>
-          <span class="badge badge-brass">ADOT 511 Active</span>
-        </div>
-      </div>
-
-      <div class="grid-2col">
-        <!-- Trail Telemetry & Latest Conditions -->
-        <div>
-          <div style="background: var(--surface-container-low); border: var(--hairline); border-radius: var(--rounded); padding: var(--space-md); margin-bottom: var(--space-md);">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-sm); flex-wrap: wrap; gap: var(--space-xs);">
-              <span style="font-family: var(--font-headline); font-size: 1.25rem; font-weight: 600;">Trail Status Briefing</span>
-              <span class="badge badge-brass">Updated: Nov 08-10, 2026</span>
+            <div class="control-field">
+              <label for="custom-time">Time (MST)</label>
+              <input id="custom-time" type="time" class="text-input" value="20:30" required>
             </div>
-            <p style="margin: 0 0 var(--space-sm) 0; font-size: 0.95rem; line-height: 1.5; color: var(--on-surface);">
-              The 25.2-mile Backway begins at Lake Pleasant and climbs into Crown King in the Bradshaw Mountains. While the first 11 miles on Cow Creek Road (marked as French Creek Rd) are graded dirt road, recent storms have caused washouts and boulder accumulation:
+            <button type="submit" class="btn btn-primary">Add Watch</button>
+          </form>
+        </div>
+
+        <!-- Right Rail: 2026 SpaceNexus Cadence, Manifest Slips & Cosmic Seasonal Windows -->
+        <aside style="display: grid; gap: var(--space-md);">
+          <div class="panel-low">
+            <div class="coord-label">2026 ORBITAL CADENCE (YTD OCT–NOV)</div>
+            <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-sm); margin-top: var(--space-sm);">
+              <div class="mini-stat">
+                <span class="mono-label">Global Launches</span>
+                <div class="mini-stat-val tabular">264 <span class="muted" style="font-size: 0.75rem;">(306 proj.)</span></div>
+              </div>
+              <div class="mini-stat">
+                <span class="mono-label">Success Rate</span>
+                <div class="mini-stat-val tabular" style="color: var(--positive);">97.3%</div>
+              </div>
+              <div class="mini-stat">
+                <span class="mono-label">SpaceX YTD</span>
+                <div class="mini-stat-val tabular">124 <span class="muted" style="font-size: 0.75rem;">(100%)</span></div>
+              </div>
+              <div class="mini-stat">
+                <span class="mono-label">Falcon 9 Block 5</span>
+                <div class="mini-stat-val tabular">120 flights</div>
+              </div>
+            </div>
+            <p class="muted" style="font-size: 0.85rem; margin: var(--space-sm) 0 0 0;">
+              2025 set the standing record at 324 orbital attempts. 2026 milestones include Artemis II lunar flyby (Apr 1–10), Starship Flight 13 (Jul 24), and Flight 14's first orbital reach &amp; 26 Starlink V3 deploy (Sep 28).
             </p>
-            <ul style="margin: 0 0 var(--space-sm) 0; padding-left: var(--space-lg); color: var(--on-surface-variant); font-size: 0.9rem; line-height: 1.5;">
-              <li><strong style="color: var(--on-surface);">Gold Mine Washout:</strong> Road washed out at the active gold mining area; active mining company reroute passes around the backside of the mine with a shallow soft-dirt water crossing.</li>
-              <li><strong style="color: var(--warning);">The Waterfall Obstacle:</strong> Ledge drop currently measured at 3.0 to 3.5 feet. Short wheelbase rigs and side-by-sides (SxS) require rock stacking. High-centering risk is acute for standard pickups without 3"+ lift and lockers.</li>
-              <li><strong style="color: var(--error);">Boulder Squeeze:</strong> Directly following the waterfall; narrow rocky choke point with off-camber slip hazard. Maintain passenger-side line.</li>
-              <li><strong style="color: var(--positive);">Transit Duration:</strong> Plan 6 to 8 hours for a full traverse. Crown King offers refueling, saloon dining, and lodging at 5,771 ft.</li>
+          </div>
+
+          <div class="panel-low">
+            <div class="coord-label">OBSERVED MANIFEST SLIPS (SPACENEXUS LOG)</div>
+            <div class="data-table-wrap" style="margin-top: var(--space-xs);">
+              <table class="obs-table">
+                <thead>
+                  <tr>
+                    <th>Mission</th>
+                    <th class="num">Shift</th>
+                    <th class="num">Revised</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>USSF-317 (Vandenberg)</td>
+                    <td class="num" style="color: var(--warning);">+3d</td>
+                    <td class="num">NET Nov 17</td>
+                  </tr>
+                  <tr>
+                    <td>Mir · Demo Flight</td>
+                    <td class="num" style="color: var(--warning);">+2d</td>
+                    <td class="num">Nov 13</td>
+                  </tr>
+                  <tr>
+                    <td>Long March 12 · SatNet 29</td>
+                    <td class="num" style="color: var(--warning);">+3d</td>
+                    <td class="num">Nov 8</td>
+                  </tr>
+                  <tr>
+                    <td>Falcon 9 · USSF-432</td>
+                    <td class="num" style="color: var(--warning);">+2d</td>
+                    <td class="num">Nov 7</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="panel-low">
+            <div class="coord-label">SEASONAL COSMIC &amp; DEEP-SKY WINDOWS</div>
+            <ul style="margin: var(--space-sm) 0 0 0; padding-left: 1.1rem; display: grid; gap: var(--space-xs); font-size: 0.875rem; color: var(--on-surface-variant);">
+              <li><strong style="color: var(--on-surface);">Geminid Meteor Shower:</strong> Peaks mid-December (dozens/hr); Lake Pleasant Desert Tortoise Campground prime dark site.</li>
+              <li><strong style="color: var(--on-surface);">Perseid Meteor Shower:</strong> Peaks mid-August (dozens/hr); warm desert night viewing.</li>
+              <li><strong style="color: var(--on-surface);">Milky Way Galactic Core:</strong> Prime arc across southern sky in Summer; in November, core sets in WSW shortly after twilight.</li>
+              <li><strong style="color: var(--on-surface);">Planetary &amp; Deep-Space:</strong> Venus, Jupiter &amp; Saturn evening alignments; ESA Hera at Didymos (Nov) &amp; BepiColombo Mercury orbit insertion (Nov 21).</li>
             </ul>
           </div>
-
-          <!-- I-17 Checkpoint Risk Matrix -->
-          <div style="background: var(--surface-container-low); border: var(--hairline); border-radius: var(--rounded); padding: var(--space-md);">
-            <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-xs); flex-wrap: wrap; gap: var(--space-xs);">
-              <span style="font-family: var(--font-label); font-size: var(--label-size); text-transform: uppercase; color: var(--tertiary);">
-                I-17 Corridor Winter Risk Analysis
-              </span>
-              <span class="badge badge-mint">Today: Risk 1/5 Low</span>
-            </div>
-            <div style="font-size: 0.88rem; color: var(--on-surface); line-height: 1.45;">
-              <p style="margin: 0 0 var(--space-xs) 0;">
-                <strong>Camp Verde to Stoneman Lake Grade:</strong> Curvy, steep, and shaded corridor where black ice forms first during cold frontal transitions. No highway services exist between Camp Verde and Munds Park.
-              </p>
-              <p style="margin: 0; color: var(--on-surface-variant);">
-                <strong>Saturday Transition:</strong> Pacific system arrives late Friday night with light rain expected around Big Park and Camp Verde by 08:30 MST Saturday (Risk moves to 2 of 5). 4WD required if ascending into Snowbowl access roads.
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <!-- Interactive Rig Checklist & Equipment Planner -->
-        <div class="observation-well">
-          <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-sm); flex-wrap: wrap; gap: var(--space-xs);">
-            <div>
-              <span class="badge badge-brass">Field Prep</span>
-              <h3 style="font-family: var(--font-headline); font-size: 1.4rem; margin: var(--space-xs) 0 0 0;">Rig &amp; Expedition Readiness</h3>
-            </div>
-            <span id="checklistScoreBadge" class="badge badge-mint">Ready: 0/6 Items</span>
-          </div>
-
-          <p style="font-size: 0.85rem; color: var(--on-surface-variant); margin-top: 0;">
-            Check your expedition equipment before departing Lake Pleasant staging area. Preferences persist in observatory state:
-          </p>
-
-          <div id="rigChecklistContainer">
-            <label class="checklist-item">
-              <input type="checkbox" id="chk_lift" onchange="onChecklistToggle()">
-              <div class="checklist-text">
-                <div class="checklist-title">High-Clearance 4x4 (33"+ Tires &amp; Lift)</div>
-                <div class="checklist-sub">Essential for 3.5ft Waterfall obstacle and boulder crawls</div>
-              </div>
-            </label>
-            <label class="checklist-item">
-              <input type="checkbox" id="chk_locker" onchange="onChecklistToggle()">
-              <div class="checklist-text">
-                <div class="checklist-title">Rear Locker &amp; Solid Skid Plates</div>
-                <div class="checklist-sub">Prevents bottoming out and spinning on wet rock surfaces</div>
-              </div>
-            </label>
-            <label class="checklist-item">
-              <input type="checkbox" id="chk_winch" onchange="onChecklistToggle()">
-              <div class="checklist-text">
-                <div class="checklist-title">Recovery Winch &amp; Rigging Tree Strap</div>
-                <div class="checklist-sub">Required if second obstacle hangs up belly pan; buddy rig strongly advised</div>
-              </div>
-            </label>
-            <label class="checklist-item">
-              <input type="checkbox" id="chk_airdown" onchange="onChecklistToggle()">
-              <div class="checklist-text">
-                <div class="checklist-title">Tire Deflator &amp; 12V Air Compressor</div>
-                <div class="checklist-sub">Air down at Cow Creek / French Creek campground (15-18 PSI recommended)</div>
-              </div>
-            </label>
-            <label class="checklist-item">
-              <input type="checkbox" id="chk_fire" onchange="onChecklistToggle()">
-              <div class="checklist-text">
-                <div class="checklist-title">Campfire Drown &amp; Stir Gear (Water &amp; Shovel)</div>
-                <div class="checklist-sub">Restrictions lifted across Prescott &amp; Tonto; fire must be cold to touch</div>
-              </div>
-            </label>
-            <label class="checklist-item">
-              <input type="checkbox" id="chk_offline" onchange="onChecklistToggle()">
-              <div class="checklist-text">
-                <div class="checklist-title">Offline GPS Maps &amp; Stargazing Atlas</div>
-                <div class="checklist-sub">Zero cellular service in Bradshaw canyons; call 511 for state highway updates</div>
-              </div>
-            </label>
-          </div>
-
-          <div style="margin-top: var(--space-md); padding: var(--space-sm); background: var(--surface-container); border-radius: var(--rounded); font-size: 0.8rem; color: var(--on-surface-variant);">
-            <strong style="color: var(--primary);">Emergency Comm:</strong> Arizona Highway Patrol / ADOT Road Conditions: Dial <strong>511</strong> or <strong>1-888-411-ROAD (7623)</strong>. Prescott NF Dispatch: Crown King Ranger Station.
-          </div>
-        </div>
+        </aside>
       </div>
     </section>
 
-    <!-- SECTION 4: SPACEX LAUNCH TELEMETRY, ACOUSTICS & VECTOR MODELS -->
-    <section id="spacex-section" class="panel" aria-labelledby="spacex-heading">
-      <div class="panel-header">
+    <!-- SECTION 3: INTEGRATED LAKE PLEASANT WEATHER DASHBOARD -->
+    <section id="sec-weather" class="panel">
+      <div class="section-head">
         <div>
-          <h2 id="spacex-heading" class="panel-title">
-            <i data-lucide="rocket" style="color: var(--primary);"></i>
-            SpaceX Launch Telemetry &amp; Acoustic Propagation
-          </h2>
-          <div class="panel-subtitle">Live Auto-Synced Launch Countdowns, Falcon Acoustics &amp; Starship Cadence</div>
+          <h2 class="title section-title">Lake Pleasant Weather &amp; Atmospheric Telemetry</h2>
+          <p class="deck-brass">HOURLY SEEING CURVE · 14-DAY EXTENDED OUTLOOK · ANNUAL CLIMATE NORMALS</p>
         </div>
-        <div style="display:flex; gap: var(--space-sm); align-items: center; flex-wrap: wrap;">
-          <span id="spacexSyncBadge" class="badge badge-brass">Syncing Live Feed...</span>
-          <button type="button" class="btn btn-secondary" style="min-height: 30px; padding: 4px 10px;" onclick="fetchLiveSpaceXLaunches(true)">
-            <i data-lucide="refresh-cw" style="width:13px;height:13px;"></i>
-            <span>Refresh Now</span>
-          </button>
+        <div class="btn-row">
+          <button type="button" class="btn btn-compact btn-active" id="wx-tab-hourly" onclick="setWeatherChartMode('hourly')">Hourly (24h)</button>
+          <button type="button" class="btn btn-compact" id="wx-tab-daily" onclick="setWeatherChartMode('daily')">14-Day Forecast</button>
+          <button type="button" class="btn btn-compact" id="wx-tab-climate" onclick="setWeatherChartMode('climate')">Monthly Climate</button>
         </div>
       </div>
 
-      <!-- Live SpaceX Launch Manifest & T-Minus Countdown Deck -->
-      <div class="countdown-hero-card">
-        <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: var(--space-md); flex-wrap: wrap;">
-          <div style="flex: 1; min-width: 240px;">
-            <div style="display: flex; align-items: center; gap: var(--space-xs); flex-wrap: wrap; margin-bottom: var(--space-xs);">
-              <span class="badge badge-brass">Next SpaceX Liftoff</span>
-              <span id="nextLaunchStatusBadge" class="badge badge-mint">GO FOR LAUNCH</span>
-              <span id="azVisibilityBadge" class="badge" style="display: none;">AZ Twilight Plume Alert</span>
-            </div>
-            <h3 id="nextLaunchName" style="font-family: var(--font-headline); font-size: 1.65rem; margin: 0; color: var(--on-surface);">
-              Loading Upcoming Mission...
-            </h3>
-            <div id="nextLaunchPad" style="font-family: var(--font-label); font-size: var(--label-size); color: var(--tertiary); margin-top: 4px;">
-              Launch Pad: --
-            </div>
-            <div id="nextLaunchTimes" style="font-family: var(--font-label); font-size: var(--label-size); color: var(--on-surface-variant); margin-top: 4px;">
-              Window: -- MST / -- UTC
-            </div>
+      <div class="weather-grid">
+        <div style="display: grid; gap: var(--space-md);">
+          <div class="chart-box">
+            <div id="chart-caption" class="coord-label" style="margin-bottom: var(--space-xs);">TONIGHT'S HOURLY TEMP (°F) &amp; UV INDEX CURVE — NOV 12–13</div>
+            <canvas id="weather-chart"></canvas>
           </div>
 
-          <!-- Digital T-Minus / T-Plus Counter -->
-          <div style="min-width: 280px; flex: 1; max-width: 440px;">
-            <div style="display: flex; justify-content: space-between; align-items: center;">
-              <span id="countdownModeLabel" style="font-family: var(--font-label); font-size: var(--label-size); letter-spacing: var(--label-tracking); text-transform: uppercase; color: var(--primary);">
-                T-Minus Countdown
-              </span>
-              <a id="nextLaunchLink" href="https://www.spacex.com/launches/" target="_blank" rel="noopener noreferrer" style="font-family: var(--font-label); font-size: var(--label-size); color: var(--tertiary); text-decoration: none;">
-                Mission Feed ↗
-              </a>
-            </div>
-            <div class="countdown-digits">
-              <div class="digit-box">
-                <span class="digit-num" id="cdDays">00</span>
-                <span class="digit-unit">Days</span>
-              </div>
-              <div class="digit-box">
-                <span class="digit-num" id="cdHours">00</span>
-                <span class="digit-unit">Hours</span>
-              </div>
-              <div class="digit-box">
-                <span class="digit-num" id="cdMins">00</span>
-                <span class="digit-unit">Mins</span>
-              </div>
-              <div class="digit-box">
-                <span class="digit-num" id="cdSecs">00</span>
-                <span class="digit-unit">Secs</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Upcoming Launch Queue -->
-        <div style="border-top: var(--hairline); padding-top: var(--space-sm); margin-top: var(--space-xs);">
-          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: var(--space-xs);">
-            <span style="font-family: var(--font-label); font-size: var(--label-size); text-transform: uppercase; color: var(--on-surface-variant);">
-              Subsequent SpaceX Manifest Queue (Live Timers)
-            </span>
-            <span id="manifestLastUpdated" style="font-family: var(--font-label); font-size: 0.7rem; color: var(--on-surface-variant);">
-              Auto-refreshes on page load
-            </span>
-          </div>
-          <div id="launchQueueContainer" class="launch-queue-grid"></div>
-        </div>
-      </div>
-
-      <div class="grid-2col">
-        <!-- Interactive Acoustic Calculator & FAA EA Sound Pressure Model -->
-        <div>
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-sm); flex-wrap: wrap; gap: var(--space-xs);">
-            <span style="font-family: var(--font-label); font-size: var(--label-size); text-transform: uppercase; color: var(--on-surface-variant);">
-              Near-Field Acoustic Propagation (OASPL Decibels)
-            </span>
-            <span class="badge">Source: FAA EA Table 3-7</span>
-          </div>
-
-          <div class="observation-well" style="margin-bottom: var(--space-md);">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-sm); flex-wrap: wrap; gap: var(--space-xs);">
-              <label for="acousticDistSlider" class="input-label">Distance from Launch Pad: <span id="distVal" style="color: var(--primary);">1,450 Feet</span></label>
-              <span id="vehicleTypeBadge" class="badge badge-brass">Falcon 9 (Block 1)</span>
-            </div>
-            <input type="range" id="acousticDistSlider" min="400" max="3000" step="50" value="1450" oninput="calculateAcoustics(this.value)">
-
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-md); margin-top: var(--space-md);">
-              <div style="background: var(--surface-container); padding: var(--space-sm); border-radius: var(--rounded);">
-                <span style="font-size: var(--label-size); color: var(--on-surface-variant); display: block;">FALCON 9 (BLOCK 1) OASPL</span>
-                <span id="f9DbVal" style="font-family: var(--font-headline); font-size: 1.8rem; color: var(--tertiary); font-weight: 600;">132 dB</span>
-                <div style="font-size: 0.75rem; color: var(--on-surface-variant);">All 9 Merlins firing at sea level</div>
-              </div>
-              <div style="background: var(--surface-container); padding: var(--space-sm); border-radius: var(--rounded);">
-                <span style="font-size: var(--label-size); color: var(--on-surface-variant); display: block;">FALCON HEAVY (27 ENGINES)</span>
-                <span id="fhDbVal" style="font-family: var(--font-headline); font-size: 1.8rem; color: var(--data-4); font-weight: 600;">150 dB</span>
-                <div style="font-size: 0.75rem; color: var(--on-surface-variant);">Peak thrust core + 2 side boosters</div>
-              </div>
-            </div>
-
-            <!-- Meter bar visual -->
-            <div style="margin-top: var(--space-md);">
-              <div style="display: flex; justify-content: space-between; font-size: var(--label-size); color: var(--on-surface-variant); margin-bottom: 4px; gap: var(--space-xs);">
-                <span>120 dB (Damage Threshold)</span>
-                <span>140 dB (Pain Threshold)</span>
-                <span>155 dB+ (Structural)</span>
-              </div>
-              <div class="meter-bar">
-                <div id="meterFill" class="meter-fill" style="width: 75%;"></div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Fairing Recovery & Radiosonde Telemetry Card -->
-          <div style="background: var(--surface-container-low); border: var(--hairline); border-radius: var(--rounded); padding: var(--space-md);">
-            <span style="font-family: var(--font-label); font-size: var(--label-size); text-transform: uppercase; color: var(--primary); display: block; margin-bottom: var(--space-xs);">
-              Aerodynamic Recovery &amp; Meteorological Radiosondes
-            </span>
-            <div style="font-size: 0.88rem; color: var(--on-surface-variant); line-height: 1.45;">
-              <p style="margin: 0 0 var(--space-xs) 0;">
-                <strong style="color: var(--on-surface);">Fairing Recovery System:</strong> Two composite halves separate in vacuum; at ~50,000 ft altitude, a 110 sq ft drogue parachute deploys, followed by extraction of a 3,000 sq ft steerable parafoil. Power boats and salvage ships deploy Rigid-Hulled Inflatable Boats (RHIB) in the offshore Atlantic "Superbox" (&gt;5 nmi offshore) using GPS data recorders and high-intensity strobe beacons.
-              </p>
-              <p style="margin: 0;">
-                <strong style="color: var(--on-surface);">Upper Wind Radiosondes:</strong> Shoe-box sized sensor packages powered by 9V batteries rise on latex weather balloons to 12–19 miles (63,000–100,000 ft) to profile wind shear before bursting into ocean disposal.
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <!-- Starship Cadence & Vehicle Architecture -->
-        <div>
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-sm); flex-wrap: wrap; gap: var(--space-xs);">
-            <span style="font-family: var(--font-label); font-size: var(--label-size); text-transform: uppercase; color: var(--on-surface-variant);">
-              Starship Super Heavy Flight Test Cadence
-            </span>
-            <span class="badge badge-mint">Cadence: Up to 25 / Year</span>
-          </div>
-
-          <div class="table-container" style="margin-bottom: var(--space-md);">
-            <table class="data-table">
+          <div class="panel-low data-table-wrap">
+            <div class="coord-label" style="margin-bottom: var(--space-xs);">14-DAY TELEMETRY LEDGER (NOV 12 – NOV 25, 2026)</div>
+            <table class="obs-table">
               <thead>
                 <tr>
-                  <th>Flight #</th>
-                  <th>Vehicle Config</th>
-                  <th>Key Milestone / Outcome</th>
-                  <th>Status</th>
+                  <th>Date</th>
+                  <th class="num">Hi / Lo</th>
+                  <th class="num">POP</th>
+                  <th class="num">Wind</th>
+                  <th class="num">RH / Dew</th>
+                  <th class="num">Pressure</th>
+                  <th class="num">Sunset</th>
+                </tr>
+              </thead>
+              <tbody id="weather-ledger-body"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Notices, Current Station Comparison & Park Operations -->
+        <aside style="display: grid; gap: var(--space-md);">
+          <div class="panel-low">
+            <div class="coord-label">CURRENT PARK TELEMETRY (NOV 12 · 17:35 MST)</div>
+            <div class="mini-stat-grid" style="margin-top: var(--space-sm);">
+              <div class="mini-stat">
+                <span class="mono-label">Park Temp</span>
+                <div class="mini-stat-val tabular">64°F (18°C)</div>
+              </div>
+              <div class="mini-stat">
+                <span class="mono-label">Feels Like</span>
+                <div class="mini-stat-val tabular">71°F (22°C)</div>
+              </div>
+              <div class="mini-stat">
+                <span class="mono-label">Cloud Cover</span>
+                <div class="mini-stat-val tabular" style="color: var(--positive);">0% Clear</div>
+              </div>
+              <div class="mini-stat">
+                <span class="mono-label">Wind</span>
+                <div class="mini-stat-val tabular">SE 13 mph</div>
+              </div>
+              <div class="mini-stat">
+                <span class="mono-label">Barometer</span>
+                <div class="mini-stat-val tabular">30.06 in</div>
+              </div>
+              <div class="mini-stat">
+                <span class="mono-label">Dew / UV</span>
+                <div class="mini-stat-val tabular">36°F · UV 0</div>
+              </div>
+            </div>
+            <p class="muted" style="font-size: 0.82rem; margin: var(--space-sm) 0 0 0;">
+              Nearby stations: Deer Valley (18 mi) 80°F Sunny · Luke AFB (26 mi) 83°F · Sky Harbor 84°F Passing Clouds, 10 mi vis.
+            </p>
+          </div>
+
+          <div class="notice-stack">
+            <div class="notice-item notice-warn">
+              <div class="coord-label" style="color: var(--warning);">WEATHER NOTICE · TUE NOV 17 &amp; FRI NOV 20</div>
+              <p style="margin: 0; font-size: 0.875rem;">
+                Two Pacific troughs impact skywatching: <strong>Tue Nov 17</strong> spikes to <strong>58% POP</strong>, 68% RH, SSW 11 mph winds (threatens delayed <em>USSF-317</em> visibility). <strong>Fri Nov 20</strong> brings <strong>43% POP</strong>, 72% RH, and a crisp cool-down to 55°F / 45°F lows by Nov 21.
+              </p>
+            </div>
+            <div class="notice-item notice-info">
+              <div class="coord-label">PARK OPERATIONS &amp; CURFEW NOTICE</div>
+              <p style="margin: 0; font-size: 0.875rem;">
+                <strong>Lake Pleasant Regional Park</strong> (41835 N. Castle Hot Springs Rd): Park gates close nightly; per-vehicle fee required (self-pay station if unstaffed). Discovery Center open Fri–Sun 10 AM–4 PM. For late-night viewing without gate curfew, use roadside pullouts along <strong>New River Rd</strong> or <strong>Castle Hot Springs Rd</strong>.
+              </p>
+            </div>
+            <div class="notice-item notice-info">
+              <div class="coord-label">2026 WATER LEVEL &amp; NOVEMBER CLIMATE</div>
+              <p style="margin: 0; font-size: 0.875rem;">
+                CAP expects Lake Pleasant reservoir levels to remain within normal historical operating ranges throughout 2026 despite Tier 1 Colorado River shortage. Nov climate norm: 77°F / 54°F, 0.54" precip, 33% RH, 10 mi visibility.
+              </p>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <!-- SECTION 4: STARGAZING & SKY DIRECTION GUIDE -->
+    <section id="sec-compass" class="panel">
+      <div class="section-head">
+        <div>
+          <h2 class="title section-title">Lake Pleasant Stargazing &amp; Sky Direction Guide</h2>
+          <p class="deck-brass">INTERACTIVE AZIMUTH &amp; ELEVATION COMPASS · LOCAL VIEWING SITES · LIGHT POLLUTION CONTEXT</p>
+        </div>
+        <div class="btn-row">
+          <button type="button" class="btn btn-compact btn-sky-active" id="target-vandenberg" onclick="selectSkyTarget('vandenberg')">Vandenberg Plumes (W/WSW)</button>
+          <button type="button" class="btn btn-compact" id="target-planets" onclick="selectSkyTarget('planets')">Planets &amp; Comets (SW–S)</button>
+          <button type="button" class="btn btn-compact" id="target-zenith" onclick="selectSkyTarget('zenith')">Deep Sky &amp; Geminids (Zenith/E)</button>
+          <button type="button" class="btn btn-compact" id="target-starship" onclick="selectSkyTarget('starship')">Starship Orbit Track (SW→NE)</button>
+        </div>
+      </div>
+
+      <div class="sky-guide-grid">
+        <!-- SVG Sky Dome Compass -->
+        <div class="sky-dome-well">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: var(--space-sm);">
+            <span id="compass-site-label" class="coord-label">VIEWPOINT: DESERT TORTOISE CAMPGROUND</span>
+            <span class="badge">AZIMUTH 0°–360° · ZENITH 90°</span>
+          </div>
+
+          <svg id="sky-compass-svg" class="sky-svg" viewBox="0 0 420 420" role="img" aria-label="Lake Pleasant Azimuth and Elevation Sky Dome Compass">
+            <!-- Outer horizon ring -->
+            <circle cx="210" cy="210" r="175" fill="var(--dome-fill)" stroke="var(--outline)" stroke-width="1.5" />
+            <!-- Elevation rings: 30°, 60° -->
+            <circle cx="210" cy="210" r="117" fill="none" stroke="var(--outline-variant)" stroke-dasharray="4 4" stroke-width="1" />
+            <circle cx="210" cy="210" r="58" fill="none" stroke="var(--outline-variant)" stroke-dasharray="4 4" stroke-width="1" />
+            <!-- Crosshairs N-S, E-W -->
+            <line x1="210" y1="35" x2="210" y2="385" stroke="var(--outline-variant)" stroke-width="1" />
+            <line x1="35" y1="210" x2="385" y2="210" stroke="var(--outline-variant)" stroke-width="1" />
+            <line x1="86" y1="86" x2="334" y2="334" stroke="var(--outline-variant)" stroke-width="0.75" stroke-dasharray="2 5" />
+            <line x1="334" y1="86" x2="86" y2="334" stroke="var(--outline-variant)" stroke-width="0.75" stroke-dasharray="2 5" />
+
+            <!-- Phoenix Light Pollution Dome (SE / SSE sector 120°–175°) -->
+            <path id="phoenix-glow-arc" d="M 361 297 A 175 175 0 0 1 225 384 L 220 330 A 120 120 0 0 0 314 270 Z" fill="var(--light-dome-fill)" />
+            <text x="292" y="348" fill="var(--warning)" font-family="var(--font-label)" font-size="9.5" text-anchor="middle">PHOENIX GLOW (SSE)</text>
+
+            <!-- Dynamic target highlight group -->
+            <g id="svg-target-layer"></g>
+
+            <!-- Cardinal Labels -->
+            <text x="210" y="22" fill="var(--on-surface)" font-family="var(--font-label)" font-size="13" font-weight="600" text-anchor="middle">N · 0°</text>
+            <text x="210" y="405" fill="var(--on-surface)" font-family="var(--font-label)" font-size="13" font-weight="600" text-anchor="middle">S · 180°</text>
+            <text x="398" y="214" fill="var(--on-surface)" font-family="var(--font-label)" font-size="13" font-weight="600" text-anchor="start">E</text>
+            <text x="22" y="214" fill="var(--on-surface)" font-family="var(--font-label)" font-size="13" font-weight="600" text-anchor="end">W</text>
+            <text x="210" y="202" fill="var(--tertiary)" font-family="var(--font-label)" font-size="10" text-anchor="middle">ZENITH 90°</text>
+            <text x="210" y="99" fill="var(--on-surface-variant)" font-family="var(--font-label)" font-size="9.5" text-anchor="middle">30° EL</text>
+            <text x="210" y="157" fill="var(--on-surface-variant)" font-family="var(--font-label)" font-size="9.5" text-anchor="middle">60° EL</text>
+          </svg>
+
+          <div id="sky-target-detail" class="panel-low"></div>
+        </div>
+
+        <!-- Site Selector & Direction Matrix -->
+        <div style="display: grid; gap: var(--space-md);">
+          <div>
+            <div class="coord-label" style="margin-bottom: var(--space-sm);">SELECT LAKE PLEASANT OBSERVATION SITE</div>
+            <div id="site-grid" class="site-grid"></div>
+          </div>
+
+          <div id="site-detail-panel" class="observation-well"></div>
+
+          <div class="panel-low data-table-wrap">
+            <div class="coord-label" style="margin-bottom: var(--space-xs);">CARDINAL DIRECTION &amp; ELEVATION REFERENCE</div>
+            <table class="obs-table">
+              <thead>
+                <tr>
+                  <th>Direction / Azimuth</th>
+                  <th>Elevation</th>
+                  <th>Best Targets &amp; Light Context</th>
                 </tr>
               </thead>
               <tbody>
                 <tr>
-                  <td><strong>Flight 5</strong></td>
-                  <td>Ship 30 / Booster 12</td>
-                  <td>First historical booster catch by Mechazilla chopstick arms</td>
-                  <td><span class="badge badge-mint">Success</span></td>
+                  <td><strong style="color: var(--primary);">W / WSW (245°–285°)</strong></td>
+                  <td class="num">5°–30°</td>
+                  <td>Vandenberg Falcon 9 twilight plumes (<em>USSF-317, NROL-136</em>), post-sunset comets &amp; Venus. Darkest over Castle Hot Springs Rd.</td>
                 </tr>
                 <tr>
-                  <td><strong>Flight 10</strong></td>
-                  <td>Block 2 Upgrade</td>
-                  <td>First mock Starlink deploy test &amp; upgraded heat-shield reentry</td>
-                  <td><span class="badge badge-mint">Success</span></td>
+                  <td><strong style="color: var(--tertiary);">Zenith (70°–90°)</strong></td>
+                  <td class="num">70°–90°</td>
+                  <td>Minimal light dome &amp; airmass. Optimal for star clusters, nebulas, and overhead meteor watching (Perseids / Geminids).</td>
                 </tr>
                 <tr>
-                  <td><strong>Flight 12</strong></td>
-                  <td>V3 Vehicle (Raptor 3)</td>
-                  <td>44,000 kg Starlink mass simulator; soft ocean splashdown</td>
-                  <td><span class="badge badge-brass">Milestone</span></td>
+                  <td><strong style="color: var(--on-surface);">E / ESE (85°–125°)</strong></td>
+                  <td class="num">10°–45°</td>
+                  <td>Moonrise over lake at Sunset Ridge; Geminids radiant rises evening in Dec. Starbase, TX launches lie below horizon at liftoff (~800 mi ESE).</td>
                 </tr>
                 <tr>
-                  <td><strong>Flight 14</strong></td>
-                  <td>Ship 41 / Super Heavy</td>
-                  <td>Sustained orbit; operational deploy of 26 Starlink V3 satellites</td>
-                  <td><span class="badge badge-mint">Operational</span></td>
-                </tr>
-                <tr>
-                  <td><strong>Artemis III</strong></td>
-                  <td>Starship HLS</td>
-                  <td>NASA crewed lunar lander docking in low Earth orbit (Target: mid-2027)</td>
-                  <td><span class="badge">Development</span></td>
+                  <td><strong style="color: var(--warning);">S / SSE (150°–200°)</strong></td>
+                  <td class="num">15°–55°</td>
+                  <td>Summer Milky Way Galactic Core &amp; Jupiter/Saturn ecliptic arc. Stay above 15° elevation to clear Phoenix metro light dome.</td>
                 </tr>
               </tbody>
             </table>
-          </div>
-
-          <div style="background: var(--surface-container-low); border: var(--hairline); border-radius: var(--rounded); padding: var(--space-md);">
-            <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-xs); flex-wrap: wrap; gap: var(--space-xs);">
-              <span style="font-family: var(--font-label); font-size: var(--label-size); text-transform: uppercase; color: var(--primary);">
-                Launch Complex 39A Infrastructure Upgrades
-              </span>
-              <span class="badge badge-brass">LC-39A / LC-40</span>
-            </div>
-            <p style="margin: 0; font-size: 0.88rem; color: var(--on-surface-variant); line-height: 1.45;">
-              SpaceX is constructing a Mobile Service Tower (MST) at LC-39A to accommodate vertical payload integration for US Space Force NSSL missions. Environmental approvals clear up to 24 annual Starship/Super Heavy launches utilizing liquid methane (LCH4) and liquid oxygen (LOX), plus southern polar orbital launch azimuths over the Atlantic.
-            </p>
           </div>
         </div>
       </div>
     </section>
 
+    <footer class="obs-footer">
+      <div>
+        <div class="coord-label">SOURCES &amp; DATA ATTRIBUTION</div>
+        <p style="margin: var(--space-xs) 0 0 0; max-width: 78ch;">
+          Weather &amp; climate metrics synthesized from WeatherWorld 14-day telemetry, Timeanddate climate normals, and Windy hourly UV/surface profiles for Lake Pleasant Regional Park. SpaceX &amp; global launch manifests grounded in SpaceNexus, RocketLaunch.org, Space Launch Schedule, Space.com, and Wikipedia Flight 15 profiles. Local park rules, water outlook, and dark-sky sites compiled from Maricopa County Parks &amp; Recreation, Phoenix skywatching community logs, and NASA November 2026 skywatching guidance.
+        </p>
+      </div>
+      <div style="text-align: right;">
+        <span class="badge">MST · UTC-7 FIXED</span>
+      </div>
+    </footer>
   </main>
 
-  <!-- Footer with Source Acknowledgments -->
-  <footer style="border-top: var(--hairline); padding: var(--space-xl) var(--space-lg); text-align: center; font-family: var(--font-label); font-size: var(--label-size); color: var(--on-surface-variant);">
-    <div style="max-width: 900px; margin: 0 auto; display: flex; flex-direction: column; gap: var(--space-sm);">
-      <div style="color: var(--on-surface);">
-        <strong>Station SKY-1 // Arizona Sky Guide &amp; Telemetry Dashboard</strong> • Built for North Phoenix &amp; Bradshaw Mountain Observers
-      </div>
-      <div>
-        Sources synthesized: National Weather Service Phoenix (KDVT ASOS), FOX 10 Phoenix Weather Experts, onX Offroad (Backway to Crown King), ADOT 511 Roadway Conditions, Arizona Snowbowl Mountain Operations, NASA JPL Skywatching Guide, EarthSky Astronomy Essentials, and FAA Environmental Assessment for SpaceX Launch Operations.
-      </div>
-      <div style="color: var(--tertiary);">
-        All data verified as of November 12, 2026. Ephemeris coordinates calculated for 33.69°N, 112.07°W.
-      </div>
-    </div>
-  </footer>
+  <api-shim></api-shim>
 
-  <!-- Interactive Dashboard Script -->
   <script>
-    /* -------------------------------------------------------------
-       8. SpaceX Launch Telemetry & Acoustic Propagation Model
-       ------------------------------------------------------------- */
-    function calculateAcoustics(distFt) {
-      const dist = parseInt(distFt, 10);
-      const label = document.getElementById('distVal');
-      if (label) label.textContent = `${dist.toLocaleString()} Feet`;
+    // =========================================================================
+    // GROUNDED DATASETS (Backtick template literals used for all strings)
+    // =========================================================================
+    const MST_OFFSET_MS = -7 * 3600 * 1000;
+    const EPOCH_BASE_MS = Date.UTC(2026, 10, 13, 0, 35, 41); // Nov 12, 2026 17:35:41 MST
+    const PAGE_LOAD_WALL_MS = Date.now();
 
-      // Based on FAA Environmental Assessment Table 3-7
-      // Interpolate Falcon 9 Block 1:
-      // 800 ft: 145 dB, 975 ft: 136 dB, 1450 ft: 132 dB, 1600 ft: 130 dB, 1900 ft: 129 dB, 2500 ft: 126 dB
-      let f9Db = 132;
-      if (dist <= 800) f9Db = 145 + (800 - dist) * 0.015;
-      else if (dist <= 975) f9Db = 145 - ((dist - 800) / 175) * 9;
-      else if (dist <= 1450) f9Db = 136 - ((dist - 975) / 475) * 4;
-      else if (dist <= 1600) f9Db = 132 - ((dist - 1450) / 150) * 2;
-      else if (dist <= 1900) f9Db = 130 - ((dist - 1600) / 300) * 1;
-      else if (dist <= 2500) f9Db = 129 - ((dist - 1900) / 600) * 3;
-      else f9Db = Math.max(115, 126 - ((dist - 2500) / 500) * 2.5);
+    const WEATHER_DAYS = [
+      { date: `2026-11-12`, label: `Thu 12`, full: `Thu, Nov 12, 2026`, hi: 79, lo: 63, hiC: 26, loC: 17, pop: 0, wind: `E 8 mph`, windSpd: 8, dew: 38, chill: 77, press: 29.94, mb: 1014, rh: 24, rise: `06:59`, set: `17:28`, moonset: `19:53`, moonPhase: `Waxing Crescent (10%)`, uvPeak: 4, skyNote: `0% cloud cover reported at 17:35 MST; crisp desert air.` },
+      { date: `2026-11-13`, label: `Fri 13`, full: `Fri, Nov 13, 2026`, hi: 70, lo: 60, hiC: 21, loC: 15, pop: 10, wind: `ESE 4 mph`, windSpd: 4, dew: 44, chill: 69, press: 29.80, mb: 1009, rh: 40, rise: `07:00`, set: `17:28`, moonset: `20:48`, moonPhase: `Waxing Crescent (17%)`, uvPeak: 2, skyNote: `Calm winds (4 mph); minor high cirrus possible.` },
+      { date: `2026-11-14`, label: `Sat 14`, full: `Sat, Nov 14, 2026`, hi: 65, lo: 57, hiC: 18, loC: 14, pop: 15, wind: `SW 5 mph`, windSpd: 5, dew: 51, chill: 63, press: 29.91, mb: 1013, rh: 64, rise: `07:01`, set: `17:27`, moonset: `21:46`, moonPhase: `Waxing Crescent (26%)`, uvPeak: 4, skyNote: `Higher evening humidity (64%) narrows dew margin.` },
+      { date: `2026-11-15`, label: `Sun 15`, full: `Sun, Nov 15, 2026`, hi: 69, lo: 56, hiC: 20, loC: 13, pop: 1, wind: `E 4 mph`, windSpd: 4, dew: 45, chill: 67, press: 30.06, mb: 1018, rh: 46, rise: `07:02`, set: `17:26`, moonset: `22:45`, moonPhase: `Waxing Crescent (36%)`, uvPeak: 4, skyNote: `High pressure ridge builds (30.06 in); near-zero rain risk.` },
+      { date: `2026-11-16`, label: `Mon 16`, full: `Mon, Nov 16, 2026`, hi: 73, lo: 58, hiC: 23, loC: 15, pop: 1, wind: `ESE 8 mph`, windSpd: 8, dew: 45, chill: 71, press: 30.00, mb: 1016, rh: 40, rise: `07:03`, set: `17:26`, moonset: `23:44`, moonPhase: `First Quarter (47%)`, uvPeak: 4, skyNote: `Dry & mild before Tuesday frontal boundary.` },
+      { date: `2026-11-17`, label: `Tue 17`, full: `Tue, Nov 17, 2026`, hi: 64, lo: 55, hiC: 18, loC: 13, pop: 58, wind: `SSW 11 mph`, windSpd: 11, dew: 51, chill: 62, press: 29.88, mb: 1012, rh: 68, rise: `07:04`, set: `17:25`, moonset: `00:42`, moonPhase: `Waxing Gibbous (58%)`, uvPeak: 3, skyNote: `Front arrives: 58% POP rain/cloud deck + 11 mph SSW gusts.` },
+      { date: `2026-11-18`, label: `Wed 18`, full: `Wed, Nov 18, 2026`, hi: 62, lo: 51, hiC: 16, loC: 11, pop: 2, wind: `ESE 4 mph`, windSpd: 4, dew: 42, chill: 61, press: 30.12, mb: 1020, rh: 51, rise: `07:05`, set: `17:25`, moonset: `01:40`, moonPhase: `Waxing Gibbous (69%)`, uvPeak: 3, skyNote: `Post-frontal clearing; pressure rebounds to 30.12 inHg.` },
+      { date: `2026-11-19`, label: `Thu 19`, full: `Thu, Nov 19, 2026`, hi: 63, lo: 51, hiC: 17, loC: 11, pop: 6, wind: `SE 5 mph`, windSpd: 5, dew: 42, chill: 62, press: 29.97, mb: 1015, rh: 48, rise: `07:06`, set: `17:24`, moonset: `02:38`, moonPhase: `Waxing Gibbous (79%)`, uvPeak: 3, skyNote: `Clear & calm; bright gibbous moon till pre-dawn.` },
+      { date: `2026-11-20`, label: `Fri 20`, full: `Fri, Nov 20, 2026`, hi: 57, lo: 46, hiC: 14, loC: 8, pop: 43, wind: `W 6 mph`, windSpd: 6, dew: 46, chill: 54, press: 29.85, mb: 1011, rh: 72, rise: `07:06`, set: `17:24`, moonset: `03:36`, moonPhase: `Waxing Gibbous (87%)`, uvPeak: 2, skyNote: `Second trough: 43% POP, 72% humidity, chilly 46°F low.` },
+      { date: `2026-11-21`, label: `Sat 21`, full: `Sat, Nov 21, 2026`, hi: 55, lo: 45, hiC: 13, loC: 7, pop: 3, wind: `SE 2 mph`, windSpd: 2, dew: 40, chill: 55, press: 30.06, mb: 1018, rh: 58, rise: `07:07`, set: `17:23`, moonset: `04:36`, moonPhase: `Waxing Gibbous (94%)`, uvPeak: 3, skyNote: `Crisp, dead-calm 2 mph winds after front clears.` },
+      { date: `2026-11-22`, label: `Sun 22`, full: `Sun, Nov 22, 2026`, hi: 57, lo: 47, hiC: 14, loC: 8, pop: 2, wind: `SE 2 mph`, windSpd: 2, dew: 34, chill: 57, press: 30.06, mb: 1018, rh: 43, rise: `07:08`, set: `17:23`, moonset: `05:37`, moonPhase: `Full / Near-Full (98%)`, uvPeak: 3, skyNote: `Dry 34°F dew point; bright moonlight washes faint stars.` },
+      { date: `2026-11-23`, label: `Mon 23`, full: `Mon, Nov 23, 2026`, hi: 58, lo: 47, hiC: 15, loC: 8, pop: 1, wind: `SE 3 mph`, windSpd: 3, dew: 35, chill: 57, press: 30.03, mb: 1017, rh: 43, rise: `07:09`, set: `17:23`, moonset: `06:40`, moonPhase: `Full Moon (100%)`, uvPeak: 3, skyNote: `Steady clear air; bright Full Moon all night.` },
+      { date: `2026-11-24`, label: `Tue 24`, full: `Tue, Nov 24, 2026`, hi: 57, lo: 48, hiC: 14, loC: 9, pop: 3, wind: `ESE 4 mph`, windSpd: 4, dew: 37, chill: 56, press: 30.03, mb: 1017, rh: 50, rise: `07:10`, set: `17:22`, moonset: `07:44`, moonPhase: `Waning Gibbous (98%)`, uvPeak: 3, skyNote: `Cool, tranquil desert night; ideal for lunar & planetary views.` },
+      { date: `2026-11-25`, label: `Wed 25`, full: `Wed, Nov 25, 2026`, hi: 60, lo: 50, hiC: 16, loC: 10, pop: 11, wind: `ESE 2 mph`, windSpd: 2, dew: 40, chill: 59, press: 30.06, mb: 1018, rh: 49, rise: `07:11`, set: `17:22`, moonset: `08:47`, moonPhase: `Waning Gibbous (93%)`, uvPeak: 3, skyNote: `Light 2 mph breeze, 11% light cloud risk.` }
+    ];
 
-      // Falcon Heavy: 400 ft: 152 dB, 800 ft: 151 dB, 1300 ft: 152 dB
-      let fhDb = f9Db + 16.5;
-      if (dist <= 800) fhDb = 152;
-      else if (dist <= 1300) fhDb = 151.5;
-      else fhDb = Math.max(128, 151.5 - ((dist - 1300) / 1000) * 12);
+    const MONTHLY_CLIMATE = [
+      { m: `Jan`, hi: 68, lo: 46, rh: 42, popIn: 0.88 },
+      { m: `Feb`, hi: 71, lo: 49, rh: 39, popIn: 0.87 },
+      { m: `Mar`, hi: 79, lo: 54, rh: 32, popIn: 0.78 },
+      { m: `Apr`, hi: 86, lo: 61, rh: 22, popIn: 0.23 },
+      { m: `May`, hi: 95, lo: 69, rh: 18, popIn: 0.13 },
+      { m: `Jun`, hi: 105, lo: 79, rh: 15, popIn: 0.03 },
+      { m: `Jul`, hi: 107, lo: 84, rh: 27, popIn: 0.98 },
+      { m: `Aug`, hi: 105, lo: 83, rh: 32, popIn: 1.00 },
+      { m: `Sep`, hi: 101, lo: 78, rh: 29, popIn: 0.59 },
+      { m: `Oct`, hi: 90, lo: 65, rh: 28, popIn: 0.53 },
+      { m: `Nov`, hi: 77, lo: 54, rh: 33, popIn: 0.54 },
+      { m: `Dec`, hi: 67, lo: 45, rh: 40, popIn: 0.80 }
+    ];
 
-      const f9El = document.getElementById('f9DbVal');
-      const fhEl = document.getElementById('fhDbVal');
-      const meterEl = document.getElementById('meterFill');
-
-      if (f9El) f9El.textContent = `${Math.round(f9Db)} dB`;
-      if (fhEl) fhEl.textContent = `${Math.round(fhDb)} dB`;
-
-      if (meterEl) {
-        // Meter represents scale from 110 dB to 160 dB
-        const pct = Math.min(100, Math.max(5, ((fhDb - 110) / 50) * 100));
-        meterEl.style.width = `${pct}%`;
-      }
-    }
-
-    /* -------------------------------------------------------------
-       9. Live SpaceX Launch Manifest & Real-Time T-Minus Counters
-       ------------------------------------------------------------- */
-    const FALLBACK_SPACEX_LAUNCHES = [
+    const BASE_EVENTS = [
       {
-        id: 'starship-flight-15',
-        name: 'Starship | Flight 15 (Starlink Group 31-2)',
-        net: '2026-11-13T22:45:00Z',
-        status: 'Go',
-        pad: 'Orbital Launch Pad 2, Starbase, TX',
-        url: 'https://www.spacex.com/launches/'
+        id: `starship-f15`,
+        category: `spacex`,
+        title: `Starship Flight 15 · Starlink Group 31-2`,
+        vehicle: `Starship V3 (B22 + S42 "Don't Panic")`,
+        site: `Orbital Launch Pad 2, Starbase, TX`,
+        baseUtcMs: Date.UTC(2026, 10, 13, 22, 45, 0), // Nov 13, 15:45 MST / 22:45 UTC
+        azVisibility: `Liftoff below ESE horizon; 14 orbital passes over 22 hrs (incl. AZ evening transit Nov 13–14)`,
+        summary: `4th Starship V3 flight & 2nd operational LEO payload (26 Starlink V3 satellites, 3 with heatshield-scan cameras). Historic first "double catch" attempt of both Super Heavy booster (+6 min) and Ship 42 (+22 hrs) by Mechazilla arms. Note: Space Launch Schedule flags provisional Dec fallback pending FAA approval.`,
+        status: `NET NOV 13`
       },
       {
-        id: 'f9-ussf-317',
-        name: 'Falcon 9 Block 5 | USSF-317',
-        net: '2026-11-15T03:55:00Z',
-        status: 'Go',
-        pad: 'Space Launch Complex 4E, Vandenberg SFB, CA',
-        url: 'https://www.spacex.com/launches/'
+        id: `vulcan-leo`,
+        category: `global`,
+        title: `Vulcan VC6L · Amazon Leo (LV-01)`,
+        vehicle: `Vulcan VC6L · United Launch Alliance`,
+        site: `Cape Canaveral SFS, FL`,
+        baseUtcMs: Date.UTC(2026, 10, 13, 17, 54, 0), // Nov 13, 10:54 MST
+        azVisibility: `Daylight Florida launch; follow webcast & post-deploy satellite tracker`,
+        summary: `Amazon Leo (formerly Project Kuiper) constellation buildout mission aboard ULA's Vulcan VC6L.`,
+        status: `GO`
       },
       {
-        id: 'f9-ussf-266',
-        name: 'Falcon 9 Block 5 | USSF-266',
-        net: '2026-11-18T16:49:00Z',
-        status: 'TBC',
-        pad: 'Space Launch Complex 4E, Vandenberg SFB, CA',
-        url: 'https://www.spacex.com/launches/'
+        id: `starship-f15-catch`,
+        category: `spacex`,
+        title: `Starship Flight 15 · Ship 42 Tower Catch Return`,
+        vehicle: `Ship 42 "Don't Panic" · SpaceX`,
+        site: `Starbase Mechazilla Tower, TX`,
+        baseUtcMs: Date.UTC(2026, 10, 14, 20, 45, 0), // ~22 hrs after liftoff: Nov 14, 13:45 MST
+        azVisibility: `Deorbit plasma track & orbital passes SW→NE prior to Texas return`,
+        summary: `First-ever attempt to recover an orbital Starship upper stage back onto the launch tower arms after ~14 orbits at 275 km.`,
+        status: `TEST OBJECTIVE`
       },
       {
-        id: 'f9-cygnus-ng25',
-        name: 'Falcon 9 Block 5 | Cygnus CRS-2 NG-25',
-        net: '2026-11-29T15:49:00Z',
-        status: 'TBC',
-        pad: 'Space Launch Complex 40, Cape Canaveral SFS, FL',
-        url: 'https://www.spacex.com/launches/'
+        id: `electron-iqps`,
+        category: `global`,
+        title: `Electron · The Mountain God Rises (iQPS 10)`,
+        vehicle: `Electron · Rocket Lab`,
+        site: `Launch Complex 1, Mahia, NZ`,
+        baseUtcMs: Date.UTC(2026, 10, 14, 19, 0, 0),
+        azVisibility: `Southern hemisphere launch; live stream coverage`,
+        summary: `Rocket Lab's 20th Electron launch campaign flight of 2026 deploying iQPS SAR Earth-observation satellite.`,
+        status: `MANIFEST`
+      },
+      {
+        id: `waxing-crescent-window`,
+        category: `cosmic`,
+        title: `Optimal Dark-Sky Window · Early Moonset & Deep Sky`,
+        vehicle: `Astronomy · Lake Pleasant Zenith`,
+        site: `Desert Tortoise & Sunset Ridge`,
+        baseUtcMs: Date.UTC(2026, 10, 13, 2, 53, 0), // Nov 12 19:53 MST
+        azVisibility: `Zenith 70°–90° & W/SW after 19:53 MST`,
+        summary: `Waxing Crescent Moon (10%–26%) sets early Nov 12–14 (19:53–21:46 MST), leaving hours of moonless dark desert sky for nebulas, star clusters, and evening comet checks.`,
+        status: `DARK WINDOW`
+      },
+      {
+        id: `ussf-317`,
+        category: `spacex`,
+        title: `Falcon 9 Block 5 · USSF-317 (Delayed from Nov 14–15)`,
+        vehicle: `Falcon 9 Block 5 · SpaceX`,
+        site: `SLC-4E, Vandenberg SFB, CA`,
+        baseUtcMs: Date.UTC(2026, 10, 18, 3, 14, 0), // Nov 17 19:14 PST = 20:14 MST = Nov 18 03:14 UTC
+        azVisibility: `PRIME AZ JELLYFISH PLUME WINDOW · W/WSW (255°–275°), 8°–28° EL`,
+        summary: `Classified US Space Force mission (suspected Starshield LEO batch). Delayed to NET Nov 17 20:14 MST—ideal post-twilight timing for sunlit exhaust plumes over Lake Pleasant, though Tue Nov 17 has 58% POP rain risk!`,
+        status: `SLIPPED +3D`
+      },
+      {
+        id: `ussf-266`,
+        category: `spacex`,
+        title: `Falcon 9 Block 5 · USSF-266`,
+        vehicle: `Falcon 9 Block 5 · SpaceX`,
+        site: `SLC-4E, Vandenberg SFB, CA`,
+        baseUtcMs: Date.UTC(2026, 10, 18, 16, 49, 0), // Nov 18 08:49 PST = 09:49 MST
+        azVisibility: `Morning launch from California; contrail may gleam briefly WSW`,
+        summary: `Second classified US Space Force mission from Vandenberg SFB within 14 hours.`,
+        status: `MANIFEST`
+      },
+      {
+        id: `nrol-136`,
+        category: `spacex`,
+        title: `Falcon 9 Block 5 · NROL-136`,
+        vehicle: `Falcon 9 Block 5 · SpaceX`,
+        site: `SLC-4E, Vandenberg SFB, CA`,
+        baseUtcMs: Date.UTC(2026, 10, 22, 2, 30, 0), // Nov 21 evening MST placeholder from manifest date
+        azVisibility: `W / WSW (255°–275°) · Clear post-front sky (3% POP, 45°F)`,
+        summary: `National Reconnaissance Office mission from Vandenberg SLC-4E. If evening window holds on Nov 21, Lake Pleasant enjoys dead-calm 2 mph winds and 3% POP.`,
+        status: `NET NOV 21`
+      },
+      {
+        id: `bepicolombo-mercury`,
+        category: `cosmic`,
+        title: `ESA BepiColombo Mercury Orbit Insertion & Planetary Arc`,
+        vehicle: `ESA / JAXA Deep Space & Evening Planets`,
+        site: `S / SW Ecliptic (15°–45° EL)`,
+        baseUtcMs: Date.UTC(2026, 10, 21, 18, 0, 0),
+        azVisibility: `Evening planets Venus, Jupiter & Saturn along SW–SE ecliptic`,
+        summary: `ESA's BepiColombo enters Mercury orbit on Nov 21 while ESA Hera arrives at asteroid Didymos in November. Pair with naked-eye/telescope views of Jupiter and Saturn from Sunset Ridge.`,
+        status: `COSMIC MILESTONE`
+      },
+      {
+        id: `ariane64-leo`,
+        category: `global`,
+        title: `Ariane 64 Block 2 · Amazon Leo (LE-04)`,
+        vehicle: `Ariane 64 · Arianespace`,
+        site: `ELA-4, Kourou, French Guiana`,
+        baseUtcMs: Date.UTC(2026, 10, 23, 18, 0, 0),
+        azVisibility: `Equatorial Kourou webcast`,
+        summary: `Heavy-lift Ariane 64 configuration carrying Amazon Leo broadband satellites.`,
+        status: `MANIFEST`
+      },
+      {
+        id: `geminids-preview`,
+        category: `cosmic`,
+        title: `Geminid Meteor Shower & Winter Milky Way Preview`,
+        vehicle: `Annual Peak · Dec 13–14, 2026`,
+        site: `Desert Tortoise Campground · Zenith / East`,
+        baseUtcMs: Date.UTC(2026, 11, 14, 5, 0, 0),
+        azVisibility: `East–Zenith (radiant in Gemini) · Dozens of meteors/hr`,
+        summary: `One of Lake Pleasant's premier astronomical events (alongside August Perseids). Bring blankets, lawn chairs, and binoculars for winter nebulas.`,
+        status: `UPCOMING DEC`
       }
     ];
 
-    let activeSpaceXManifest = [];
-    let spaceXCountdownInterval = null;
-
-    function initSpaceXLiveCountdowns() {
-      // Immediately render fallback manifest so counters tick without delay
-      activeSpaceXManifest = filterUpcomingLaunches(FALLBACK_SPACEX_LAUNCHES);
-      renderSpaceXManifestUI();
-
-      if (spaceXCountdownInterval) clearInterval(spaceXCountdownInterval);
-      spaceXCountdownInterval = setInterval(updateAllLaunchTimers, 1000);
-      updateAllLaunchTimers();
-
-      // Fetch fresh live launch telemetry from Launch Library 2 API on every load
-      fetchLiveSpaceXLaunches(false);
-    }
-
-    function filterUpcomingLaunches(list) {
-      const nowMs = Date.now();
-      // Keep launches up to 15 minutes past T-0 (for live T+ telemetry), then advance automatically
-      const cutoffMs = nowMs - (15 * 60 * 1000);
-      return list
-        .filter(item => new Date(item.net).getTime() > cutoffMs)
-        .sort((a, b) => new Date(a.net).getTime() - new Date(b.net).getTime());
-    }
-
-    async function fetchLiveSpaceXLaunches(isManualRefresh) {
-      const syncBadge = document.getElementById('spacexSyncBadge');
-      const updatedLabel = document.getElementById('manifestLastUpdated');
-
-      if (syncBadge) {
-        syncBadge.textContent = isManualRefresh ? 'Refreshing API...' : 'Syncing Live API...';
-        syncBadge.className = 'badge badge-brass';
+    const VIEWING_SITES = [
+      {
+        id: `tortoise`,
+        name: `Desert Tortoise Campground`,
+        sector: `Park Interior · North-Central`,
+        gateRule: `Campground reservation required after nightly park gate closure`,
+        glowLevel: `Low-Moderate · Clean Zenith`,
+        horizon: `360° open horizon`,
+        bestFor: `Meteor showers (Perseids/Geminids), constellations, deep-sky clusters & nebulas.`,
+        glowShift: 0
+      },
+      {
+        id: `sunset-ridge`,
+        name: `Sunset Ridge Area`,
+        sector: `Elevated Ridge Overlook`,
+        gateRule: `Day-use area; park gates close nightly`,
+        glowLevel: `Low above 15° · Elevated sightline`,
+        horizon: `Unobstructed E/S lake view & W ridge`,
+        bestFor: `Moonrise reflections over Lake Pleasant, planetary alignments, and deep-space targets.`,
+        glowShift: -5
+      },
+      {
+        id: `castle-hot-springs`,
+        name: `Castle Hot Springs Rd Pullouts`,
+        sector: `West Side of Lake (41835 N. Castle Hot Springs Rd)`,
+        gateRule: `Open 24/7 roadside pullouts (no gate curfew)`,
+        glowLevel: `Darkest Western Horizon`,
+        horizon: `Wide W / WSW / Zenith sky`,
+        bestFor: `Vandenberg Falcon 9 twilight plumes (USSF-317, NROL-136) & post-sunset comets.`,
+        glowShift: -12
+      },
+      {
+        id: `new-river-rd`,
+        name: `New River Road Pullouts`,
+        sector: `East Side off I-17`,
+        gateRule: `Open 24/7 wide roadside pullouts (2+ mi off I-17)`,
+        glowLevel: `Dark away from freeway`,
+        horizon: `Open N / E / Zenith sky`,
+        bestFor: `Quick no-gear family comet & meteor stops within 90 min of Phoenix.`,
+        glowShift: 6
+      },
+      {
+        id: `pleasant-harbor`,
+        name: `Pleasant Harbor Marina`,
+        sector: `Southeastern Shore`,
+        gateRule: `Marina access hours apply`,
+        glowLevel: `Moderate (adjacent marina & SE Phoenix glow)`,
+        horizon: `Water foreground · W & Overhead`,
+        bestFor: `Wide-angle astrophotography pairing lake reflections with bright planets & Moon.`,
+        glowShift: 18
+      },
+      {
+        id: `outdoor-center`,
+        name: `Desert Outdoor Center`,
+        sector: `41402 N. 87th Ave, Peoria (East of Park)`,
+        gateRule: `Special stargazing event nights (historically ~$6/vehicle)`,
+        glowLevel: `Moderate`,
+        horizon: `Open desert amphitheater`,
+        bestFor: `Guided telescope nights, solar system scale hike & family astronomy outreach.`,
+        glowShift: 12
       }
+    ];
 
-      try {
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 7000);
+    const SKY_TARGETS = {
+      vandenberg: {
+        title: `Vandenberg Falcon 9 Plume Corridor (USSF-317 / NROL-136)`,
+        azimuth: `255°–275° (W to WSW)`,
+        elevation: `8°–28° above western horizon`,
+        timing: `Best 30–120 min after sunset (e.g., USSF-317 at 20:14 MST)`,
+        notes: `Second-stage exhaust catches high-altitude sunlight against dark desert sky, creating a glowing cyan-white "jellyfish" plume visible across Maricopa County. Castle Hot Springs Rd offers the cleanest western horizon.`,
+        drawType: `cone`,
+        azStart: 250,
+        azEnd: 280,
+        elMin: 5,
+        elMax: 32,
+        colorVar: `var(--primary)`
+      },
+      planets: {
+        title: `Evening Planets (Venus, Jupiter, Saturn) & Comets`,
+        azimuth: `195°–260° (SSW to W)`,
+        elevation: `12°–48° along the Ecliptic`,
+        timing: `18:00–22:30 MST`,
+        notes: `Aim above 15° elevation in SSW to stay clear of the Phoenix metro light dome. For low western comets, give eyes 15–20 minutes to dark-adapt away from headlights.`,
+        drawType: `arc`,
+        azStart: 165,
+        azEnd: 265,
+        elMin: 18,
+        elMax: 42,
+        colorVar: `var(--tertiary)`
+      },
+      zenith: {
+        title: `Zenith Deep-Sky Zone & Geminid / Perseid Radiants`,
+        azimuth: `0°–360° (Overhead & East)`,
+        elevation: `65°–90° (Zenith) · 25°–60° (E)`,
+        timing: `After moonset (19:53 MST on Nov 12) through 05:30 MST`,
+        notes: `Zenith cuts atmospheric thickness to 1.0 airmass and avoids horizon glow. Ideal for nebulas, star clusters, and December Geminid meteor streaks.`,
+        drawType: `zenith`,
+        azStart: 0,
+        azEnd: 360,
+        elMin: 65,
+        elMax: 90,
+        colorVar: `var(--positive)`
+      },
+      starship: {
+        title: `Starship Flight 15 & Starlink V3 Orbital Track`,
+        azimuth: `SW (225°) → Overhead → NE (45°) or NW→SE`,
+        elevation: `20°–75° transit arc`,
+        timing: `First ~90 min post-sunset or pre-dawn (22 hr orbital campaign)`,
+        notes: `Starbase, TX lies ~800 miles ESE (below Arizona's horizon at liftoff), so you will not see the pad flame—instead, watch for sunlit Ship 42 & 26 Starlink V3 train passes crossing Lake Pleasant over 14 orbits!`,
+        drawType: `transit`,
+        azStart: 225,
+        azEnd: 45,
+        elMin: 40,
+        elMax: 78,
+        colorVar: `var(--data-4)`
+      }
+    };
 
-        const response = await fetch('https://ll.thespacedevs.com/2.2.0/launch/upcoming/?search=SpaceX&limit=8', {
-          signal: controller.signal
-        });
-        clearTimeout(timeoutId);
+    // =========================================================================
+    // APPLICATION STATE (Persisted via window.notebookAppApi)
+    // =========================================================================
+    let appState = {
+      clockMode: `epoch`,      // 'epoch' | 'wall'
+      timeOffsetHours: 0,
+      selectedDayIdx: 0,
+      eventFilter: `all`,      // 'all' | 'spacex' | 'cosmic' | 'global'
+      weatherTab: `hourly`,    // 'hourly' | 'daily' | 'climate'
+      selectedSiteId: `tortoise`,
+      selectedTargetId: `vandenberg`,
+      launchShiftsHours: {},   // { eventId: hours }
+      watchedIds: [`starship-f15`, `ussf-317`],
+      customEvents: []
+    };
 
-        if (!response.ok) throw new Error(`HTTP ${response.status}`);
-        const data = await response.json();
+    let weatherChartInstance = null;
+    let clockIntervalId = null;
 
-        if (data && Array.isArray(data.results) && data.results.length > 0) {
-          const parsed = data.results.map(item => ({
-            id: item.id || item.name,
-            name: item.name || 'SpaceX Mission',
-            net: item.net,
-            status: (item.status && item.status.abbrev) ? item.status.abbrev : 'TBC',
-            pad: (item.pad && item.pad.name && item.pad.location && item.pad.location.name)
-              ? `${item.pad.name}, ${item.pad.location.name}`
-              : (item.pad && item.pad.name ? item.pad.name : 'SpaceX Launch Complex'),
-            url: (item.vidURLs && item.vidURLs.length > 0 && item.vidURLs[0].url)
-              ? item.vidURLs[0].url
-              : 'https://www.spacex.com/launches/'
-          }));
+    // =========================================================================
+    // TIME & COUNTDOWN UTILITIES (MST = UTC-7 fixed, no DST)
+    // =========================================================================
+    function getCurrentMstMs() {
+      const baseNow = appState.clockMode === `epoch`
+        ? EPOCH_BASE_MS + (Date.now() - PAGE_LOAD_WALL_MS)
+        : Date.now();
+      return baseNow + (Number(appState.timeOffsetHours) || 0) * 3600 * 1000;
+    }
 
-          const filtered = filterUpcomingLaunches(parsed);
-          if (filtered.length > 0) {
-            activeSpaceXManifest = filtered;
-            renderSpaceXManifestUI();
-            updateAllLaunchTimers();
-          }
+    function formatMstParts(utcMs) {
+      const mstDate = new Date(utcMs + MST_OFFSET_MS);
+      const days = [`SUN`, `MON`, `TUE`, `WED`, `THU`, `FRI`, `SAT`];
+      const months = [`JAN`, `FEB`, `MAR`, `APR`, `MAY`, `JUN`, `JUL`, `AUG`, `SEP`, `OCT`, `NOV`, `DEC`];
+      const pad = (n) => String(n).padStart(2, `0`);
+      const hh = pad(mstDate.getUTCHours());
+      const mm = pad(mstDate.getUTCMinutes());
+      const ss = pad(mstDate.getUTCSeconds());
+      const dateStr = `${days[mstDate.getUTCDay()]}, ${months[mstDate.getUTCMonth()]} ${mstDate.getUTCDate()}, ${mstDate.getUTCFullYear()}`;
+      const isoDate = `${mstDate.getUTCFullYear()}-${pad(mstDate.getUTCMonth() + 1)}-${pad(mstDate.getUTCDate())}`;
+      return {
+        timeStr: `${hh}:${mm}:${ss} MST`,
+        shortTime: `${hh}:${mm} MST`,
+        dateStr,
+        isoDate,
+        hour: mstDate.getUTCHours(),
+        minute: mstDate.getUTCMinutes()
+      };
+    }
 
-          if (syncBadge) {
-            syncBadge.textContent = 'LIVE API SYNCED';
-            syncBadge.className = 'badge badge-mint';
-          }
-          if (updatedLabel) {
-            const nowStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-            updatedLabel.textContent = `Synced with Launch Library 2 at ${nowStr}`;
-          }
+    function formatCountdown(targetUtcMs, nowUtcMs) {
+      const diff = targetUtcMs - nowUtcMs;
+      const abs = Math.abs(diff);
+      const d = Math.floor(abs / 86400000);
+      const h = Math.floor((abs % 86400000) / 3600000);
+      const m = Math.floor((abs % 3600000) / 60000);
+      const s = Math.floor((abs % 60000) / 1000);
+      const pad = (n) => String(n).padStart(2, `0`);
+      const prefix = diff >= 0 ? `T−` : `T+`;
+      if (d > 0) return `${prefix}${d}d ${pad(h)}h ${pad(m)}m ${pad(s)}s`;
+      return `${prefix}${pad(h)}h ${pad(m)}m ${pad(s)}s`;
+    }
+
+    function getAllEventsWithShifts() {
+      const combined = [...BASE_EVENTS, ...appState.customEvents];
+      return combined.map((ev) => {
+        const shiftHrs = Number(appState.launchShiftsHours[ev.id] || 0);
+        const effectiveUtcMs = ev.baseUtcMs + shiftHrs * 3600 * 1000;
+        const parts = formatMstParts(effectiveUtcMs);
+        return {
+          ...ev,
+          shiftHrs,
+          effectiveUtcMs,
+          mstDateIso: parts.isoDate,
+          mstTimeLabel: `${parts.dateStr} · ${parts.shortTime}`
+        };
+      }).sort((a, b) => a.effectiveUtcMs - b.effectiveUtcMs);
+    }
+
+    // =========================================================================
+    // SKY SCORE & VISIBILITY EVALUATION
+    // =========================================================================
+    function computeSkyScore(day) {
+      let score = 100;
+      score -= day.pop * 1.15;
+      if (day.rh > 55) score -= (day.rh - 55) * 0.7;
+      if (day.windSpd > 8) score -= (day.windSpd - 8) * 2.5;
+      // Moon brightness penalty for deep-sky (less impact on bright launches/planets)
+      const pctMatch = day.moonPhase.match(/(\d+)%/);
+      const moonPct = pctMatch ? Number(pctMatch[1]) : 50;
+      score -= moonPct * 0.18;
+      return Math.max(8, Math.min(98, Math.round(score)));
+    }
+
+    function getVerdictLabel(score, day) {
+      if (day.pop >= 40) return { text: `POOR · RAIN / CLOUD FRONT`, cls: `badge-error` };
+      if (score >= 80) return { text: `OPTIMAL DARK SKY`, cls: `badge-positive` };
+      if (score >= 65) return { text: `GOOD SEEING`, cls: `badge-brass` };
+      return { text: `FAIR · MOONLIGHT / HAZE`, cls: `badge-warning` };
+    }
+
+    // =========================================================================
+    // RENDER: LIVE CLOCK & KPI STRIP
+    // =========================================================================
+    function updateLiveClockAndCountdowns() {
+      const nowMs = getCurrentMstMs();
+      const parts = formatMstParts(nowMs);
+
+      const timeEl = document.getElementById(`live-mst-time`);
+      const dateEl = document.getElementById(`live-mst-date`);
+      const phaseEl = document.getElementById(`sky-phase-badge`);
+      if (timeEl) timeEl.textContent = parts.timeStr;
+      if (dateEl) dateEl.textContent = parts.dateStr;
+
+      if (phaseEl) {
+        const mins = parts.hour * 60 + parts.minute;
+        if (mins >= 416 && mins < 1046) {
+          phaseEl.textContent = `DAYLIGHT`;
+          phaseEl.className = `badge badge-brass`;
+        } else if ((mins >= 390 && mins < 416) || (mins >= 1046 && mins <= 1075)) {
+          phaseEl.textContent = `CIVIL TWILIGHT`;
+          phaseEl.className = `badge badge-warning`;
         } else {
-          throw new Error('Empty launch list');
-        }
-      } catch (err) {
-        console.warn('Using fallback SpaceX manifest:', err);
-        activeSpaceXManifest = filterUpcomingLaunches(FALLBACK_SPACEX_LAUNCHES);
-        renderSpaceXManifestUI();
-        updateAllLaunchTimers();
-
-        if (syncBadge) {
-          syncBadge.textContent = 'FALLBACK MANIFEST ACTIVE';
-          syncBadge.className = 'badge badge-brass';
-        }
-        if (updatedLabel) {
-          updatedLabel.textContent = 'Offline/Rate-Limited Cache • Timers Live';
+          phaseEl.textContent = `ASTRONOMICAL DARK`;
+          phaseEl.className = `badge badge-positive`;
         }
       }
-    }
 
-    function formatLaunchWindow(isoString) {
-      const d = new Date(isoString);
-      if (isNaN(d.getTime())) return 'TBD';
-      const mstStr = d.toLocaleString('en-US', {
-        timeZone: 'America/Phoenix',
-        month: 'short',
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
-        hour12: false
+      // Update individual countdown nodes
+      const events = getAllEventsWithShifts();
+      events.forEach((ev) => {
+        const cdEl = document.getElementById(`cd-${ev.id}`);
+        if (cdEl) {
+          cdEl.textContent = formatCountdown(ev.effectiveUtcMs, nowMs);
+        }
       });
-      const utcStr = d.toLocaleString('en-US', {
-        timeZone: 'UTC',
-        hour: '2-digit',
-        minute: '2-digit',
-        hour12: false
-      });
-      return `${mstStr} MST (${utcStr} UTC)`;
+
+      // Update Hero KPI Next SpaceX Launch
+      const nextSpacex = events.find((e) => e.category === `spacex` && e.effectiveUtcMs >= nowMs) || events.find((e) => e.category === `spacex`);
+      const kpiCd = document.getElementById(`kpi-next-countdown`);
+      const kpiName = document.getElementById(`kpi-next-name`);
+      if (nextSpacex && kpiCd && kpiName) {
+        kpiCd.textContent = formatCountdown(nextSpacex.effectiveUtcMs, nowMs);
+        kpiName.textContent = `${nextSpacex.title} · ${nextSpacex.mstTimeLabel}`;
+      }
     }
 
-    function isVandenbergTwilightVisible(launch) {
-      if (!launch || !launch.pad) return false;
-      const isVandy = launch.pad.toLowerCase().includes('vandenberg') || launch.pad.toLowerCase().includes('4e');
-      if (!isVandy) return false;
+    // =========================================================================
+    // RENDER: SECTION 1 — DAILY INTEGRATED MATRIX
+    // =========================================================================
+    function renderDayMatrix() {
+      const stripEl = document.getElementById(`day-strip`);
+      const briefEl = document.getElementById(`integrated-brief`);
+      if (!stripEl || !briefEl) return;
 
-      // Check Phoenix local hour (twilight plume window roughly 17:30-21:00 or 04:30-06:45 MST)
-      const d = new Date(launch.net);
-      const phxHourStr = d.toLocaleString('en-US', { timeZone: 'America/Phoenix', hour: '2-digit', hour12: false });
-      const phxHour = parseInt(phxHourStr, 10);
-      return (phxHour >= 17 && phxHour <= 21) || (phxHour >= 4 && phxHour <= 6);
-    }
+      const events = getAllEventsWithShifts();
 
-    function renderSpaceXManifestUI() {
-      activeSpaceXManifest = filterUpcomingLaunches(activeSpaceXManifest);
-      if (activeSpaceXManifest.length === 0) return;
+      stripEl.innerHTML = WEATHER_DAYS.map((day, idx) => {
+        const dayEvents = events.filter((e) => e.mstDateIso === day.date);
+        const hasSpaceX = dayEvents.some((e) => e.category === `spacex`);
+        const hasCosmic = dayEvents.some((e) => e.category === `cosmic`);
+        const hasGlobal = dayEvents.some((e) => e.category === `global`);
+        const isSelected = idx === appState.selectedDayIdx;
+        const popColor = day.pop >= 40 ? `var(--error)` : day.pop >= 15 ? `var(--warning)` : `var(--positive)`;
 
-      const primary = activeSpaceXManifest[0];
-      const nameEl = document.getElementById('nextLaunchName');
-      const padEl = document.getElementById('nextLaunchPad');
-      const timeEl = document.getElementById('nextLaunchTimes');
-      const statusBadge = document.getElementById('nextLaunchStatusBadge');
-      const azVisBadge = document.getElementById('azVisibilityBadge');
-      const linkEl = document.getElementById('nextLaunchLink');
-
-      if (nameEl) nameEl.textContent = primary.name;
-      if (padEl) padEl.textContent = `Pad: ${primary.pad}`;
-      if (timeEl) timeEl.textContent = `T-0 Target: ${formatLaunchWindow(primary.net)}`;
-      if (linkEl) linkEl.href = primary.url || 'https://www.spacex.com/launches/';
-
-      if (statusBadge) {
-        const st = (primary.status || 'TBC').toUpperCase();
-        statusBadge.textContent = st === 'GO' ? 'GO FOR LAUNCH' : `STATUS: ${st}`;
-        statusBadge.className = st === 'GO' ? 'badge badge-mint' : 'badge badge-brass';
-      }
-
-      if (azVisBadge) {
-        if (isVandenbergTwilightVisible(primary)) {
-          azVisBadge.style.display = 'inline-flex';
-          azVisBadge.className = 'badge badge-mint';
-          azVisBadge.textContent = '★ Look West-Southwest: Potential AZ Twilight Plume';
-        } else if (primary.pad.toLowerCase().includes('vandenberg')) {
-          azVisBadge.style.display = 'inline-flex';
-          azVisBadge.className = 'badge';
-          azVisBadge.textContent = 'Vandenberg Trajectory (SW Horizon)';
-        } else {
-          azVisBadge.style.display = 'none';
-        }
-      }
-
-      // Render next 4 upcoming missions in queue
-      const queueContainer = document.getElementById('launchQueueContainer');
-      if (!queueContainer) return;
-
-      const upcomingQueue = activeSpaceXManifest.slice(1, 5);
-      queueContainer.innerHTML = upcomingQueue.map((item, idx) => {
-        const isVandy = item.pad.toLowerCase().includes('vandenberg');
         return `
-          <div class="launch-queue-item">
-            <div>
-              <div style="display:flex; justify-content:space-between; align-items:center; gap:6px; margin-bottom:4px;">
-                <span class="badge ${item.status === 'GO' ? 'badge-mint' : 'badge-brass'}" style="font-size:0.65rem; padding:2px 6px;">${item.status}</span>
-                ${isVandy ? '<span class="badge" style="font-size:0.65rem; padding:2px 6px;">Vandenberg CA</span>' : ''}
-              </div>
-              <div style="font-family: var(--font-body); font-weight: 600; font-size: 0.92rem; color: var(--on-surface); line-height: 1.3;">
-                ${item.name}
-              </div>
-              <div style="font-family: var(--font-label); font-size: 0.72rem; color: var(--on-surface-variant); margin-top: 3px;">
-                ${formatLaunchWindow(item.net)}
-              </div>
+          <button type="button" class="day-tile ${isSelected ? `is-selected` : ``}" onclick="selectDayByIndex(${idx})" aria-pressed="${isSelected}">
+            <div class="day-tile-top">
+              <span style="color: ${isSelected ? `var(--primary)` : `var(--on-surface)`}; font-weight: 600;">${day.label}</span>
+              <span class="tabular" style="color: ${popColor};">${day.pop}%</span>
             </div>
-            <div style="display:flex; justify-content:space-between; align-items:center; border-top: var(--hairline); padding-top: 6px; margin-top: 4px;">
-              <span style="font-family: var(--font-label); font-size: 0.68rem; color: var(--tertiary);">COUNTDOWN</span>
-              <span id="queueTimer_${idx}" style="font-family: var(--font-label); font-size: 0.85rem; font-weight: 600; color: var(--primary); font-variant-numeric: tabular-nums;">
-                T- --d --h --m --s
-              </span>
+            <div class="day-tile-temps tabular">${day.hi}° / ${day.lo}°</div>
+            <div class="mono-label" style="font-size: 0.6875rem;">${day.wind}</div>
+            <div class="day-tile-dots">
+              ${hasSpaceX ? `<span class="dot-pill dot-launch">SPACEX</span>` : ``}
+              ${hasCosmic ? `<span class="dot-pill dot-cosmic">COSMIC</span>` : ``}
+              ${hasGlobal ? `<span class="dot-pill" style="background: var(--surface-container-high); color: var(--on-surface-variant);">GLOBAL</span>` : ``}
+              ${day.pop >= 40 ? `<span class="dot-pill dot-alert">STORM</span>` : ``}
             </div>
+          </button>
+        `;
+      }).join(``);
+
+      // Selected Day Brief
+      const day = WEATHER_DAYS[appState.selectedDayIdx] || WEATHER_DAYS[0];
+      const score = computeSkyScore(day);
+      const verdict = getVerdictLabel(score, day);
+      const dayEvents = events.filter((e) => e.mstDateIso === day.date);
+      const scoreColor = day.pop >= 40 ? `var(--error)` : score >= 80 ? `var(--positive)` : `var(--primary)`;
+
+      // Update Hero KPIs linked to selected day
+      const kpiScore = document.getElementById(`kpi-sky-score`);
+      const kpiVerdict = document.getElementById(`kpi-sky-verdict`);
+      const kpiDark = document.getElementById(`kpi-dark-window`);
+      if (kpiScore) kpiScore.textContent = `${score} / 100`;
+      if (kpiVerdict) kpiVerdict.textContent = `${day.label}: ${day.pop}% POP · ${day.moonPhase}`;
+      if (kpiDark) {
+        kpiDark.textContent = day.moonset < `06:00` ? `Post-Moonset (${day.moonset})` : `${day.moonset}–05:30`;
+      }
+
+      const eventsHtml = dayEvents.length
+        ? dayEvents.map((ev) => {
+            const wxRisk = day.pop >= 40
+              ? `<span class="badge badge-error">CLOUD / RAIN RISK (${day.pop}% POP)</span>`
+              : `<span class="badge badge-positive">CLEAR FOR VIEWING (${day.pop}% POP)</span>`;
+            return `
+              <div class="panel-low" style="display: grid; gap: var(--space-xs);">
+                <div style="display: flex; justify-content: space-between; gap: var(--space-sm); flex-wrap: wrap;">
+                  <strong style="color: var(--on-surface);">${ev.title}</strong>
+                  ${wxRisk}
+                </div>
+                <div class="coord-label">${ev.mstTimeLabel} · ${ev.site}</div>
+                <div style="font-size: 0.875rem; color: var(--on-surface-variant);">${ev.azVisibility}</div>
+              </div>
+            `;
+          }).join(``)
+        : `
+          <div class="panel-low">
+            <div class="coord-label">NO SCHEDULED ROCKET LAUNCHES ON ${day.label.toUpperCase()}</div>
+            <p class="muted" style="margin: var(--space-xs) 0 0 0; font-size: 0.875rem;">
+              Ideal evening for unhurried deep-sky telescope targets, Moon phase tracking (${day.moonPhase}), or simulating a SpaceX slip into this weather slot below.
+            </p>
           </div>
         `;
-      }).join('');
+
+      briefEl.innerHTML = `
+        <div class="verdict-box">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: var(--space-sm);">
+            <div>
+              <span class="coord-label">SELECTED DATE BRIEF</span>
+              <h3 class="subhead-title" style="font-size: 1.35rem; margin-top: var(--space-xs);">${day.full}</h3>
+            </div>
+            <span class="badge ${verdict.cls}">${verdict.text}</span>
+          </div>
+
+          <div>
+            <div style="display: flex; justify-content: space-between; font-family: var(--font-label); font-size: var(--label-size); margin-bottom: var(--space-xs);">
+              <span>STARGAZING &amp; LAUNCH VISIBILITY INDEX</span>
+              <span class="tabular" style="color: ${scoreColor}; font-weight: 600;">${score} / 100</span>
+            </div>
+            <div class="score-meter-track">
+              <div class="score-meter-fill" style="width: ${score}%; background: ${scoreColor};"></div>
+            </div>
+            <p class="muted" style="font-size: 0.875rem; margin: var(--space-sm) 0 0 0;">${day.skyNote}</p>
+          </div>
+
+          <div class="mini-stat-grid">
+            <div class="mini-stat">
+              <span class="mono-label">High / Low</span>
+              <div class="mini-stat-val tabular">${day.hi}°F / ${day.lo}°F</div>
+            </div>
+            <div class="mini-stat">
+              <span class="mono-label">Precip / RH</span>
+              <div class="mini-stat-val tabular">${day.pop}% · ${day.rh}%</div>
+            </div>
+            <div class="mini-stat">
+              <span class="mono-label">Wind / Dew</span>
+              <div class="mini-stat-val tabular">${day.wind} · ${day.dew}°F</div>
+            </div>
+            <div class="mini-stat">
+              <span class="mono-label">Barometer</span>
+              <div class="mini-stat-val tabular">${day.press} in (${day.mb} mb)</div>
+            </div>
+            <div class="mini-stat">
+              <span class="mono-label">Sun Set / Rise</span>
+              <div class="mini-stat-val tabular">${day.set} / ${day.rise}</div>
+            </div>
+            <div class="mini-stat">
+              <span class="mono-label">Moon Phase</span>
+              <div class="mini-stat-val" style="font-size: 0.8rem;">${day.moonPhase}</div>
+            </div>
+          </div>
+        </div>
+
+        <div style="display: grid; gap: var(--space-sm); align-content: start;">
+          <div class="coord-label">CROSS-REFERENCED LAUNCHES &amp; COSMIC EVENTS (${dayEvents.length})</div>
+          ${eventsHtml}
+        </div>
+      `;
     }
 
-    function updateAllLaunchTimers() {
-      if (!activeSpaceXManifest || activeSpaceXManifest.length === 0) return;
+    // =========================================================================
+    // RENDER: SECTION 2 — SPACEX & COSMIC EVENT TRACKER
+    // =========================================================================
+    function renderEventTracker() {
+      const listEl = document.getElementById(`event-list`);
+      if (!listEl) return;
 
-      // Auto-advance if the primary launch is more than 15 minutes past T-0
-      const firstTargetMs = new Date(activeSpaceXManifest[0].net).getTime();
-      if (Date.now() - firstTargetMs > 15 * 60 * 1000) {
-        renderSpaceXManifestUI();
-        if (activeSpaceXManifest.length === 0) return;
-      }
-
-      // 1. Update Primary Hero Countdown
-      const primary = activeSpaceXManifest[0];
-      const targetMs = new Date(primary.net).getTime();
-      const diffMs = targetMs - Date.now();
-      const isPast = diffMs < 0;
-      const absMs = Math.abs(diffMs);
-
-      const days = Math.floor(absMs / (1000 * 60 * 60 * 24));
-      const hours = Math.floor((absMs / (1000 * 60 * 60)) % 24);
-      const mins = Math.floor((absMs / (1000 * 60)) % 60);
-      const secs = Math.floor((absMs / 1000) % 60);
-
-      const pad2 = n => (n < 10 ? '0' + n : '' + n);
-
-      const modeEl = document.getElementById('countdownModeLabel');
-      if (modeEl) {
-        modeEl.textContent = isPast ? 'T+ Mission Elapsed Time (In Flight)' : 'T-Minus Countdown to Liftoff';
-        modeEl.style.color = isPast ? 'var(--positive)' : 'var(--primary)';
-      }
-
-      const dEl = document.getElementById('cdDays');
-      const hEl = document.getElementById('cdHours');
-      const mEl = document.getElementById('cdMins');
-      const sEl = document.getElementById('cdSecs');
-
-      if (dEl) dEl.textContent = pad2(days);
-      if (hEl) hEl.textContent = pad2(hours);
-      if (mEl) mEl.textContent = pad2(mins);
-      if (sEl) sEl.textContent = pad2(secs);
-
-      // 2. Update Queue Row Timers
-      const queue = activeSpaceXManifest.slice(1, 5);
-      queue.forEach((item, idx) => {
-        const el = document.getElementById(`queueTimer_${idx}`);
-        if (!el) return;
-        const qDiff = new Date(item.net).getTime() - Date.now();
-        const qPrefix = qDiff < 0 ? 'T+ ' : 'T- ';
-        const qAbs = Math.abs(qDiff);
-        const qD = Math.floor(qAbs / (1000 * 60 * 60 * 24));
-        const qH = Math.floor((qAbs / (1000 * 60 * 60)) % 24);
-        const qM = Math.floor((qAbs / (1000 * 60)) % 60);
-        const qS = Math.floor((qAbs / 1000) % 60);
-        el.textContent = `${qPrefix}${qD}d ${pad2(qH)}h ${pad2(qM)}m ${pad2(qS)}s`;
+      const nowMs = getCurrentMstMs();
+      const events = getAllEventsWithShifts().filter((ev) => {
+        if (appState.eventFilter === `all`) return true;
+        return ev.category === appState.eventFilter;
       });
+
+      const filterBtns = [`all`, `spacex`, `cosmic`, `global`];
+      filterBtns.forEach((f) => {
+        const b = document.getElementById(`filter-${f}`);
+        if (b) b.className = `btn btn-compact ${appState.eventFilter === f ? `btn-active` : ``}`;
+      });
+
+      if (!events.length) {
+        listEl.innerHTML = `<div class="observation-well">No events match this filter. Select "All Events" or add a custom watch entry below.</div>`;
+        return;
+      }
+
+      listEl.innerHTML = events.map((ev) => {
+        const isWatched = appState.watchedIds.includes(ev.id);
+        const matchDay = WEATHER_DAYS.find((d) => d.date === ev.mstDateIso);
+        const wxBadge = matchDay
+          ? (matchDay.pop >= 40
+            ? `<span class="badge badge-error">LAKE WX: ${matchDay.pop}% POP · STORM</span>`
+            : `<span class="badge badge-positive">LAKE WX: ${matchDay.hi}°/${matchDay.lo}° · ${matchDay.pop}% POP</span>`)
+          : `<span class="badge">EXTENDED MANIFEST</span>`;
+
+        const catBadge = ev.category === `spacex`
+          ? `<span class="badge badge-brass">SPACEX</span>`
+          : ev.category === `cosmic`
+          ? `<span class="badge">COSMIC</span>`
+          : `<span class="badge">GLOBAL ROCKET</span>`;
+
+        const shiftText = ev.shiftHrs !== 0
+          ? `<span class="badge badge-warning">SIMULATED SHIFT: ${ev.shiftHrs > 0 ? `+` : ``}${ev.shiftHrs}h</span>`
+          : ``;
+
+        return `
+          <article class="event-card ${ev.shiftHrs !== 0 ? `is-slipped` : isWatched ? `is-watched` : ``}">
+            <div class="event-head">
+              <div>
+                <div class="btn-row" style="margin-bottom: var(--space-xs);">
+                  ${catBadge}
+                  ${wxBadge}
+                  ${shiftText}
+                </div>
+                <h3 class="subhead-title" style="font-size: 1.25rem;">${ev.title}</h3>
+                <div class="mono-label" style="margin-top: 2px;">${ev.vehicle}</div>
+              </div>
+              <div style="text-align: right;">
+                <div class="mono-label">LIVE COUNTDOWN</div>
+                <div id="cd-${ev.id}" class="event-countdown tabular">${formatCountdown(ev.effectiveUtcMs, nowMs)}</div>
+                <div class="coord-label" style="font-size: 0.7rem;">${ev.mstTimeLabel}</div>
+              </div>
+            </div>
+
+            <p style="margin: 0; font-size: 0.9rem; color: var(--on-surface-variant);">${ev.summary}</p>
+
+            <div class="event-meta-row">
+              <span><strong>Site:</strong> ${ev.site}</span>
+              <span><strong>AZ Sky:</strong> ${ev.azVisibility}</span>
+            </div>
+
+            <div class="slip-controls">
+              <div class="btn-row">
+                <span class="mono-label">Adjust Window:</span>
+                <button type="button" class="btn btn-compact" onclick="shiftEventWindow('${ev.id}', 6)">+6h</button>
+                <button type="button" class="btn btn-compact" onclick="shiftEventWindow('${ev.id}', 24)">+24h</button>
+                <button type="button" class="btn btn-compact" onclick="shiftEventWindow('${ev.id}', -24)">−24h</button>
+                ${ev.shiftHrs !== 0 ? `<button type="button" class="btn btn-compact" onclick="resetSingleShift('${ev.id}')">Reset</button>` : ``}
+              </div>
+              <div class="btn-row">
+                <button type="button" class="btn btn-compact ${isWatched ? `btn-active` : ``}" onclick="toggleWatchEvent('${ev.id}')">
+                  ${isWatched ? `Watching ★` : `Watch ☆`}
+                </button>
+                ${matchDay ? `<button type="button" class="btn btn-compact" onclick="jumpToDayDate('${matchDay.date}')">Check Day Wx</button>` : ``}
+              </div>
+            </div>
+          </article>
+        `;
+      }).join(``);
     }
+
+    // =========================================================================
+    // RENDER: SECTION 3 — WEATHER LEDGER & CHART.JS
+    // =========================================================================
+    function renderWeatherLedger() {
+      const tbody = document.getElementById(`weather-ledger-body`);
+      if (!tbody) return;
+      tbody.innerHTML = WEATHER_DAYS.map((d, idx) => {
+        const popStyle = d.pop >= 40 ? `color: var(--error); font-weight: 600;` : d.pop >= 15 ? `color: var(--warning);` : `color: var(--positive);`;
+        return `
+          <tr style="cursor: pointer;" onclick="selectDayByIndex(${idx})">
+            <td><strong>${d.label}</strong></td>
+            <td class="num">${d.hi}° / ${d.lo}°</td>
+            <td class="num" style="${popStyle}">${d.pop}%</td>
+            <td class="num">${d.wind}</td>
+            <td class="num">${d.rh}% / ${d.dew}°</td>
+            <td class="num">${d.press}"</td>
+            <td class="num">${d.set}</td>
+          </tr>
+        `;
+      }).join(``);
+    }
+
+    function renderWeatherChart() {
+      const canvas = document.getElementById(`weather-chart`);
+      const captionEl = document.getElementById(`chart-caption`);
+      if (!canvas || typeof Chart === `undefined`) return;
+
+      const tabs = [`hourly`, `daily`, `climate`];
+      tabs.forEach((t) => {
+        const b = document.getElementById(`wx-tab-${t}`);
+        if (b) b.className = `btn btn-compact ${appState.weatherTab === t ? `btn-active` : ``}`;
+      });
+
+      const styles = getComputedStyle(document.documentElement);
+      const colBrass = styles.getPropertyValue(`--data-1`).trim();
+      const colSky = styles.getPropertyValue(`--data-2`).trim();
+      const colMint = styles.getPropertyValue(`--data-3`).trim();
+      const colCoral = styles.getPropertyValue(`--data-4`).trim();
+      const colText = styles.getPropertyValue(`--on-surface-variant`).trim();
+      const colGrid = styles.getPropertyValue(`--outline-variant`).trim();
+      const colBrassFill = styles.getPropertyValue(`--brass-area-fill`).trim();
+
+      if (weatherChartInstance) {
+        weatherChartInstance.destroy();
+      }
+
+      const commonOptions = {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            labels: {
+              color: colText,
+              font: { family: `JetBrains Mono, monospace`, size: 11 }
+            }
+          }
+        },
+        scales: {
+          x: {
+            ticks: { color: colText, font: { family: `JetBrains Mono, monospace`, size: 10 } },
+            grid: { color: colGrid }
+          },
+          y: {
+            ticks: { color: colText, font: { family: `JetBrains Mono, monospace`, size: 10 } },
+            grid: { color: colGrid }
+          }
+        }
+      };
+
+      if (appState.weatherTab === `hourly`) {
+        if (captionEl) captionEl.textContent = `TONIGHT'S HOURLY TEMP (°F) & UV INDEX CURVE — NOV 12 (19:00) TO NOV 13 (18:00)`;
+        const labels = [`19:00`, `21:00`, `23:00`, `01:00`, `03:00`, `05:00`, `07:00`, `09:00`, `11:00`, `13:00`, `15:00`, `17:00`];
+        const temps = [62, 60, 58, 57, 56, 55, 56, 61, 67, 70, 69, 65];
+        const uvs = [0, 0, 0, 0, 0, 0, 0, 1, 2, 2, 1, 0];
+
+        weatherChartInstance = new Chart(canvas, {
+          type: `line`,
+          data: {
+            labels,
+            datasets: [
+              {
+                label: `Temperature (°F)`,
+                data: temps,
+                borderColor: colBrass,
+                backgroundColor: colBrassFill,
+                fill: true,
+                tension: 0.35,
+                borderWidth: 2,
+                pointRadius: 3
+              },
+              {
+                label: `UV Index (×10 scale)`,
+                data: uvs.map((u) => u * 10),
+                borderColor: colSky,
+                borderDash: [4, 4],
+                tension: 0.25,
+                borderWidth: 1.5,
+                pointRadius: 2
+              }
+            ]
+          },
+          options: commonOptions
+        });
+      } else if (appState.weatherTab === `daily`) {
+        if (captionEl) captionEl.textContent = `14-DAY LAKE PLEASANT HIGH / LOW (°F) & PRECIP PROBABILITY (%)`;
+        weatherChartInstance = new Chart(canvas, {
+          type: `bar`,
+          data: {
+            labels: WEATHER_DAYS.map((d) => d.label),
+            datasets: [
+              {
+                type: `line`,
+                label: `High (°F)`,
+                data: WEATHER_DAYS.map((d) => d.hi),
+                borderColor: colBrass,
+                borderWidth: 2,
+                tension: 0.3,
+                pointRadius: 3
+              },
+              {
+                type: `line`,
+                label: `Low (°F)`,
+                data: WEATHER_DAYS.map((d) => d.lo),
+                borderColor: colSky,
+                borderWidth: 2,
+                tension: 0.3,
+                pointRadius: 3
+              },
+              {
+                type: `bar`,
+                label: `Precip Prob (%)`,
+                data: WEATHER_DAYS.map((d) => d.pop),
+                backgroundColor: WEATHER_DAYS.map((d) => d.pop >= 40 ? colCoral : colMint),
+                borderRadius: 3
+              }
+            ]
+          },
+          options: commonOptions
+        });
+      } else {
+        if (captionEl) captionEl.textContent = `ANNUAL LAKE PLEASANT CLIMATE AVERAGES (HIGH/LOW °F & HUMIDITY %)`;
+        weatherChartInstance = new Chart(canvas, {
+          type: `line`,
+          data: {
+            labels: MONTHLY_CLIMATE.map((c) => c.m),
+            datasets: [
+              {
+                label: `Mean High (°F)`,
+                data: MONTHLY_CLIMATE.map((c) => c.hi),
+                borderColor: colBrass,
+                backgroundColor: colBrassFill,
+                fill: true,
+                tension: 0.35,
+                borderWidth: 2
+              },
+              {
+                label: `Mean Low (°F)`,
+                data: MONTHLY_CLIMATE.map((c) => c.lo),
+                borderColor: colSky,
+                tension: 0.35,
+                borderWidth: 2
+              },
+              {
+                label: `Humidity (%)`,
+                data: MONTHLY_CLIMATE.map((c) => c.rh),
+                borderColor: colMint,
+                borderDash: [4, 4],
+                tension: 0.35,
+                borderWidth: 1.5
+              }
+            ]
+          },
+          options: commonOptions
+        });
+      }
+    }
+
+    // =========================================================================
+    // RENDER: SECTION 4 — LAKE PLEASANT SKY COMPASS & SITES
+    // =========================================================================
+    function azElToXY(azDeg, elDeg) {
+      const r = ((90 - elDeg) / 90) * 175;
+      const rad = (azDeg - 90) * (Math.PI / 180);
+      return {
+        x: 210 + r * Math.cos(rad),
+        y: 210 + r * Math.sin(rad)
+      };
+    }
+
+    function renderSkyGuide() {
+      const siteGrid = document.getElementById(`site-grid`);
+      const siteDetail = document.getElementById(`site-detail-panel`);
+      const siteLabel = document.getElementById(`compass-site-label`);
+      const targetDetail = document.getElementById(`sky-target-detail`);
+      const targetLayer = document.getElementById(`svg-target-layer`);
+      if (!siteGrid || !siteDetail || !targetDetail || !targetLayer) return;
+
+      siteGrid.innerHTML = VIEWING_SITES.map((s) => {
+        const isSel = s.id === appState.selectedSiteId;
+        return `
+          <button type="button" class="site-card ${isSel ? `is-selected` : ``}" onclick="selectSite('${s.id}')">
+            <div style="font-weight: 600; color: ${isSel ? `var(--primary)` : `var(--on-surface)`};">${s.name}</div>
+            <div class="mono-label" style="font-size: 0.7rem;">${s.sector}</div>
+          </button>
+        `;
+      }).join(``);
+
+      const site = VIEWING_SITES.find((s) => s.id === appState.selectedSiteId) || VIEWING_SITES[0];
+      if (siteLabel) siteLabel.textContent = `VIEWPOINT: ${site.name.toUpperCase()}`;
+
+      siteDetail.innerHTML = `
+        <div class="coord-label" style="margin-bottom: var(--space-xs);">${site.name} — SITE BRIEF</div>
+        <div style="display: grid; gap: var(--space-xs); font-family: var(--font-body); font-size: 0.875rem;">
+          <div><strong>Access &amp; Curfew:</strong> <span class="muted">${site.gateRule}</span></div>
+          <div><strong>Light Pollution:</strong> <span style="color: var(--tertiary);">${site.glowLevel}</span></div>
+          <div><strong>Horizon Clearance:</strong> <span class="muted">${site.horizon}</span></div>
+          <div><strong>Recommended For:</strong> <span style="color: var(--on-surface);">${site.bestFor}</span></div>
+        </div>
+      `;
+
+      // Highlight active target button
+      Object.keys(SKY_TARGETS).forEach((tid) => {
+        const btn = document.getElementById(`target-${tid}`);
+        if (btn) btn.className = `btn btn-compact ${appState.selectedTargetId === tid ? `btn-sky-active` : ``}`;
+      });
+
+      const tgt = SKY_TARGETS[appState.selectedTargetId] || SKY_TARGETS.vandenberg;
+      targetDetail.innerHTML = `
+        <div class="coord-label" style="color: ${tgt.colorVar};">${tgt.title}</div>
+        <div style="display: flex; flex-wrap: wrap; gap: var(--space-md); margin: var(--space-xs) 0; font-family: var(--font-label); font-size: var(--label-size);">
+          <span>AZ: <strong>${tgt.azimuth}</strong></span>
+          <span>EL: <strong>${tgt.elevation}</strong></span>
+          <span>WINDOW: <strong>${tgt.timing}</strong></span>
+        </div>
+        <p class="muted" style="margin: 0; font-size: 0.85rem;">${tgt.notes}</p>
+      `;
+
+      // Draw target overlay on SVG sky dome
+      let svgHtml = ``;
+      if (tgt.drawType === `cone`) {
+        const p1 = azElToXY(tgt.azStart, tgt.elMin);
+        const p2 = azElToXY(tgt.azEnd, tgt.elMin);
+        const p3 = azElToXY(tgt.azEnd, tgt.elMax);
+        const p4 = azElToXY(tgt.azStart, tgt.elMax);
+        const mid = azElToXY((tgt.azStart + tgt.azEnd) / 2, (tgt.elMin + tgt.elMax) / 2);
+        svgHtml = `
+          <polygon points="${p1.x},${p1.y} ${p2.x},${p2.y} ${p3.x},${p3.y} ${p4.x},${p4.y}" fill="var(--brass-tint)" stroke="${tgt.colorVar}" stroke-width="2" />
+          <circle cx="${mid.x}" cy="${mid.y}" r="5" fill="${tgt.colorVar}" />
+          <text x="${mid.x + 10}" y="${mid.y - 6}" fill="${tgt.colorVar}" font-family="var(--font-label)" font-size="10" font-weight="600">VANDENBERG PLUME</text>
+        `;
+      } else if (tgt.drawType === `arc`) {
+        const p1 = azElToXY(170, 24);
+        const p2 = azElToXY(215, 34);
+        const p3 = azElToXY(260, 18);
+        svgHtml = `
+          <path d="M ${p1.x} ${p1.y} Q ${p2.x} ${p2.y} ${p3.x} ${p3.y}" fill="none" stroke="${tgt.colorVar}" stroke-width="2.5" stroke-dasharray="5 3" />
+          <circle cx="${p1.x}" cy="${p1.y}" r="4.5" fill="${tgt.colorVar}" />
+          <circle cx="${p2.x}" cy="${p2.y}" r="5.5" fill="var(--primary)" />
+          <circle cx="${p3.x}" cy="${p3.y}" r="4.5" fill="${tgt.colorVar}" />
+          <text x="${p2.x}" y="${p2.y - 10}" fill="${tgt.colorVar}" font-family="var(--font-label)" font-size="10" text-anchor="middle">PLANETARY ECLIPTIC ARC</text>
+        `;
+      } else if (tgt.drawType === `zenith`) {
+        const e1 = azElToXY(82, 32);
+        svgHtml = `
+          <circle cx="210" cy="210" r="48" fill="var(--positive-tint)" stroke="${tgt.colorVar}" stroke-width="2" />
+          <circle cx="${e1.x}" cy="${e1.y}" r="6" fill="var(--primary)" />
+          <text x="${e1.x - 10}" y="${e1.y + 18}" fill="var(--primary)" font-family="var(--font-label)" font-size="9.5" text-anchor="middle">GEMINIDS RADIANT (DEC)</text>
+          <text x="210" y="222" fill="${tgt.colorVar}" font-family="var(--font-label)" font-size="10" font-weight="600" text-anchor="middle">PRIME DARK DOME</text>
+        `;
+      } else if (tgt.drawType === `transit`) {
+        const p1 = azElToXY(225, 18);
+        const p2 = azElToXY(305, 72);
+        const p3 = azElToXY(45, 20);
+        svgHtml = `
+          <path d="M ${p1.x} ${p1.y} Q ${p2.x} ${p2.y} ${p3.x} ${p3.y}" fill="none" stroke="${tgt.colorVar}" stroke-width="2.5" />
+          <circle cx="${p2.x}" cy="${p2.y}" r="5" fill="${tgt.colorVar}" />
+          <text x="${p2.x}" y="${p2.y - 12}" fill="${tgt.colorVar}" font-family="var(--font-label)" font-size="10" text-anchor="middle">STARSHIP ORBIT PASS (SW→NE)</text>
+        `;
+      }
+      targetLayer.innerHTML = svgHtml;
+    }
+
+    // =========================================================================
+    // STATE PERSISTENCE HELPERS (notebookAppApi)
+    // =========================================================================
+    async function saveAppState() {
+      if (window.notebookAppApi && typeof window.notebookAppApi.setAppState === `function`) {
+        try {
+          await window.notebookAppApi.setAppState(appState);
+        } catch (err) {
+          // Graceful fallback if host rejects state
+        }
+      }
+    }
+
+    function setInlineStatus(msg) {
+      const el = document.getElementById(`tracker-status`);
+      if (el) el.textContent = msg;
+    }
+
+    // =========================================================================
+    // HOISTED INTERACTION HANDLERS (function declarations required)
+    // =========================================================================
+    function jumpToSection(id) {
+      const el = document.getElementById(id);
+      if (el) el.scrollIntoView({ behavior: `smooth`, block: `start` });
+    }
+
+    function handleClockModeChange(val) {
+      appState.clockMode = val === `wall` ? `wall` : `epoch`;
+      updateLiveClockAndCountdowns();
+      saveAppState();
+    }
+
+    function handleTimeShiftChange(val) {
+      appState.timeOffsetHours = Number(val) || 0;
+      updateLiveClockAndCountdowns();
+      saveAppState();
+    }
+
+    function selectDayByIndex(idx) {
+      appState.selectedDayIdx = Math.max(0, Math.min(WEATHER_DAYS.length - 1, Number(idx) || 0));
+      renderDayMatrix();
+      saveAppState();
+    }
+
+    function jumpToDayDate(isoDate) {
+      const idx = WEATHER_DAYS.findIndex((d) => d.date === isoDate);
+      if (idx >= 0) {
+        selectDayByIndex(idx);
+        jumpToSection(`sec-integrated`);
+      }
+    }
+
+    function setEventFilter(filterName) {
+      appState.eventFilter = filterName;
+      renderEventTracker();
+      saveAppState();
+    }
+
+    function shiftEventWindow(eventId, deltaHours) {
+      const current = Number(appState.launchShiftsHours[eventId] || 0);
+      appState.launchShiftsHours[eventId] = current + Number(deltaHours);
+      renderEventTracker();
+      renderDayMatrix();
+      updateLiveClockAndCountdowns();
+      setInlineStatus(`Adjusted schedule window (${deltaHours > 0 ? `+` : ``}${deltaHours}h) — Daily Sky Matrix updated.`);
+      saveAppState();
+    }
+
+    function resetSingleShift(eventId) {
+      delete appState.launchShiftsHours[eventId];
+      renderEventTracker();
+      renderDayMatrix();
+      updateLiveClockAndCountdowns();
+      setInlineStatus(`Restored baseline manifest window.`);
+      saveAppState();
+    }
+
+    function toggleWatchEvent(eventId) {
+      const idx = appState.watchedIds.indexOf(eventId);
+      if (idx >= 0) {
+        appState.watchedIds.splice(idx, 1);
+      } else {
+        appState.watchedIds.push(eventId);
+      }
+      renderEventTracker();
+      saveAppState();
+    }
+
+    function addCustomEvent(e) {
+      e.preventDefault();
+      const titleEl = document.getElementById(`custom-title`);
+      const dateEl = document.getElementById(`custom-date`);
+      const timeEl = document.getElementById(`custom-time`);
+      if (!titleEl || !dateEl || !timeEl) return;
+
+      const title = titleEl.value.trim();
+      const dateVal = dateEl.value;
+      const timeVal = timeEl.value;
+      if (!title || !dateVal || !timeVal) return;
+
+      const [yr, mo, dy] = dateVal.split(`-`).map(Number);
+      const [hh, mm] = timeVal.split(`:`).map(Number);
+      const mstAsUtc = Date.UTC(yr, mo - 1, dy, hh, mm, 0);
+      const trueUtcMs = mstAsUtc - MST_OFFSET_MS;
+
+      const newId = `custom-${Date.now()}`;
+      appState.customEvents.push({
+        id: newId,
+        category: `cosmic`,
+        title,
+        vehicle: `User Watchlist Entry`,
+        site: `Lake Pleasant Regional Park`,
+        baseUtcMs: trueUtcMs,
+        azVisibility: `Custom local observation target`,
+        summary: `Added to Lake Pleasant observatory schedule for ${dateVal} at ${timeVal} MST.`,
+        status: `CUSTOM`
+      });
+      appState.watchedIds.push(newId);
+      titleEl.value = ``;
+      renderEventTracker();
+      renderDayMatrix();
+      updateLiveClockAndCountdowns();
+      setInlineStatus(`Added "${title}" to tracker & cross-referenced with ${dateVal} weather.`);
+      saveAppState();
+    }
+
+    function handleResetState(btn) {
+      if (!btn) return;
+      if (btn.dataset.armed !== `true`) {
+        btn.dataset.armed = `true`;
+        btn.textContent = `Click again to reset`;
+        setTimeout(() => {
+          if (btn.dataset.armed === `true`) {
+            btn.dataset.armed = `false`;
+            btn.textContent = `Reset Shifts`;
+          }
+        }, 4000);
+        return;
+      }
+      btn.dataset.armed = `false`;
+      btn.textContent = `Reset Shifts`;
+      appState.launchShiftsHours = {};
+      appState.customEvents = [];
+      appState.timeOffsetHours = 0;
+      const shiftSel = document.getElementById(`time-offset-select`);
+      if (shiftSel) shiftSel.value = `0`;
+      renderEventTracker();
+      renderDayMatrix();
+      updateLiveClockAndCountdowns();
+      setInlineStatus(`All simulated launch shifts and custom entries cleared.`);
+      saveAppState();
+    }
+
+    function setWeatherChartMode(mode) {
+      appState.weatherTab = mode;
+      renderWeatherChart();
+      saveAppState();
+    }
+
+    function selectSite(siteId) {
+      appState.selectedSiteId = siteId;
+      renderSkyGuide();
+      saveAppState();
+    }
+
+    function selectSkyTarget(targetId) {
+      appState.selectedTargetId = targetId;
+      renderSkyGuide();
+      saveAppState();
+    }
+
+    // =========================================================================
+    // INITIALIZATION
+    // =========================================================================
+    async function initDashboard() {
+      if (window.notebookAppApi && typeof window.notebookAppApi.getAppState === `function`) {
+        try {
+          const saved = await window.notebookAppApi.getAppState();
+          if (saved && typeof saved === `object`) {
+            appState = {
+              ...appState,
+              ...saved,
+              launchShiftsHours: saved.launchShiftsHours || {},
+              watchedIds: Array.isArray(saved.watchedIds) ? saved.watchedIds : appState.watchedIds,
+              customEvents: Array.isArray(saved.customEvents) ? saved.customEvents : []
+            };
+          }
+        } catch (err) {
+          // Continue with defaults
+        }
+      }
+
+      const clockSel = document.getElementById(`clock-mode-select`);
+      const shiftSel = document.getElementById(`time-offset-select`);
+      if (clockSel) clockSel.value = appState.clockMode;
+      if (shiftSel) shiftSel.value = String(appState.timeOffsetHours || 0);
+
+      renderDayMatrix();
+      renderEventTracker();
+      renderWeatherLedger();
+      renderWeatherChart();
+      renderSkyGuide();
+      updateLiveClockAndCountdowns();
+
+      if (clockIntervalId) clearInterval(clockIntervalId);
+      clockIntervalId = setInterval(updateLiveClockAndCountdowns, 1000);
+
+      if (window.lucide && typeof window.lucide.createIcons === `function`) {
+        window.lucide.createIcons();
+      }
+
+      if (window.notebookAppApi && typeof window.notebookAppApi.notifyAppReady === `function`) {
+        window.notebookAppApi.notifyAppReady();
+      }
+    }
+
+    document.addEventListener(`DOMContentLoaded`, initDashboard);
   </script>
 </body>
 </html>
