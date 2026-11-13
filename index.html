@@ -580,6 +580,63 @@
       transition: width var(--dur-short) var(--ease-out);
     }
 
+    /* Live SpaceX Countdown & Manifest Styles */
+    .countdown-hero-card {
+      background: var(--background);
+      border: var(--hairline-strong);
+      border-radius: var(--rounded);
+      padding: var(--space-md);
+      margin-bottom: var(--space-lg);
+      box-shadow: var(--panel-highlight);
+    }
+    .countdown-digits {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(60px, 1fr));
+      gap: var(--space-sm);
+      margin: var(--space-md) 0;
+    }
+    .digit-box {
+      background: var(--surface-container);
+      border: var(--hairline);
+      border-radius: var(--rounded);
+      padding: var(--space-sm);
+      text-align: center;
+    }
+    .digit-num {
+      font-family: var(--font-label);
+      font-size: clamp(1.4rem, 2.5vw, 2rem);
+      font-weight: 600;
+      color: var(--primary);
+      font-variant-numeric: tabular-nums;
+      line-height: 1.1;
+      display: block;
+    }
+    .digit-unit {
+      font-family: var(--font-label);
+      font-size: 0.68rem;
+      letter-spacing: var(--label-tracking);
+      text-transform: uppercase;
+      color: var(--on-surface-variant);
+      margin-top: 2px;
+      display: block;
+    }
+    .launch-queue-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(min(270px, 100%), 1fr));
+      gap: var(--space-sm);
+      margin-top: var(--space-sm);
+    }
+    .launch-queue-item {
+      background: var(--surface-container-low);
+      border: var(--hairline);
+      border-radius: var(--rounded);
+      padding: var(--space-sm) var(--space-md);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: var(--space-xs);
+    }
+
     /* Section anchors & jump navigation */
     .nav-ribbon {
       display: flex;
@@ -1095,11 +1152,79 @@
             <i data-lucide="rocket" style="color: var(--primary);"></i>
             SpaceX Launch Telemetry &amp; Acoustic Propagation
           </h2>
-          <div class="panel-subtitle">Falcon 9 / Heavy Acoustics, Starship Flight Cadence &amp; Fairing Recovery Vectors</div>
+          <div class="panel-subtitle">Live Auto-Synced Launch Countdowns, Falcon Acoustics &amp; Starship Cadence</div>
         </div>
         <div style="display:flex; gap: var(--space-sm); align-items: center; flex-wrap: wrap;">
-          <span class="badge badge-brass">Mission: USSF-627 (Falcon 9)</span>
-          <span class="badge badge-mint">FAA FONSI Active</span>
+          <span id="spacexSyncBadge" class="badge badge-brass">Syncing Live Feed...</span>
+          <button type="button" class="btn btn-secondary" style="min-height: 30px; padding: 4px 10px;" onclick="fetchLiveSpaceXLaunches(true)">
+            <i data-lucide="refresh-cw" style="width:13px;height:13px;"></i>
+            <span>Refresh Now</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Live SpaceX Launch Manifest & T-Minus Countdown Deck -->
+      <div class="countdown-hero-card">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: var(--space-md); flex-wrap: wrap;">
+          <div style="flex: 1; min-width: 240px;">
+            <div style="display: flex; align-items: center; gap: var(--space-xs); flex-wrap: wrap; margin-bottom: var(--space-xs);">
+              <span class="badge badge-brass">Next SpaceX Liftoff</span>
+              <span id="nextLaunchStatusBadge" class="badge badge-mint">GO FOR LAUNCH</span>
+              <span id="azVisibilityBadge" class="badge" style="display: none;">AZ Twilight Plume Alert</span>
+            </div>
+            <h3 id="nextLaunchName" style="font-family: var(--font-headline); font-size: 1.65rem; margin: 0; color: var(--on-surface);">
+              Loading Upcoming Mission...
+            </h3>
+            <div id="nextLaunchPad" style="font-family: var(--font-label); font-size: var(--label-size); color: var(--tertiary); margin-top: 4px;">
+              Launch Pad: --
+            </div>
+            <div id="nextLaunchTimes" style="font-family: var(--font-label); font-size: var(--label-size); color: var(--on-surface-variant); margin-top: 4px;">
+              Window: -- MST / -- UTC
+            </div>
+          </div>
+
+          <!-- Digital T-Minus / T-Plus Counter -->
+          <div style="min-width: 280px; flex: 1; max-width: 440px;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <span id="countdownModeLabel" style="font-family: var(--font-label); font-size: var(--label-size); letter-spacing: var(--label-tracking); text-transform: uppercase; color: var(--primary);">
+                T-Minus Countdown
+              </span>
+              <a id="nextLaunchLink" href="https://www.spacex.com/launches/" target="_blank" rel="noopener noreferrer" style="font-family: var(--font-label); font-size: var(--label-size); color: var(--tertiary); text-decoration: none;">
+                Mission Feed ↗
+              </a>
+            </div>
+            <div class="countdown-digits">
+              <div class="digit-box">
+                <span class="digit-num" id="cdDays">00</span>
+                <span class="digit-unit">Days</span>
+              </div>
+              <div class="digit-box">
+                <span class="digit-num" id="cdHours">00</span>
+                <span class="digit-unit">Hours</span>
+              </div>
+              <div class="digit-box">
+                <span class="digit-num" id="cdMins">00</span>
+                <span class="digit-unit">Mins</span>
+              </div>
+              <div class="digit-box">
+                <span class="digit-num" id="cdSecs">00</span>
+                <span class="digit-unit">Secs</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Upcoming Launch Queue -->
+        <div style="border-top: var(--hairline); padding-top: var(--space-sm); margin-top: var(--space-xs);">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: var(--space-xs);">
+            <span style="font-family: var(--font-label); font-size: var(--label-size); text-transform: uppercase; color: var(--on-surface-variant);">
+              Subsequent SpaceX Manifest Queue (Live Timers)
+            </span>
+            <span id="manifestLastUpdated" style="font-family: var(--font-label); font-size: 0.7rem; color: var(--on-surface-variant);">
+              Auto-refreshes on page load
+            </span>
+          </div>
+          <div id="launchQueueContainer" class="launch-queue-grid"></div>
         </div>
       </div>
 
@@ -1251,801 +1376,6 @@
   <!-- Interactive Dashboard Script -->
   <script>
     /* -------------------------------------------------------------
-       1. Global State & Target Database
-       ------------------------------------------------------------- */
-    const SKY_TARGETS = {
-      mars_jupiter: {
-        id: 'mars_jupiter',
-        name: `Mars & Jupiter Conjunction`,
-        badge: `Planetary Conjunction`,
-        constellation: `Constellation Leo (Heart of the Lion / Sickle)`,
-        separation: `1.2°`,
-        ra: `10h 14m`,
-        dec: `+12° 08'`,
-        azimuth: 104,
-        azimuthText: `104° ESE`,
-        altitude: 48,
-        altitudeText: `+48° (High ESE)`,
-        window: `02:30 – 05:45 MST`,
-        moonImpact: `0% (Moon Below Horizon)`,
-        optics: `Visible to the naked eye as brilliant twin beacons in the eastern sky after 02:00 MST. Through a 4-inch backyard telescope, Jupiter's equatorial cloud belts and four Galilean satellites are clearly resolved. In the predawn hours of Nov 16, the Great Red Spot rotates into view; use a light green filter to boost Great Red Spot contrast or an orange filter for sweeping cloud belts.`
-      },
-      leonids: {
-        id: 'leonids',
-        name: `Leonid Meteor Shower`,
-        badge: `Annual Meteor Shower`,
-        constellation: `Leo Radiant (Near the Sickle Pattern)`,
-        separation: `Radiant point`,
-        ra: `10h 08m`,
-        dec: `+22° 00'`,
-        azimuth: 108,
-        azimuthText: `108° ESE`,
-        altitude: 52,
-        altitudeText: `+52° (Pre-dawn Peak)`,
-        window: `01:00 – 05:30 MST (Nov 17-18)`,
-        moonImpact: `0% (First Quarter Sets at Midnight)`,
-        optics: `Stream originates from the Sickle of Leo, right beside Jupiter and Mars! Use the bright planetary pair as a celestial guidepost to locate the radiant. Rates reach ~15 meteors per hour under dark skies. Naked eye observation with a wide-angle reclining chair is ideal; allow 30 minutes for dark adaptation away from city illumination.`
-      },
-      taurids: {
-        id: 'taurids',
-        name: `Northern Taurid Meteors`,
-        badge: `Fireball Peak (Nov 12)`,
-        constellation: `Constellation Taurus (Near the Pleiades)`,
-        separation: `Broad Radiant`,
-        ra: `03h 52m`,
-        dec: `+22° 15'`,
-        azimuth: 185,
-        azimuthText: `185° S`,
-        altitude: 68,
-        altitudeText: `+68° (Zenith Crossing)`,
-        window: `21:00 – 03:30 MST (Tonight)`,
-        moonImpact: `0% (Crescent Sets ~19:48 MST)`,
-        optics: `Northern Taurids reach peak activity around November 12. While producing only ~5 meteors per hour, the Taurid stream is renowned for slow-moving, intensely bright fireballs caused by pebble-sized debris from Comet Encke. Best viewed looking overhead toward the southern meridian.`
-      },
-      voyager: {
-        id: 'voyager',
-        name: `Voyager 1 Light-Day Vector`,
-        badge: `NASA Historic First`,
-        constellation: `Constellation Ophiuchus (Western Horizon)`,
-        separation: `1 Light-Day (~24 Light-Hours)`,
-        ra: `17h 15m`,
-        dec: `+12° 20'`,
-        azimuth: 245,
-        azimuthText: `245° WSW`,
-        altitude: 18,
-        altitudeText: `+18° (Twilight Vector)`,
-        window: `17:00 – 18:30 MST (Nov 17)`,
-        moonImpact: `Low (<5%)`,
-        optics: `Commemorating NASA's 'Shine Bright for Voyager's Light-Day' activation on Nov 17, when Voyager 1 becomes the first human-made object at a distance of one full light-day (over 25.9 billion km). A radio signal traveling at the speed of light takes a full 24 hours to reach Earth. Observers can point laser pointers or binoculars toward western Ophiuchus at dusk.`
-      },
-      moon: {
-        id: 'moon',
-        name: `Waxing Crescent Moon`,
-        badge: `Lunar Cycle`,
-        constellation: `Constellation Sagittarius / Ophiuchus Rim`,
-        separation: `Distance: 402,109 km`,
-        ra: `18h 40m`,
-        dec: `-24° 15'`,
-        azimuth: 238,
-        azimuthText: `238° WSW`,
-        altitude: 14,
-        altitudeText: `+14° (Dipping West)`,
-        window: `17:30 – 19:48 MST`,
-        moonImpact: `Sets Early (Zero Night Interference)`,
-        optics: `Slender sliver (~8% illuminated) displaying earthshine ('the old moon in the new moon's arms') on the unlit lunar disc. Excellent viewing for crater rims and Mare Crisium along the sharp lunar terminator. Sets at 19:48 MST, clearing the entire celestial canopy for dark-sky meteor tracking.`
-      },
-      supermoon: {
-        id: 'supermoon',
-        name: `November Full Supermoon Preview`,
-        badge: `Upcoming (Nov 24)`,
-        constellation: `Constellation Taurus`,
-        separation: `Perigee: ~363,000 km`,
-        ra: `04h 25m`,
-        dec: `+21° 50'`,
-        azimuth: 75,
-        azimuthText: `75° ENE (Rising)`,
-        altitude: 35,
-        altitudeText: `Full Night Traverse`,
-        window: `Dusk to Dawn (Nov 24)`,
-        moonImpact: `100% (High Sky Wash)`,
-        optics: `The first of three consecutive full supermoons, appearing roughly 7% larger and 15% brighter than an average full moon as it reaches orbital perigee. Perfect for naked-eye and binocular surface exploration, but will wash out faint meteor trails.`
-      }
-    };
-
-    const STORAGE_KEY = 'sky1_observatory_state_v1';
-    let activeTargetId = 'mars_jupiter';
-    let activeStation = 'kdvt';
-    let activeHour = 22.0; // 22:00 MST
-    let isNightVision = false;
-    let weatherChartInstance = null;
-    let appState = {
-      station: 'kdvt',
-      target: 'mars_jupiter',
-      hour: 22,
-      nightVision: false,
-      checklist: {
-        chk_lift: true,
-        chk_locker: false,
-        chk_winch: false,
-        chk_airdown: true,
-        chk_fire: true,
-        chk_offline: true
-      }
-    };
-
-    /* -------------------------------------------------------------
-       2. Initialization & State Persistence (LocalStorage + Host API)
-       ------------------------------------------------------------- */
-    window.addEventListener('DOMContentLoaded', async function() {
-      // Initialize Lucide icons
-      if (window.lucide) {
-        window.lucide.createIcons();
-      }
-
-      // Restore from localStorage first
-      try {
-        const localSaved = localStorage.getItem(STORAGE_KEY);
-        if (localSaved) {
-          const parsed = JSON.parse(localSaved);
-          if (parsed && typeof parsed === 'object') {
-            appState = Object.assign(appState, parsed);
-          }
-        }
-      } catch (e) {
-        console.warn('LocalStorage unavailable:', e);
-      }
-
-      // Check for notebookAppApi state if present
-      if (window.notebookAppApi && typeof window.notebookAppApi.getAppState === 'function') {
-        try {
-          const savedState = await window.notebookAppApi.getAppState();
-          if (savedState && typeof savedState === 'object') {
-            appState = Object.assign(appState, savedState);
-          }
-        } catch (e) {
-          console.warn('Could not restore host state:', e);
-        }
-      }
-
-      if (appState.station) activeStation = appState.station;
-      if (appState.target && SKY_TARGETS[appState.target]) activeTargetId = appState.target;
-      if (appState.hour !== undefined) activeHour = Number(appState.hour);
-      if (appState.nightVision !== undefined) isNightVision = Boolean(appState.nightVision);
-
-      // Restore UI elements from state
-      applyRestoredState();
-
-      // Render Charts & Radar
-      initWeatherChart();
-      initSkyRadar();
-      updateObservationDeck();
-      calculateAcoustics(1450);
-      calculateElevationLapse(3400);
-
-      // Start live clock
-      setInterval(updateUtcClock, 1000);
-      updateUtcClock();
-
-      // Notify host app ready
-      if (window.notebookAppApi && typeof window.notebookAppApi.notifyAppReady === 'function') {
-        window.notebookAppApi.notifyAppReady();
-      }
-    });
-
-    function applyRestoredState() {
-      const stationSelect = document.getElementById('stationSelect');
-      if (stationSelect) stationSelect.value = activeStation;
-
-      const timeSlider = document.getElementById('timeSlider');
-      if (timeSlider) timeSlider.value = activeHour;
-      onTimeSliderChange(activeHour);
-
-      if (isNightVision) {
-        document.body.classList.add('night-vision');
-        const nvLabel = document.getElementById('nvLabel');
-        if (nvLabel) nvLabel.textContent = 'Normal Mode';
-      } else {
-        document.body.classList.remove('night-vision');
-        const nvLabel = document.getElementById('nvLabel');
-        if (nvLabel) nvLabel.textContent = 'Red Vision Mode';
-      }
-
-      // Sync target selector strip & card
-      syncTargetButtonUI(activeTargetId);
-      updateTargetCard();
-
-      // Checklist checkboxes
-      if (appState.checklist) {
-        Object.keys(appState.checklist).forEach(function(key) {
-          const el = document.getElementById(key);
-          if (el) el.checked = Boolean(appState.checklist[key]);
-        });
-        updateChecklistCounter();
-      }
-    }
-
-    async function persistState() {
-      appState.station = activeStation;
-      appState.target = activeTargetId;
-      appState.hour = activeHour;
-      appState.nightVision = isNightVision;
-
-      try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(appState));
-      } catch (e) {
-        console.warn('LocalStorage save failed:', e);
-      }
-
-      if (window.notebookAppApi && typeof window.notebookAppApi.setAppState === 'function') {
-        try {
-          await window.notebookAppApi.setAppState(appState);
-        } catch (err) {
-          console.warn('Persist host state error:', err);
-        }
-      }
-    }
-
-    /* -------------------------------------------------------------
-       3. Clock & Live Indicators
-       ------------------------------------------------------------- */
-    function updateUtcClock() {
-      const el = document.getElementById('liveUtcClock');
-      if (!el) return;
-      const now = new Date();
-      const utcStr = now.toUTCString().split(' ')[4] || '';
-      el.textContent = `UTC ${utcStr} • MST ${now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}`;
-    }
-
-    function toggleNightVision() {
-      isNightVision = !isNightVision;
-      const body = document.body;
-      const nvLabel = document.getElementById('nvLabel');
-      if (isNightVision) {
-        body.classList.add('night-vision');
-        if (nvLabel) nvLabel.textContent = 'Normal Mode';
-      } else {
-        body.classList.remove('night-vision');
-        if (nvLabel) nvLabel.textContent = 'Red Vision Mode';
-      }
-      if (weatherChartInstance) {
-        weatherChartInstance.destroy();
-        initWeatherChart();
-      }
-      drawSkyRadar();
-      persistState();
-    }
-
-    function resetToLiveState() {
-      activeStation = 'kdvt';
-      activeHour = 22.0;
-      activeTargetId = 'mars_jupiter';
-      isNightVision = false;
-      applyRestoredState();
-      updateObservationDeck();
-      drawSkyRadar();
-      if (weatherChartInstance) {
-        weatherChartInstance.destroy();
-        initWeatherChart();
-      }
-      persistState();
-    }
-
-    /* -------------------------------------------------------------
-       4. Observation Deck & Sky Target Selection
-       ------------------------------------------------------------- */
-    function syncTargetButtonUI(targetId) {
-      const strip = document.getElementById('targetSelectorStrip');
-      if (!strip) return;
-      const btns = strip.querySelectorAll('button');
-      btns.forEach(function(b) {
-        if (b.getAttribute('data-target') === targetId) {
-          b.classList.add('active');
-        } else {
-          b.classList.remove('active');
-        }
-      });
-    }
-
-    function selectSkyTarget(targetId, btn) {
-      if (!SKY_TARGETS[targetId]) return;
-      activeTargetId = targetId;
-
-      syncTargetButtonUI(targetId);
-      updateTargetCard();
-      drawSkyRadar();
-      persistState();
-    }
-
-    function updateTargetCard() {
-      const t = SKY_TARGETS[activeTargetId];
-      if (!t) return;
-
-      const typeEl = document.getElementById('targetTypeBadge');
-      const nameEl = document.getElementById('targetName');
-      const constEl = document.getElementById('targetConstellation');
-      const distEl = document.getElementById('targetDistance');
-      const azEl = document.getElementById('targetAzimuth');
-      const altEl = document.getElementById('targetAltitude');
-      const winEl = document.getElementById('targetWindow');
-      const moonEl = document.getElementById('targetMoonImpact');
-      const optEl = document.getElementById('targetOpticsDesc');
-
-      if (typeEl) typeEl.textContent = t.badge;
-      if (nameEl) nameEl.textContent = t.name;
-      if (constEl) constEl.textContent = t.constellation;
-      if (distEl) distEl.textContent = t.separation;
-      if (azEl) azEl.textContent = t.azimuthText;
-      if (altEl) altEl.textContent = t.altitudeText;
-      if (winEl) winEl.textContent = t.window;
-      if (moonEl) moonEl.textContent = t.moonImpact;
-      if (optEl) optEl.textContent = t.optics;
-    }
-
-    function onTimeSliderChange(val) {
-      activeHour = parseFloat(val);
-      const displayHour = Math.floor(activeHour);
-      const displayMin = Math.round((activeHour - displayHour) * 60);
-      const fmtMin = displayMin < 10 ? '0' + displayMin : displayMin;
-      const fmtHour = displayHour >= 24 ? displayHour - 24 : displayHour;
-      const fmtHourPad = fmtHour < 10 ? '0' + fmtHour : fmtHour;
-
-      const label = document.getElementById('timeSliderVal');
-      if (label) {
-        const dayLabel = displayHour >= 24 ? 'Fri Predawn' : 'Thu Night';
-        label.textContent = `${fmtHourPad}:${fmtMin} MST (${dayLabel})`;
-      }
-
-      const badge = document.getElementById('skyEpochBadge');
-      if (badge) {
-        badge.textContent = `${displayHour >= 24 ? 'Fri Nov 13' : 'Thu Nov 12'} • ${fmtHourPad}:${fmtMin} MST`;
-      }
-
-      drawSkyRadar();
-      persistState();
-    }
-
-    function updateObservationDeck() {
-      const select = document.getElementById('stationSelect');
-      if (select) activeStation = select.value;
-
-      const bortleBadge = document.getElementById('bortleBadge');
-      if (bortleBadge) {
-        if (activeStation === 'kdvt') {
-          bortleBadge.textContent = 'Bortle 6 (Urban / Suburban Fringe)';
-          bortleBadge.className = 'badge badge-brass';
-        } else if (activeStation === 'pleasant') {
-          bortleBadge.textContent = 'Bortle 4 (Dark Western Horizon)';
-          bortleBadge.className = 'badge badge-mint';
-        } else if (activeStation === 'crownking') {
-          bortleBadge.textContent = 'Bortle 3 (Pristine Mountain Dark)';
-          bortleBadge.className = 'badge badge-mint';
-        } else if (activeStation === 'flagstaff') {
-          bortleBadge.textContent = 'Bortle 2 (Coconino Dark-Sky Sanctuary)';
-          bortleBadge.className = 'badge badge-mint';
-        }
-      }
-
-      drawSkyRadar();
-      persistState();
-    }
-
-    /* -------------------------------------------------------------
-       5. Interactive Stereographic Sky Radar Canvas
-       ------------------------------------------------------------- */
-    let canvas, ctx;
-
-    function initSkyRadar() {
-      canvas = document.getElementById('skyCanvas');
-      if (!canvas) return;
-      ctx = canvas.getContext('2d');
-
-      function resizeCanvas() {
-        if (!canvas) return;
-        const rect = canvas.getBoundingClientRect();
-        canvas.width = rect.width * (window.devicePixelRatio || 1);
-        canvas.height = rect.height * (window.devicePixelRatio || 1);
-        drawSkyRadar();
-      }
-
-      window.addEventListener('resize', resizeCanvas);
-      resizeCanvas();
-
-      // Click / Tap to pick target
-      canvas.addEventListener('click', function(e) {
-        const rect = canvas.getBoundingClientRect();
-        const dpr = window.devicePixelRatio || 1;
-        const x = (e.clientX - rect.left) * dpr;
-        const y = (e.clientY - rect.top) * dpr;
-        handleRadarClick(x, y);
-      });
-    }
-
-    function drawSkyRadar() {
-      if (!canvas || !ctx) return;
-      const w = canvas.width;
-      const h = canvas.height;
-      ctx.clearRect(0, 0, w, h);
-
-      const cx = w / 2;
-      const cy = h / 2;
-      const radius = Math.min(cx, cy) * 0.88;
-
-      // Dark background circular dome
-      const bgGrad = ctx.createRadialGradient(cx, cy, 0, cx, cy, radius);
-      if (isNightVision) {
-        bgGrad.addColorStop(0, '#1a0505');
-        bgGrad.addColorStop(0.7, '#110303');
-        bgGrad.addColorStop(1, '#080101');
-      } else {
-        bgGrad.addColorStop(0, '#0d182e');
-        bgGrad.addColorStop(0.6, '#09101e');
-        bgGrad.addColorStop(1, '#050a14');
-      }
-      ctx.fillStyle = bgGrad;
-      ctx.beginPath();
-      ctx.arc(cx, cy, radius, 0, Math.PI * 2);
-      ctx.fill();
-
-      // Outer border ring
-      ctx.strokeStyle = isNightVision ? '#662222' : '#384d73';
-      ctx.lineWidth = 2 * (window.devicePixelRatio || 1);
-      ctx.stroke();
-
-      // Concentric altitude rings (Zenith = center, 30°, 60°, Horizon = 0°)
-      const rings = [0.33, 0.66];
-      ctx.lineWidth = 1;
-      ctx.strokeStyle = isNightVision ? '#401515' : '#1c2b45';
-      rings.forEach(function(frac) {
-        ctx.beginPath();
-        ctx.arc(cx, cy, radius * frac, 0, Math.PI * 2);
-        ctx.stroke();
-      });
-
-      // Azimuth crosshairs (N-S, E-W)
-      ctx.beginPath();
-      ctx.moveTo(cx, cy - radius);
-      ctx.lineTo(cx, cy + radius);
-      ctx.moveTo(cx - radius, cy);
-      ctx.lineTo(cx + radius, cy);
-      ctx.stroke();
-
-      // Cardinal Labels
-      ctx.fillStyle = isNightVision ? '#ff8080' : '#dfaa5b';
-      ctx.font = `600 ${12 * (window.devicePixelRatio || 1)}px 'JetBrains Mono', monospace`;
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      const pad = 16 * (window.devicePixelRatio || 1);
-      ctx.fillText('N (0°)', cx, cy - radius + pad);
-      ctx.fillText('S (180°)', cx, cy + radius - pad);
-      ctx.fillText('E (90°)', cx + radius - pad, cy);
-      ctx.fillText('W (270°)', cx - radius + pad, cy);
-
-      // Starfield background based on hour and station
-      drawStaticStarfield(cx, cy, radius);
-
-      // Plot Celestial Targets with calculated motion
-      plotTargetOnRadar('mars_jupiter', cx, cy, radius);
-      plotTargetOnRadar('leonids', cx, cy, radius);
-      plotTargetOnRadar('taurids', cx, cy, radius);
-      plotTargetOnRadar('voyager', cx, cy, radius);
-      plotTargetOnRadar('moon', cx, cy, radius);
-    }
-
-    function drawStaticStarfield(cx, cy, radius) {
-      const dpr = window.devicePixelRatio || 1;
-      const numStars = activeStation === 'crownking' || activeStation === 'flagstaff' ? 95 : 45;
-      ctx.fillStyle = isNightVision ? '#ff6666' : '#ffffff';
-
-      for (let i = 0; i < numStars; i++) {
-        const seedAngle = (i * 137.5) * (Math.PI / 180);
-        const seedDist = ((i * 37) % 100) / 100 * (radius * 0.92);
-        const sx = cx + Math.cos(seedAngle) * seedDist;
-        const sy = cy + Math.sin(seedAngle) * seedDist;
-        const sz = ((i % 3) + 1) * 0.7 * dpr;
-
-        ctx.globalAlpha = 0.35 + (i % 5) * 0.12;
-        ctx.beginPath();
-        ctx.arc(sx, sy, sz, 0, Math.PI * 2);
-        ctx.fill();
-      }
-      ctx.globalAlpha = 1.0;
-    }
-
-    function getTargetCoordinates(targetKey, cx, cy, radius) {
-      const t = SKY_TARGETS[targetKey];
-      if (!t) return { x: cx, y: cy, visible: false };
-
-      const hourOffset = activeHour - 22.0;
-      let baseAz = t.azimuth;
-      let baseAlt = t.altitude;
-
-      let curAz = (baseAz + hourOffset * 14.5) % 360;
-      let curAlt = baseAlt;
-
-      if (targetKey === 'mars_jupiter' || targetKey === 'leonids') {
-        if (activeHour < 24) {
-          curAlt = Math.max(-10, (activeHour - 22) * 12);
-        } else {
-          curAlt = Math.min(65, 24 + (activeHour - 24) * 10);
-        }
-      } else if (targetKey === 'moon') {
-        curAlt = Math.max(-25, 14 - (activeHour - 18) * 12);
-      } else if (targetKey === 'taurids') {
-        curAlt = Math.max(10, 70 - Math.abs(activeHour - 24) * 8);
-      } else if (targetKey === 'voyager') {
-        curAlt = Math.max(-30, 20 - (activeHour - 17) * 12);
-      }
-
-      const rFraction = Math.max(0, (90 - curAlt) / 90);
-      const radDist = radius * rFraction;
-      const radAngle = (curAz - 90) * (Math.PI / 180);
-
-      const px = cx + Math.cos(radAngle) * radDist;
-      const py = cy + Math.sin(radAngle) * radDist;
-
-      return {
-        x: px,
-        y: py,
-        az: Math.round(curAz),
-        alt: Math.round(curAlt),
-        visible: curAlt > 0
-      };
-    }
-
-    function plotTargetOnRadar(targetKey, cx, cy, radius) {
-      const pos = getTargetCoordinates(targetKey, cx, cy, radius);
-      const isSelected = activeTargetId === targetKey;
-      const dpr = window.devicePixelRatio || 1;
-
-      ctx.save();
-
-      if (!pos.visible) {
-        ctx.globalAlpha = 0.25;
-      }
-
-      if (isSelected) {
-        ctx.beginPath();
-        ctx.arc(pos.x, pos.y, 14 * dpr, 0, Math.PI * 2);
-        ctx.fillStyle = isNightVision ? 'rgba(255, 77, 77, 0.25)' : 'rgba(223, 170, 91, 0.25)';
-        ctx.fill();
-        ctx.strokeStyle = isNightVision ? '#ff4d4d' : '#dfaa5b';
-        ctx.lineWidth = 1.5 * dpr;
-        ctx.stroke();
-      }
-
-      ctx.beginPath();
-      ctx.arc(pos.x, pos.y, (isSelected ? 6 : 4.5) * dpr, 0, Math.PI * 2);
-
-      if (targetKey === 'mars_jupiter') {
-        ctx.fillStyle = isNightVision ? '#ff4d4d' : '#dfaa5b';
-      } else if (targetKey === 'leonids') {
-        ctx.fillStyle = isNightVision ? '#ff7373' : '#7cc4e8';
-      } else if (targetKey === 'taurids') {
-        ctx.fillStyle = isNightVision ? '#ff9999' : '#52d19c';
-      } else if (targetKey === 'moon') {
-        ctx.fillStyle = isNightVision ? '#ffffff' : '#f2ece1';
-      } else {
-        ctx.fillStyle = isNightVision ? '#cc3333' : '#e07a5f';
-      }
-      ctx.fill();
-
-      ctx.font = `500 ${10 * dpr}px 'JetBrains Mono', monospace`;
-      ctx.fillStyle = isSelected ? (isNightVision ? '#ffffff' : '#dfaa5b') : (isNightVision ? '#b35959' : '#9ba8bf');
-      ctx.textAlign = 'left';
-      ctx.textBaseline = 'middle';
-
-      const shortName = targetKey === 'mars_jupiter' ? 'Mars-Jup (1.2°)' :
-                        targetKey === 'leonids' ? 'Leonids' :
-                        targetKey === 'taurids' ? 'N. Taurids' :
-                        targetKey === 'moon' ? 'Moon' : 'Voyager 1';
-
-      const tagText = `${shortName} ${pos.visible ? '+' + pos.alt + '°' : '(Set)'}`;
-      ctx.fillText(tagText, pos.x + 9 * dpr, pos.y);
-
-      ctx.restore();
-    }
-
-    function handleRadarClick(clickX, clickY) {
-      if (!canvas) return;
-      const cx = canvas.width / 2;
-      const cy = canvas.height / 2;
-      const radius = Math.min(cx, cy) * 0.88;
-      const dpr = window.devicePixelRatio || 1;
-
-      const keys = ['mars_jupiter', 'leonids', 'taurids', 'voyager', 'moon'];
-      let closestKey = null;
-      let minDistance = 28 * dpr;
-
-      keys.forEach(function(key) {
-        const pos = getTargetCoordinates(key, cx, cy, radius);
-        const dist = Math.hypot(clickX - pos.x, clickY - pos.y);
-        if (dist < minDistance) {
-          minDistance = dist;
-          closestKey = key;
-        }
-      });
-
-      if (closestKey) {
-        selectSkyTarget(closestKey, null);
-      }
-    }
-
-    /* -------------------------------------------------------------
-       6. Weather & Temperature Lapse Models
-       ------------------------------------------------------------- */
-    function initWeatherChart() {
-      const chartEl = document.getElementById('weatherTrendChart');
-      if (!chartEl) return;
-
-      const labels = ['Thu 12', 'Fri 13', 'Sat 14', 'Sun 15', 'Mon 16', 'Tue 17'];
-      const highs = [86, 78, 74, 74, 75, 71];
-      const lows = [58, 61, 56, 56, 57, 52];
-      const precipProbs = [0, 20, 40, 10, 20, 35];
-
-      const textColor = isNightVision ? '#ff9999' : '#f2ece1';
-      const gridColor = isNightVision ? '#401515' : '#21304d';
-      const brassColor = isNightVision ? '#ff4d4d' : '#dfaa5b';
-      const skyColor = isNightVision ? '#ff7373' : '#7cc4e8';
-      const mintColor = isNightVision ? '#ff9999' : '#52d19c';
-
-      weatherChartInstance = new Chart(chartEl, {
-        type: 'line',
-        data: {
-          labels: labels,
-          datasets: [
-            {
-              label: 'High Temp (°F)',
-              data: highs,
-              borderColor: brassColor,
-              backgroundColor: isNightVision ? 'rgba(255, 77, 77, 0.12)' : 'rgba(223, 170, 91, 0.12)',
-              borderWidth: 2,
-              pointBackgroundColor: brassColor,
-              tension: 0.3,
-              yAxisID: 'y'
-            },
-            {
-              label: 'Low Temp (°F)',
-              data: lows,
-              borderColor: skyColor,
-              backgroundColor: 'transparent',
-              borderWidth: 2,
-              borderDash: [4, 4],
-              pointBackgroundColor: skyColor,
-              tension: 0.3,
-              yAxisID: 'y'
-            },
-            {
-              label: 'Precip Chance (%)',
-              data: precipProbs,
-              borderColor: mintColor,
-              backgroundColor: isNightVision ? 'rgba(255, 128, 128, 0.25)' : 'rgba(82, 209, 156, 0.25)',
-              borderWidth: 1.5,
-              type: 'bar',
-              yAxisID: 'y1'
-            }
-          ]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: {
-              labels: {
-                color: textColor,
-                font: { family: 'JetBrains Mono', size: 11 }
-              }
-            },
-            tooltip: {
-              backgroundColor: isNightVision ? '#1c0c0c' : '#111b2e',
-              titleColor: textColor,
-              bodyColor: textColor,
-              borderColor: isNightVision ? '#662222' : '#384d73',
-              borderWidth: 1,
-              titleFont: { family: 'Plus Jakarta Sans', weight: 'bold' },
-              bodyFont: { family: 'JetBrains Mono' }
-            }
-          },
-          scales: {
-            x: {
-              ticks: { color: textColor, font: { family: 'JetBrains Mono', size: 10 } },
-              grid: { color: gridColor }
-            },
-            y: {
-              type: 'linear',
-              display: true,
-              position: 'left',
-              title: { display: true, text: 'Temperature (°F)', color: textColor, font: { family: 'JetBrains Mono', size: 10 } },
-              ticks: { color: textColor, font: { family: 'JetBrains Mono', size: 10 } },
-              grid: { color: gridColor },
-              min: 40,
-              max: 95
-            },
-            y1: {
-              type: 'linear',
-              display: true,
-              position: 'right',
-              title: { display: true, text: 'Precip (%)', color: mintColor, font: { family: 'JetBrains Mono', size: 10 } },
-              ticks: { color: mintColor, font: { family: 'JetBrains Mono', size: 10 } },
-              grid: { drawOnChartArea: false },
-              min: 0,
-              max: 100
-            }
-          }
-        }
-      });
-    }
-
-    function calculateElevationLapse(altitudeFeet) {
-      const alt = parseInt(altitudeFeet, 10);
-      const valLabel = document.getElementById('elevVal');
-      const badge = document.getElementById('elevTempEst');
-
-      const lapsePerThousand = 3.5;
-      const deltaKft = (alt - 1486) / 1000;
-      const estimatedHigh = Math.round(82 - deltaKft * lapsePerThousand);
-      const estimatedLow = Math.round(58 - deltaKft * 3.8);
-
-      let locationTag = 'Custom Elevation';
-      if (alt <= 1800) locationTag = 'Phoenix / Lake Pleasant Basin';
-      else if (alt <= 2800) locationTag = 'Black Canyon City / New River';
-      else if (alt <= 3800) locationTag = 'Sunset Point / Cordes Junction';
-      else if (alt <= 4800) locationTag = 'Bradshaw Foothills / Cleator';
-      else if (alt <= 6200) locationTag = 'Crown King / Mingus Mtn';
-      else if (alt <= 7500) locationTag = 'Flagstaff / Munds Park Plateau';
-      else locationTag = 'Snowbowl Upper Slopes / Agassiz';
-
-      if (valLabel) valLabel.textContent = `${alt.toLocaleString()} ft (${locationTag})`;
-      if (badge) {
-        badge.textContent = `Est: ${estimatedHigh}°F High / ${estimatedLow}°F Low`;
-        if (estimatedLow <= 32) {
-          badge.className = 'badge badge-brass';
-          badge.textContent += ' • Freeze Warning';
-        } else {
-          badge.className = 'badge badge-mint';
-        }
-      }
-    }
-
-    /* -------------------------------------------------------------
-       7. Rig Checklist Management
-       ------------------------------------------------------------- */
-    function onChecklistToggle() {
-      const keys = ['chk_lift', 'chk_locker', 'chk_winch', 'chk_airdown', 'chk_fire', 'chk_offline'];
-      if (!appState.checklist) appState.checklist = {};
-
-      keys.forEach(function(k) {
-        const el = document.getElementById(k);
-        if (el) {
-          appState.checklist[k] = el.checked;
-        }
-      });
-
-      updateChecklistCounter();
-      persistState();
-    }
-
-    function updateChecklistCounter() {
-      const keys = ['chk_lift', 'chk_locker', 'chk_winch', 'chk_airdown', 'chk_fire', 'chk_offline'];
-      let count = 0;
-      keys.forEach(function(k) {
-        const el = document.getElementById(k);
-        if (el && el.checked) count++;
-      });
-
-      const badge = document.getElementById('checklistScoreBadge');
-      if (badge) {
-        badge.textContent = `Ready: ${count}/${keys.length} Items`;
-        if (count >= 5) {
-          badge.className = 'badge badge-mint';
-        } else if (count >= 3) {
-          badge.className = 'badge badge-brass';
-        } else {
-          badge.className = 'badge';
-        }
-      }
-    }
-
-    /* -------------------------------------------------------------
        8. SpaceX Launch Telemetry & Acoustic Propagation Model
        ------------------------------------------------------------- */
     function calculateAcoustics(distFt) {
@@ -2053,6 +1383,9 @@
       const label = document.getElementById('distVal');
       if (label) label.textContent = `${dist.toLocaleString()} Feet`;
 
+      // Based on FAA Environmental Assessment Table 3-7
+      // Interpolate Falcon 9 Block 1:
+      // 800 ft: 145 dB, 975 ft: 136 dB, 1450 ft: 132 dB, 1600 ft: 130 dB, 1900 ft: 129 dB, 2500 ft: 126 dB
       let f9Db = 132;
       if (dist <= 800) f9Db = 145 + (800 - dist) * 0.015;
       else if (dist <= 975) f9Db = 145 - ((dist - 800) / 175) * 9;
@@ -2062,6 +1395,7 @@
       else if (dist <= 2500) f9Db = 129 - ((dist - 1900) / 600) * 3;
       else f9Db = Math.max(115, 126 - ((dist - 2500) / 500) * 2.5);
 
+      // Falcon Heavy: 400 ft: 152 dB, 800 ft: 151 dB, 1300 ft: 152 dB
       let fhDb = f9Db + 16.5;
       if (dist <= 800) fhDb = 152;
       else if (dist <= 1300) fhDb = 151.5;
@@ -2075,9 +1409,299 @@
       if (fhEl) fhEl.textContent = `${Math.round(fhDb)} dB`;
 
       if (meterEl) {
+        // Meter represents scale from 110 dB to 160 dB
         const pct = Math.min(100, Math.max(5, ((fhDb - 110) / 50) * 100));
         meterEl.style.width = `${pct}%`;
       }
+    }
+
+    /* -------------------------------------------------------------
+       9. Live SpaceX Launch Manifest & Real-Time T-Minus Counters
+       ------------------------------------------------------------- */
+    const FALLBACK_SPACEX_LAUNCHES = [
+      {
+        id: 'starship-flight-15',
+        name: 'Starship | Flight 15 (Starlink Group 31-2)',
+        net: '2026-11-13T22:45:00Z',
+        status: 'Go',
+        pad: 'Orbital Launch Pad 2, Starbase, TX',
+        url: 'https://www.spacex.com/launches/'
+      },
+      {
+        id: 'f9-ussf-317',
+        name: 'Falcon 9 Block 5 | USSF-317',
+        net: '2026-11-15T03:55:00Z',
+        status: 'Go',
+        pad: 'Space Launch Complex 4E, Vandenberg SFB, CA',
+        url: 'https://www.spacex.com/launches/'
+      },
+      {
+        id: 'f9-ussf-266',
+        name: 'Falcon 9 Block 5 | USSF-266',
+        net: '2026-11-18T16:49:00Z',
+        status: 'TBC',
+        pad: 'Space Launch Complex 4E, Vandenberg SFB, CA',
+        url: 'https://www.spacex.com/launches/'
+      },
+      {
+        id: 'f9-cygnus-ng25',
+        name: 'Falcon 9 Block 5 | Cygnus CRS-2 NG-25',
+        net: '2026-11-29T15:49:00Z',
+        status: 'TBC',
+        pad: 'Space Launch Complex 40, Cape Canaveral SFS, FL',
+        url: 'https://www.spacex.com/launches/'
+      }
+    ];
+
+    let activeSpaceXManifest = [];
+    let spaceXCountdownInterval = null;
+
+    function initSpaceXLiveCountdowns() {
+      // Immediately render fallback manifest so counters tick without delay
+      activeSpaceXManifest = filterUpcomingLaunches(FALLBACK_SPACEX_LAUNCHES);
+      renderSpaceXManifestUI();
+
+      if (spaceXCountdownInterval) clearInterval(spaceXCountdownInterval);
+      spaceXCountdownInterval = setInterval(updateAllLaunchTimers, 1000);
+      updateAllLaunchTimers();
+
+      // Fetch fresh live launch telemetry from Launch Library 2 API on every load
+      fetchLiveSpaceXLaunches(false);
+    }
+
+    function filterUpcomingLaunches(list) {
+      const nowMs = Date.now();
+      // Keep launches up to 15 minutes past T-0 (for live T+ telemetry), then advance automatically
+      const cutoffMs = nowMs - (15 * 60 * 1000);
+      return list
+        .filter(item => new Date(item.net).getTime() > cutoffMs)
+        .sort((a, b) => new Date(a.net).getTime() - new Date(b.net).getTime());
+    }
+
+    async function fetchLiveSpaceXLaunches(isManualRefresh) {
+      const syncBadge = document.getElementById('spacexSyncBadge');
+      const updatedLabel = document.getElementById('manifestLastUpdated');
+
+      if (syncBadge) {
+        syncBadge.textContent = isManualRefresh ? 'Refreshing API...' : 'Syncing Live API...';
+        syncBadge.className = 'badge badge-brass';
+      }
+
+      try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 7000);
+
+        const response = await fetch('https://ll.thespacedevs.com/2.2.0/launch/upcoming/?search=SpaceX&limit=8', {
+          signal: controller.signal
+        });
+        clearTimeout(timeoutId);
+
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const data = await response.json();
+
+        if (data && Array.isArray(data.results) && data.results.length > 0) {
+          const parsed = data.results.map(item => ({
+            id: item.id || item.name,
+            name: item.name || 'SpaceX Mission',
+            net: item.net,
+            status: (item.status && item.status.abbrev) ? item.status.abbrev : 'TBC',
+            pad: (item.pad && item.pad.name && item.pad.location && item.pad.location.name)
+              ? `${item.pad.name}, ${item.pad.location.name}`
+              : (item.pad && item.pad.name ? item.pad.name : 'SpaceX Launch Complex'),
+            url: (item.vidURLs && item.vidURLs.length > 0 && item.vidURLs[0].url)
+              ? item.vidURLs[0].url
+              : 'https://www.spacex.com/launches/'
+          }));
+
+          const filtered = filterUpcomingLaunches(parsed);
+          if (filtered.length > 0) {
+            activeSpaceXManifest = filtered;
+            renderSpaceXManifestUI();
+            updateAllLaunchTimers();
+          }
+
+          if (syncBadge) {
+            syncBadge.textContent = 'LIVE API SYNCED';
+            syncBadge.className = 'badge badge-mint';
+          }
+          if (updatedLabel) {
+            const nowStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            updatedLabel.textContent = `Synced with Launch Library 2 at ${nowStr}`;
+          }
+        } else {
+          throw new Error('Empty launch list');
+        }
+      } catch (err) {
+        console.warn('Using fallback SpaceX manifest:', err);
+        activeSpaceXManifest = filterUpcomingLaunches(FALLBACK_SPACEX_LAUNCHES);
+        renderSpaceXManifestUI();
+        updateAllLaunchTimers();
+
+        if (syncBadge) {
+          syncBadge.textContent = 'FALLBACK MANIFEST ACTIVE';
+          syncBadge.className = 'badge badge-brass';
+        }
+        if (updatedLabel) {
+          updatedLabel.textContent = 'Offline/Rate-Limited Cache • Timers Live';
+        }
+      }
+    }
+
+    function formatLaunchWindow(isoString) {
+      const d = new Date(isoString);
+      if (isNaN(d.getTime())) return 'TBD';
+      const mstStr = d.toLocaleString('en-US', {
+        timeZone: 'America/Phoenix',
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false
+      });
+      const utcStr = d.toLocaleString('en-US', {
+        timeZone: 'UTC',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false
+      });
+      return `${mstStr} MST (${utcStr} UTC)`;
+    }
+
+    function isVandenbergTwilightVisible(launch) {
+      if (!launch || !launch.pad) return false;
+      const isVandy = launch.pad.toLowerCase().includes('vandenberg') || launch.pad.toLowerCase().includes('4e');
+      if (!isVandy) return false;
+
+      // Check Phoenix local hour (twilight plume window roughly 17:30-21:00 or 04:30-06:45 MST)
+      const d = new Date(launch.net);
+      const phxHourStr = d.toLocaleString('en-US', { timeZone: 'America/Phoenix', hour: '2-digit', hour12: false });
+      const phxHour = parseInt(phxHourStr, 10);
+      return (phxHour >= 17 && phxHour <= 21) || (phxHour >= 4 && phxHour <= 6);
+    }
+
+    function renderSpaceXManifestUI() {
+      activeSpaceXManifest = filterUpcomingLaunches(activeSpaceXManifest);
+      if (activeSpaceXManifest.length === 0) return;
+
+      const primary = activeSpaceXManifest[0];
+      const nameEl = document.getElementById('nextLaunchName');
+      const padEl = document.getElementById('nextLaunchPad');
+      const timeEl = document.getElementById('nextLaunchTimes');
+      const statusBadge = document.getElementById('nextLaunchStatusBadge');
+      const azVisBadge = document.getElementById('azVisibilityBadge');
+      const linkEl = document.getElementById('nextLaunchLink');
+
+      if (nameEl) nameEl.textContent = primary.name;
+      if (padEl) padEl.textContent = `Pad: ${primary.pad}`;
+      if (timeEl) timeEl.textContent = `T-0 Target: ${formatLaunchWindow(primary.net)}`;
+      if (linkEl) linkEl.href = primary.url || 'https://www.spacex.com/launches/';
+
+      if (statusBadge) {
+        const st = (primary.status || 'TBC').toUpperCase();
+        statusBadge.textContent = st === 'GO' ? 'GO FOR LAUNCH' : `STATUS: ${st}`;
+        statusBadge.className = st === 'GO' ? 'badge badge-mint' : 'badge badge-brass';
+      }
+
+      if (azVisBadge) {
+        if (isVandenbergTwilightVisible(primary)) {
+          azVisBadge.style.display = 'inline-flex';
+          azVisBadge.className = 'badge badge-mint';
+          azVisBadge.textContent = '★ Look West-Southwest: Potential AZ Twilight Plume';
+        } else if (primary.pad.toLowerCase().includes('vandenberg')) {
+          azVisBadge.style.display = 'inline-flex';
+          azVisBadge.className = 'badge';
+          azVisBadge.textContent = 'Vandenberg Trajectory (SW Horizon)';
+        } else {
+          azVisBadge.style.display = 'none';
+        }
+      }
+
+      // Render next 4 upcoming missions in queue
+      const queueContainer = document.getElementById('launchQueueContainer');
+      if (!queueContainer) return;
+
+      const upcomingQueue = activeSpaceXManifest.slice(1, 5);
+      queueContainer.innerHTML = upcomingQueue.map((item, idx) => {
+        const isVandy = item.pad.toLowerCase().includes('vandenberg');
+        return `
+          <div class="launch-queue-item">
+            <div>
+              <div style="display:flex; justify-content:space-between; align-items:center; gap:6px; margin-bottom:4px;">
+                <span class="badge ${item.status === 'GO' ? 'badge-mint' : 'badge-brass'}" style="font-size:0.65rem; padding:2px 6px;">${item.status}</span>
+                ${isVandy ? '<span class="badge" style="font-size:0.65rem; padding:2px 6px;">Vandenberg CA</span>' : ''}
+              </div>
+              <div style="font-family: var(--font-body); font-weight: 600; font-size: 0.92rem; color: var(--on-surface); line-height: 1.3;">
+                ${item.name}
+              </div>
+              <div style="font-family: var(--font-label); font-size: 0.72rem; color: var(--on-surface-variant); margin-top: 3px;">
+                ${formatLaunchWindow(item.net)}
+              </div>
+            </div>
+            <div style="display:flex; justify-content:space-between; align-items:center; border-top: var(--hairline); padding-top: 6px; margin-top: 4px;">
+              <span style="font-family: var(--font-label); font-size: 0.68rem; color: var(--tertiary);">COUNTDOWN</span>
+              <span id="queueTimer_${idx}" style="font-family: var(--font-label); font-size: 0.85rem; font-weight: 600; color: var(--primary); font-variant-numeric: tabular-nums;">
+                T- --d --h --m --s
+              </span>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function updateAllLaunchTimers() {
+      if (!activeSpaceXManifest || activeSpaceXManifest.length === 0) return;
+
+      // Auto-advance if the primary launch is more than 15 minutes past T-0
+      const firstTargetMs = new Date(activeSpaceXManifest[0].net).getTime();
+      if (Date.now() - firstTargetMs > 15 * 60 * 1000) {
+        renderSpaceXManifestUI();
+        if (activeSpaceXManifest.length === 0) return;
+      }
+
+      // 1. Update Primary Hero Countdown
+      const primary = activeSpaceXManifest[0];
+      const targetMs = new Date(primary.net).getTime();
+      const diffMs = targetMs - Date.now();
+      const isPast = diffMs < 0;
+      const absMs = Math.abs(diffMs);
+
+      const days = Math.floor(absMs / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((absMs / (1000 * 60 * 60)) % 24);
+      const mins = Math.floor((absMs / (1000 * 60)) % 60);
+      const secs = Math.floor((absMs / 1000) % 60);
+
+      const pad2 = n => (n < 10 ? '0' + n : '' + n);
+
+      const modeEl = document.getElementById('countdownModeLabel');
+      if (modeEl) {
+        modeEl.textContent = isPast ? 'T+ Mission Elapsed Time (In Flight)' : 'T-Minus Countdown to Liftoff';
+        modeEl.style.color = isPast ? 'var(--positive)' : 'var(--primary)';
+      }
+
+      const dEl = document.getElementById('cdDays');
+      const hEl = document.getElementById('cdHours');
+      const mEl = document.getElementById('cdMins');
+      const sEl = document.getElementById('cdSecs');
+
+      if (dEl) dEl.textContent = pad2(days);
+      if (hEl) hEl.textContent = pad2(hours);
+      if (mEl) mEl.textContent = pad2(mins);
+      if (sEl) sEl.textContent = pad2(secs);
+
+      // 2. Update Queue Row Timers
+      const queue = activeSpaceXManifest.slice(1, 5);
+      queue.forEach((item, idx) => {
+        const el = document.getElementById(`queueTimer_${idx}`);
+        if (!el) return;
+        const qDiff = new Date(item.net).getTime() - Date.now();
+        const qPrefix = qDiff < 0 ? 'T+ ' : 'T- ';
+        const qAbs = Math.abs(qDiff);
+        const qD = Math.floor(qAbs / (1000 * 60 * 60 * 24));
+        const qH = Math.floor((qAbs / (1000 * 60 * 60)) % 24);
+        const qM = Math.floor((qAbs / (1000 * 60)) % 60);
+        const qS = Math.floor((qAbs / 1000) % 60);
+        el.textContent = `${qPrefix}${qD}d ${pad2(qH)}h ${pad2(qM)}m ${pad2(qS)}s`;
+      });
     }
   </script>
 </body>
